@@ -5,6 +5,7 @@ const audiencePitches = config.audiencePitches || {};
 const numberLocale = config.numberLocale || 'en-US';
 const currencyCode = config.currency || 'USD';
 const themes = config.themes || ['light', 'dark'];
+const themeLabels = config.themeLabels || {};
 const microFee = typeof config.microFee === 'number' ? config.microFee : 0.001;
 const fiatPerUsd = typeof config.fiatPerUsd === 'number' ? config.fiatPerUsd : 1;
 const tokenDecimals = Number.isInteger(config.tokenDecimals) ? config.tokenDecimals : 6;
@@ -33,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const languageToggle = document.querySelector('[data-language-toggle]');
   const languageMenu = document.querySelector('[data-language-menu]');
   const themeToggle = document.querySelector('[data-theme-toggle]');
+  const themeLabelTarget = document.querySelector('[data-theme-label]');
   const navToggle = document.querySelector('[data-nav-toggle]');
   const nav = document.querySelector('[data-nav]');
   const headerEl = document.querySelector('[data-header]');
@@ -51,11 +53,23 @@ document.addEventListener('DOMContentLoaded', () => {
     maximumFractionDigits: tokenDecimals,
   });
 
+  function renderThemeState(theme) {
+    if (themeLabelTarget instanceof HTMLElement) {
+      const label = themeLabels[theme] || theme;
+      themeLabelTarget.textContent = label;
+    }
+
+    if (themeToggle instanceof HTMLElement) {
+      themeToggle.setAttribute('data-theme-active', theme);
+    }
+  }
+
   function setTheme(theme) {
     const next = themes.includes(theme) ? theme : themes[0];
     docEl.setAttribute('data-theme', next);
     document.cookie = `theme=${next}; path=/; max-age=${60 * 60 * 24 * 30}`;
     localStorage.setItem('theme', next);
+    renderThemeState(next);
   }
 
   if (themeToggle) {
@@ -71,6 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
       setTheme(nextTheme);
     });
   }
+
+  renderThemeState(docEl.getAttribute('data-theme') || themes[0]);
 
   if (navToggle && nav && headerEl instanceof HTMLElement) {
     const closeNav = () => {
@@ -194,6 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const tokenInput = document.querySelector('[data-token-input]');
   const tokenPreviewValue = document.querySelector('[data-token-preview-value]');
   const operationFiatNodes = document.querySelectorAll('[data-operation-fiat]');
+  const tokenPresetButtons = document.querySelectorAll('[data-token-preset]');
 
   const parseLocaleNumber = (value) => {
     if (typeof value !== 'string') return Number.NaN;
@@ -248,16 +265,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
   people?.addEventListener('input', updateCalc);
   apd?.addEventListener('input', updateCalc);
+  const updatePresetState = () => {
+    tokenPresetButtons.forEach((button) => {
+      if (!(button instanceof HTMLElement)) return;
+      const preset = Number.parseFloat(button.dataset.tokenPreset || '0');
+      const isActive = Number.isFinite(preset) && Math.abs(preset - tokenPriceUsd) < 1e-6;
+      button.classList.toggle('active', isActive);
+      button.setAttribute('aria-pressed', String(isActive));
+    });
+  };
+
+  const applyTokenPriceUsd = (value) => {
+    tokenPriceUsd = value;
+    if (tokenInput instanceof HTMLInputElement) {
+      tokenInput.value = getLocalTokenPrice().toFixed(priceDecimals);
+    }
+    updateCalc();
+    updatePresetState();
+  };
+
   if (tokenInput instanceof HTMLInputElement) {
     const commitTokenPrice = () => {
       const raw = parseLocaleNumber(tokenInput.value);
       if (!Number.isFinite(raw) || raw <= 0) {
         tokenInput.value = getLocalTokenPrice().toFixed(priceDecimals);
+        updatePresetState();
         return;
       }
-      tokenPriceUsd = fiatPerUsd > 0 ? raw / fiatPerUsd : raw;
-      tokenInput.value = getLocalTokenPrice().toFixed(priceDecimals);
-      updateCalc();
+      const usdValue = fiatPerUsd > 0 ? raw / fiatPerUsd : raw;
+      applyTokenPriceUsd(usdValue);
     };
 
     tokenInput.addEventListener('input', () => {
@@ -265,8 +301,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!Number.isFinite(raw) || raw <= 0) {
         return;
       }
-      tokenPriceUsd = fiatPerUsd > 0 ? raw / fiatPerUsd : raw;
-      updateCalc();
+      const usdValue = fiatPerUsd > 0 ? raw / fiatPerUsd : raw;
+      applyTokenPriceUsd(usdValue);
     });
 
     tokenInput.addEventListener('change', commitTokenPrice);
@@ -279,6 +315,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     tokenInput.value = getLocalTokenPrice().toFixed(priceDecimals);
   }
+
+  tokenPresetButtons.forEach((button) => {
+    if (!(button instanceof HTMLElement)) return;
+    button.addEventListener('click', () => {
+      const preset = Number.parseFloat(button.dataset.tokenPreset || '0');
+      if (!Number.isFinite(preset) || preset <= 0) {
+        return;
+      }
+      applyTokenPriceUsd(preset);
+    });
+  });
+
+  updatePresetState();
   updateCalc();
 
   document.querySelectorAll('.faq-item').forEach((item) => {

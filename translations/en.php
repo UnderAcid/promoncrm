@@ -9,6 +9,7 @@ return [
         'language_label' => 'Language',
         'theme' => [
             'toggle' => 'Toggle theme',
+            'label' => 'Theme',
             'light' => 'Light',
             'dark' => 'Dark',
         ],
@@ -174,6 +175,8 @@ return [
         'token_price_label' => 'Token price',
         'token_price_prefix' => '1 nERP =',
         'token_price_suffix' => '$',
+        'token_price_presets_label' => 'Quick price presets',
+        'token_price_presets_currency' => '$',
         'token_price_hint' => 'Start at $1 per nERP. Increase it to model premium tiers.',
         'token_price_preview_prefix' => '1 nERP ≈',
         'token_price_usd' => 1.0,

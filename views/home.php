@@ -12,6 +12,8 @@ $howItems = $t->get('how.items');
 $stack = $t->get('stack');
 $stackHighlights = is_array($stack['highlights'] ?? null) ? $stack['highlights'] : [];
 $stackIntegrations = is_array($stack['integrations'] ?? null) ? $stack['integrations'] : [];
+$tokenPricePresets = [0.1, 0.5, 1.0, 2.0];
+$tokenPresetCurrency = (string) ($t->get('pricing.token_price_presets_currency') ?? '$');
 $partnerCards = $t->get('partners.cards');
 $logos = $t->get('logos.brands');
 $faqItems = $t->get('faq.items');
@@ -57,19 +59,9 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
             </div>
         </div>
 
-        <div class="illustration" aria-hidden="true">
-            <div class="illus">
-                <div class="illus-grid">
-                    <div></div><div></div><div></div>
-                    <div></div><div></div><div></div>
-                    <div></div><div></div><div></div>
-                </div>
-                <div class="illus-bottom">
-                    <div class="illus-bar"></div>
-                    <div class="illus-chip"></div>
-                </div>
-            </div>
-        </div>
+        <figure class="illustration" aria-hidden="true">
+            <img src="<?= e(asset('assets/img/hero-illustration.svg')); ?>" alt="" loading="lazy" decoding="async">
+        </figure>
     </div>
 
     <div class="grid three feature-cards hero-feature-cards">
@@ -181,8 +173,15 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                 <?php endif; ?>
             </div>
             <div class="card stack-integrations">
-                <div class="card-title"><?= e($stack['integrations_title'] ?? ''); ?></div>
-                <p class="card-desc"><?= e($stack['integrations_desc'] ?? ''); ?></p>
+                <div class="stack-integrations-top">
+                    <div class="stack-integrations-icon" aria-hidden="true">
+                        <span class="icon nodes"></span>
+                    </div>
+                    <div>
+                        <div class="card-title"><?= e($stack['integrations_title'] ?? ''); ?></div>
+                        <p class="card-desc"><?= e($stack['integrations_desc'] ?? ''); ?></p>
+                    </div>
+                </div>
                 <?php if ($stackIntegrations !== []): ?>
                     <div class="chip-grid">
                         <?php foreach ($stackIntegrations as $integration): ?>
@@ -281,6 +280,18 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                     <span class="token-price-prefix"><?= e($t->get('pricing.token_price_prefix')); ?></span>
                     <input type="number" id="tokenPriceLocal" name="tokenPriceLocal" min="<?= e($tokenPriceMinFormatted); ?>" step="<?= e($tokenPriceStepFormatted); ?>" value="<?= e($tokenPriceDefaultFormatted); ?>" data-token-input inputmode="decimal">
                     <span class="token-price-suffix"><?= e($t->get('pricing.token_price_suffix')); ?></span>
+                </div>
+                <div class="token-price-presets" role="group" aria-label="<?= e($t->get('pricing.token_price_presets_label')); ?>">
+                    <?php foreach ($tokenPricePresets as $preset): ?>
+                        <?php
+                        $presetValue = number_format($preset, 2, '.', '');
+                        $isActivePreset = abs($preset - $tokenPriceUsdDefault) < 0.0001;
+                        ?>
+                        <button type="button" class="token-preset<?= $isActivePreset ? ' active' : ''; ?>" data-token-preset="<?= e($presetValue); ?>" aria-pressed="<?= $isActivePreset ? 'true' : 'false'; ?>">
+                            <span class="token-preset-value"><?= e($presetValue); ?></span>
+                            <span class="token-preset-suffix"><?= e($tokenPresetCurrency); ?></span>
+                        </button>
+                    <?php endforeach; ?>
                 </div>
                 <p class="muted small token-price-hint"><?= e($t->get('pricing.token_price_hint')); ?></p>
                 <p class="muted small token-price-preview"><?= e($t->get('pricing.token_price_preview_prefix')); ?> <span data-token-preview-value>â€”</span></p>
