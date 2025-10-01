@@ -23,6 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const languageSelect = document.querySelector('[data-language-select]');
   const themeToggle = document.querySelector('[data-theme-toggle]');
   const themeLabel = themeToggle?.querySelector('[data-theme-label]');
+  const navToggle = document.querySelector('[data-nav-toggle]');
+  const nav = document.querySelector('[data-nav]');
+  const headerEl = document.querySelector('[data-header]');
   const floatingCtaButton = document.querySelector('[data-floating-cta]');
   const floatingCta = floatingCtaButton?.parentElement ?? null;
   const pilotForm = document.querySelector('[data-pilot-form]');
@@ -61,6 +64,48 @@ document.addEventListener('DOMContentLoaded', () => {
       const currentIndex = themes.indexOf(current);
       const nextTheme = themes[(currentIndex + 1) % themes.length];
       setTheme(nextTheme);
+    });
+  }
+
+  if (navToggle && nav && headerEl instanceof HTMLElement) {
+    const closeNav = () => {
+      headerEl.classList.remove('nav-open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    };
+
+    const openNav = () => {
+      headerEl.classList.add('nav-open');
+      navToggle.setAttribute('aria-expanded', 'true');
+    };
+
+    navToggle.addEventListener('click', () => {
+      const expanded = navToggle.getAttribute('aria-expanded') === 'true';
+      if (expanded) {
+        closeNav();
+      } else {
+        openNav();
+      }
+    });
+
+    nav.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth < 860) {
+          closeNav();
+        }
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 860) {
+        closeNav();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && navToggle.getAttribute('aria-expanded') === 'true') {
+        closeNav();
+        navToggle.focus();
+      }
     });
   }
 

@@ -10,10 +10,19 @@
             <span class="brand-mark" aria-hidden="true">n</span>
             <span class="brand-name"><?= e($t->get('app.name')); ?></span>
         </a>
-        <nav class="nav" aria-label="Main navigation">
+        <button class="nav-toggle" type="button" data-nav-toggle aria-controls="mainNav" aria-expanded="false">
+            <span class="nav-toggle-box" aria-hidden="true">
+                <span class="nav-toggle-bar"></span>
+                <span class="nav-toggle-bar"></span>
+                <span class="nav-toggle-bar"></span>
+            </span>
+            <span class="sr-only"><?= e($t->get('nav.toggle')); ?></span>
+        </button>
+        <nav class="nav" id="mainNav" aria-label="Main navigation" data-nav>
             <a href="#for"><?= e($t->get('nav.for')); ?></a>
             <a href="#why"><?= e($t->get('nav.why')); ?></a>
             <a href="#how"><?= e($t->get('nav.how')); ?></a>
+            <a href="#stack"><?= e($t->get('nav.stack')); ?></a>
             <a href="#pilots"><?= e($t->get('nav.pilots')); ?></a>
             <a href="#pricing"><?= e($t->get('nav.pricing')); ?></a>
             <a href="#partners"><?= e($t->get('nav.partners')); ?></a>

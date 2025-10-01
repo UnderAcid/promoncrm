@@ -9,6 +9,9 @@ $defaultAudience = array_key_first($audienceOptions) ?? 'business';
 $audiencePitch = $t->get('audience.pitches.' . $defaultAudience);
 $whyBlocks = $t->get('why.blocks');
 $howItems = $t->get('how.items');
+$stack = $t->get('stack');
+$stackHighlights = is_array($stack['highlights'] ?? null) ? $stack['highlights'] : [];
+$stackIntegrations = is_array($stack['integrations'] ?? null) ? $stack['integrations'] : [];
 $partnerCards = $t->get('partners.cards');
 $logos = $t->get('logos.brands');
 $faqItems = $t->get('faq.items');
@@ -132,6 +135,48 @@ $pilotForm = $t->get('pilots.form');
 
 <div class="divider" role="presentation"></div>
 
+<section id="stack" class="container stack-section">
+    <div class="stack-grid">
+        <div>
+            <h2 class="h2"><?= e($stack['title'] ?? ''); ?></h2>
+            <?php if (!empty($stack['subtitle'])): ?>
+                <p class="muted"><?= e($stack['subtitle']); ?></p>
+            <?php endif; ?>
+            <?php if ($stackHighlights !== []): ?>
+                <div class="stack-highlights">
+                    <?php foreach ($stackHighlights as $item): ?>
+                        <div class="card stack-highlight">
+                            <div class="card-row">
+                                <div class="icon-bubble"><span class="icon <?= e($item['icon'] ?? ''); ?>" aria-hidden="true"></span></div>
+                                <div>
+                                    <div class="card-title"><?= e($item['title'] ?? ''); ?></div>
+                                    <div class="card-desc"><?= e($item['desc'] ?? ''); ?></div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        <div class="card stack-integrations">
+            <div class="card-title"><?= e($stack['integrations_title'] ?? ''); ?></div>
+            <p class="card-desc"><?= e($stack['integrations_desc'] ?? ''); ?></p>
+            <?php if ($stackIntegrations !== []): ?>
+                <div class="chip-grid">
+                    <?php foreach ($stackIntegrations as $integration): ?>
+                        <span class="chip"><?= e($integration); ?></span>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+            <?php if (!empty($stack['footnote'])): ?>
+                <p class="stack-footnote"><?= e($stack['footnote']); ?></p>
+            <?php endif; ?>
+        </div>
+    </div>
+</section>
+
+<div class="divider" role="presentation"></div>
+
 <section id="pilots" class="container pilots-section">
     <div class="pilots-grid">
         <div class="pilot-overview">
@@ -196,12 +241,14 @@ $pilotForm = $t->get('pilots.form');
     <div class="grid two">
         <div class="card calculator">
             <label for="people" class="calc-label">
-                <?= e($t->get('pricing.team_size')); ?>: <span id="peopleVal">50</span>
+                <span class="calc-label-text"><?= e($t->get('pricing.team_size')); ?></span>
+                <span class="calc-label-value" id="peopleVal">50</span>
             </label>
             <input type="range" id="people" name="people" min="5" max="200" step="5" value="50">
 
             <label for="apd" class="calc-label">
-                <?= e($t->get('pricing.actions_per_day')); ?>: <span id="apdVal">20</span>
+                <span class="calc-label-text"><?= e($t->get('pricing.actions_per_day')); ?></span>
+                <span class="calc-label-value" id="apdVal">20</span>
             </label>
             <input type="range" id="apd" name="apd" min="5" max="200" step="5" value="20">
 
