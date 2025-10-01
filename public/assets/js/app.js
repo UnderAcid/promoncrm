@@ -5,6 +5,7 @@ const audiencePitches = config.audiencePitches || {};
 const numberLocale = config.numberLocale || 'en-US';
 const currencyCode = config.currency || 'USD';
 const themes = config.themes || ['light', 'dark'];
+const themeLabels = config.themeLabels || {};
 const microFee = typeof config.microFee === 'number' ? config.microFee : 0.001;
 const fiatPerUsd = typeof config.fiatPerUsd === 'number' ? config.fiatPerUsd : 1;
 const tokenDecimals = Number.isInteger(config.tokenDecimals) ? config.tokenDecimals : 6;
@@ -33,12 +34,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const languageToggle = document.querySelector('[data-language-toggle]');
   const languageMenu = document.querySelector('[data-language-menu]');
   const themeToggle = document.querySelector('[data-theme-toggle]');
+  const themeLabel = document.querySelector('[data-theme-label]');
   const navToggle = document.querySelector('[data-nav-toggle]');
   const nav = document.querySelector('[data-nav]');
   const headerEl = document.querySelector('[data-header]');
   const floatingCtaButton = document.querySelector('[data-floating-cta]');
   const floatingCta = floatingCtaButton?.parentElement ?? null;
   const pilotForm = document.querySelector('[data-pilot-form]');
+  const tokenPresetButtons = document.querySelectorAll('[data-token-preset]');
 
   const numberFormatter = new Intl.NumberFormat(numberLocale);
   const currencyFormatter = new Intl.NumberFormat(numberLocale, {
@@ -51,11 +54,20 @@ document.addEventListener('DOMContentLoaded', () => {
     maximumFractionDigits: tokenDecimals,
   });
 
+  function updateThemeCopy(theme) {
+    if (!(themeLabel instanceof HTMLElement)) return;
+    const key = themes.includes(theme) ? theme : themes[0];
+    const fallback = `${key.charAt(0).toUpperCase()}${key.slice(1)}`;
+    const label = typeof themeLabels[key] === 'string' ? themeLabels[key] : fallback;
+    themeLabel.textContent = label;
+  }
+
   function setTheme(theme) {
     const next = themes.includes(theme) ? theme : themes[0];
     docEl.setAttribute('data-theme', next);
     document.cookie = `theme=${next}; path=/; max-age=${60 * 60 * 24 * 30}`;
     localStorage.setItem('theme', next);
+    updateThemeCopy(next);
   }
 
   if (themeToggle) {
@@ -71,6 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
       setTheme(nextTheme);
     });
   }
+
+  updateThemeCopy(docEl.getAttribute('data-theme') || themes[0]);
 
   if (navToggle && nav && headerEl instanceof HTMLElement) {
     const closeNav = () => {
@@ -195,6 +209,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const tokenPreviewValue = document.querySelector('[data-token-preview-value]');
   const operationFiatNodes = document.querySelectorAll('[data-operation-fiat]');
 
+  const setActivePreset = (usdValue) => {
+    tokenPresetButtons.forEach((button) => {
+      if (!(button instanceof HTMLButtonElement)) return;
+      const preset = Number.parseFloat(button.dataset.tokenPreset || '0');
+      const isActive = Number.isFinite(preset) && Math.abs(preset - usdValue) < 1e-6;
+      button.classList.toggle('active', isActive);
+      button.setAttribute('aria-pressed', String(isActive));
+    });
+  };
+
+  tokenPresetButtons.forEach((button) => {
+    if (!(button instanceof HTMLButtonElement)) return;
+    button.addEventListener('click', () => {
+      const preset = Number.parseFloat(button.dataset.tokenPreset || '0');
+      if (!Number.isFinite(preset) || preset <= 0) {
+        return;
+      }
+      tokenPriceUsd = preset;
+      if (tokenInput instanceof HTMLInputElement) {
+        tokenInput.value = getLocalTokenPrice().toFixed(priceDecimals);
+      }
+      setActivePreset(tokenPriceUsd);
+      updateCalc();
+    });
+  });
+
   const parseLocaleNumber = (value) => {
     if (typeof value !== 'string') return Number.NaN;
     const sanitized = value.replace(/\s+/g, '').replace(/,/g, '.');
@@ -253,10 +293,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const raw = parseLocaleNumber(tokenInput.value);
       if (!Number.isFinite(raw) || raw <= 0) {
         tokenInput.value = getLocalTokenPrice().toFixed(priceDecimals);
+        setActivePreset(tokenPriceUsd);
         return;
       }
       tokenPriceUsd = fiatPerUsd > 0 ? raw / fiatPerUsd : raw;
       tokenInput.value = getLocalTokenPrice().toFixed(priceDecimals);
+      setActivePreset(tokenPriceUsd);
       updateCalc();
     };
 
@@ -266,6 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       tokenPriceUsd = fiatPerUsd > 0 ? raw / fiatPerUsd : raw;
+      setActivePreset(tokenPriceUsd);
       updateCalc();
     });
 
@@ -279,6 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     tokenInput.value = getLocalTokenPrice().toFixed(priceDecimals);
   }
+  setActivePreset(tokenPriceUsd);
   updateCalc();
 
   document.querySelectorAll('.faq-item').forEach((item) => {

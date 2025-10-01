@@ -9,6 +9,7 @@ return [
         'language_label' => 'Язык',
         'theme' => [
             'toggle' => 'Переключить тему',
+            'label' => 'Тема',
             'light' => 'Светлая',
             'dark' => 'Тёмная',
         ],
@@ -156,6 +157,11 @@ return [
         'integrations_title' => 'Интеграции по умолчанию',
         'integrations_desc' => 'Подключаем популярные инструменты уже на пилоте — без долгих тендеров.',
         'integrations' => ['Slack Webhooks', '1С шлюз', 'Google Sheets', 'Notion Sync', 'PostgreSQL'],
+        'integration_preview' => [
+            'source' => 'Ваши системы',
+            'nerp' => 'Узел nERP',
+            'destination' => 'Финансы и BI',
+        ],
         'footnote' => 'Добавляем новые подключения по запросу пилотных команд.',
     ],
     'pricing' => [
@@ -176,6 +182,8 @@ return [
         'token_price_suffix' => '₽',
         'token_price_hint' => 'Базово 1 токен = $1. Значение пересчитывается по текущему курсу.',
         'token_price_preview_prefix' => '1 nERP ≈',
+        'token_price_presets_label' => 'Быстрый выбор цены',
+        'token_price_presets' => [0.1, 0.5, 1, 2],
         'token_price_usd' => 1.0,
         'token_price_min_usd' => 1.0,
         'token_price_step_usd' => 1.0,

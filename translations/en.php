@@ -9,6 +9,7 @@ return [
         'language_label' => 'Language',
         'theme' => [
             'toggle' => 'Toggle theme',
+            'label' => 'Theme',
             'light' => 'Light',
             'dark' => 'Dark',
         ],
@@ -156,6 +157,11 @@ return [
         'integrations_title' => 'Default integrations',
         'integrations_desc' => 'We hook into common tools during the pilot — no endless procurement cycles.',
         'integrations' => ['Slack webhooks', '1C gateway', 'Google Sheets', 'Notion Sync', 'PostgreSQL'],
+        'integration_preview' => [
+            'source' => 'Operations tools',
+            'nerp' => 'nERP node',
+            'destination' => 'Finance & BI',
+        ],
         'footnote' => 'Need something else? Pilot teams can request new connectors.',
     ],
     'pricing' => [
@@ -176,6 +182,8 @@ return [
         'token_price_suffix' => '$',
         'token_price_hint' => 'Start at $1 per nERP. Increase it to model premium tiers.',
         'token_price_preview_prefix' => '1 nERP ≈',
+        'token_price_presets_label' => 'Quick presets',
+        'token_price_presets' => [0.1, 0.5, 1, 2],
         'token_price_usd' => 1.0,
         'token_price_min_usd' => 1.0,
         'token_price_step_usd' => 1.0,

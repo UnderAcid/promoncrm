@@ -12,6 +12,8 @@ $howItems = $t->get('how.items');
 $stack = $t->get('stack');
 $stackHighlights = is_array($stack['highlights'] ?? null) ? $stack['highlights'] : [];
 $stackIntegrations = is_array($stack['integrations'] ?? null) ? $stack['integrations'] : [];
+$stackIntegrationPreview = $t->get('stack.integration_preview');
+$stackIntegrationPreview = is_array($stackIntegrationPreview) ? $stackIntegrationPreview : [];
 $partnerCards = $t->get('partners.cards');
 $logos = $t->get('logos.brands');
 $faqItems = $t->get('faq.items');
@@ -36,6 +38,11 @@ $decimalSeparator = str_contains($pricingLocale, 'ru') ? ',' : '.';
 $thousandsSeparator = str_contains($pricingLocale, 'ru') ? "\u{00a0}" : ',';
 $operationsSuffix = (string) ($t->get('pricing.operations_suffix') ?? 'nERP');
 $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰ˆ');
+$tokenPricePresets = $t->get('pricing.token_price_presets');
+$tokenPricePresets = is_array($tokenPricePresets) ? $tokenPricePresets : [];
+if ($tokenPricePresets === []) {
+    $tokenPricePresets = [0.1, 0.5, 1, 2];
+}
 ?>
 <section class="container section-hero" id="hero">
     <div class="grid two">
@@ -58,17 +65,7 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
         </div>
 
         <div class="illustration" aria-hidden="true">
-            <div class="illus">
-                <div class="illus-grid">
-                    <div></div><div></div><div></div>
-                    <div></div><div></div><div></div>
-                    <div></div><div></div><div></div>
-                </div>
-                <div class="illus-bottom">
-                    <div class="illus-bar"></div>
-                    <div class="illus-chip"></div>
-                </div>
-            </div>
+            <img src="<?= e(asset('assets/img/hero-network.svg')); ?>" alt="" loading="lazy">
         </div>
     </div>
 
@@ -183,6 +180,28 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
             <div class="card stack-integrations">
                 <div class="card-title"><?= e($stack['integrations_title'] ?? ''); ?></div>
                 <p class="card-desc"><?= e($stack['integrations_desc'] ?? ''); ?></p>
+                <?php if ($stackIntegrationPreview !== []): ?>
+                    <div class="integration-preview" aria-hidden="true">
+                        <div class="integration-node">
+                            <span class="integration-icon icon building" aria-hidden="true"></span>
+                            <span class="integration-label"><?= e($stackIntegrationPreview['source'] ?? ''); ?></span>
+                        </div>
+                        <div class="integration-flow" role="presentation">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <div class="integration-node integration-node-core">
+                            <span class="integration-icon icon sparkles" aria-hidden="true"></span>
+                            <span class="integration-label"><?= e($stackIntegrationPreview['nerp'] ?? ''); ?></span>
+                        </div>
+                        <div class="integration-flow" role="presentation">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <div class="integration-node">
+                            <span class="integration-icon icon api" aria-hidden="true"></span>
+                            <span class="integration-label"><?= e($stackIntegrationPreview['destination'] ?? ''); ?></span>
+                        </div>
+                    </div>
+                <?php endif; ?>
                 <?php if ($stackIntegrations !== []): ?>
                     <div class="chip-grid">
                         <?php foreach ($stackIntegrations as $integration): ?>
@@ -282,6 +301,19 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                     <input type="number" id="tokenPriceLocal" name="tokenPriceLocal" min="<?= e($tokenPriceMinFormatted); ?>" step="<?= e($tokenPriceStepFormatted); ?>" value="<?= e($tokenPriceDefaultFormatted); ?>" data-token-input inputmode="decimal">
                     <span class="token-price-suffix"><?= e($t->get('pricing.token_price_suffix')); ?></span>
                 </div>
+                <?php if ($tokenPricePresets !== []): ?>
+                    <div class="token-price-presets" data-token-presets>
+                        <div class="token-price-presets-label"><?= e($t->get('pricing.token_price_presets_label')); ?></div>
+                        <div class="token-price-presets-buttons">
+                            <?php foreach ($tokenPricePresets as $preset): ?>
+                                <?php $presetUsd = number_format((float) $preset, 2, '.', ''); ?>
+                                <button class="token-preset" type="button" data-token-preset="<?= e($presetUsd); ?>">
+                                    <?= e($presetUsd); ?>$
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
                 <p class="muted small token-price-hint"><?= e($t->get('pricing.token_price_hint')); ?></p>
                 <p class="muted small token-price-preview"><?= e($t->get('pricing.token_price_preview_prefix')); ?> <span data-token-preview-value>â€”</span></p>
             </div>
