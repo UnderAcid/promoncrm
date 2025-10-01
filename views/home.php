@@ -16,6 +16,36 @@ $tokenPricePresets = [0.1, 0.5, 1.0, 2.0];
 $tokenPresetCurrency = (string) ($t->get('pricing.token_price_presets_currency') ?? '$');
 $partnerCards = $t->get('partners.cards');
 $logos = $t->get('logos.brands');
+$logoEntries = [];
+if (is_array($logos)) {
+    foreach ($logos as $entry) {
+        if (is_array($entry)) {
+            $logoEntries[] = [
+                'name' => (string) ($entry['name'] ?? ($entry['logo'] ?? '')),
+                'tagline' => (string) ($entry['tagline'] ?? ''),
+                'quote' => (string) ($entry['quote'] ?? ''),
+                'author' => (string) ($entry['author'] ?? ''),
+                'role' => (string) ($entry['role'] ?? ''),
+            ];
+        } else {
+            $logoEntries[] = [
+                'name' => (string) $entry,
+                'tagline' => '',
+                'quote' => (string) ($t->get('logos.default.quote') ?? ''),
+                'author' => (string) ($t->get('logos.default.author') ?? ''),
+                'role' => (string) ($t->get('logos.default.role') ?? ''),
+            ];
+        }
+    }
+}
+$logos = $logoEntries;
+$defaultTestimonial = $logos[0] ?? [
+    'quote' => (string) ($t->get('logos.default.quote') ?? ''),
+    'author' => (string) ($t->get('logos.default.author') ?? ''),
+    'role' => (string) ($t->get('logos.default.role') ?? ''),
+    'name' => '',
+    'tagline' => '',
+];
 $faqItems = $t->get('faq.items');
 $pilotPoints = $t->get('pilots.points');
 $pilotForm = $t->get('pilots.form');
@@ -183,9 +213,22 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                     </div>
                 </div>
                 <?php if ($stackIntegrations !== []): ?>
-                    <div class="chip-grid">
+                    <div class="stack-integrations-list">
                         <?php foreach ($stackIntegrations as $integration): ?>
-                            <span class="chip"><?= e($integration); ?></span>
+                            <?php
+                            $integrationTitle = is_array($integration) ? (string) ($integration['title'] ?? '') : (string) $integration;
+                            $integrationDesc = is_array($integration) ? (string) ($integration['desc'] ?? '') : '';
+                            $integrationIcon = is_array($integration) ? (string) ($integration['icon'] ?? 'plug') : 'plug';
+                            ?>
+                            <div class="integration-card">
+                                <div class="integration-icon"><span class="icon <?= e($integrationIcon); ?>" aria-hidden="true"></span></div>
+                                <div class="integration-text">
+                                    <div class="integration-title"><?= e($integrationTitle); ?></div>
+                                    <?php if ($integrationDesc !== ''): ?>
+                                        <div class="integration-desc"><?= e($integrationDesc); ?></div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
@@ -264,15 +307,17 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
         <div class="card calculator">
             <label for="people" class="calc-label">
                 <span class="calc-label-text"><?= e($t->get('pricing.team_size')); ?></span>
-                <span class="calc-label-value" id="peopleVal">50</span>
+                <span class="calc-label-value" id="peopleVal">120</span>
             </label>
-            <input type="range" id="people" name="people" min="5" max="200" step="5" value="50">
+            <input type="range" id="people" name="people" min="1" max="1000" step="1" value="120">
+            <p class="muted small"><?= e($t->get('pricing.team_size_hint')); ?></p>
 
             <label for="apd" class="calc-label">
                 <span class="calc-label-text"><?= e($t->get('pricing.actions_per_day')); ?></span>
-                <span class="calc-label-value" id="apdVal">20</span>
+                <span class="calc-label-value" id="apdVal">18</span>
             </label>
-            <input type="range" id="apd" name="apd" min="5" max="200" step="5" value="20">
+            <input type="range" id="apd" name="apd" min="1" max="400" step="1" value="18">
+            <p class="muted small"><?= e($t->get('pricing.actions_hint')); ?></p>
 
             <div class="token-price" data-token-pricing>
                 <label class="token-price-label" for="tokenPriceLocal"><?= e($t->get('pricing.token_price_label')); ?></label>
@@ -294,6 +339,7 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                     <?php endforeach; ?>
                 </div>
                 <p class="muted small token-price-hint"><?= e($t->get('pricing.token_price_hint')); ?></p>
+                <p class="muted small token-price-note"><?= e($t->get('pricing.token_price_note')); ?></p>
                 <p class="muted small token-price-preview"><?= e($t->get('pricing.token_price_preview_prefix')); ?> <span data-token-preview-value>â€”</span></p>
             </div>
 
@@ -367,18 +413,39 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
 <div class="divider" role="presentation"></div>
 
 <section class="container logos-section">
-    <div class="grid two-66">
+    <div class="grid two-66 logos-grid">
         <div>
             <div class="eyebrow"><?= e($t->get('logos.eyebrow')); ?></div>
-            <div class="logo-grid">
-                <?php foreach ($logos as $brand): ?>
-                    <div><?= e($brand); ?></div>
+            <div class="logo-grid" data-logo-grid>
+                <?php foreach ($logos as $index => $brand): ?>
+                    <?php
+                    $brandName = (string) ($brand['name'] ?? '');
+                    $brandTagline = (string) ($brand['tagline'] ?? '');
+                    $brandQuote = (string) ($brand['quote'] ?? '');
+                    $brandAuthor = (string) ($brand['author'] ?? '');
+                    $brandRole = (string) ($brand['role'] ?? '');
+                    $isActiveLogo = $index === 0;
+                    ?>
+                    <button
+                        class="logo-chip<?= $isActiveLogo ? ' active' : ''; ?>"
+                        type="button"
+                        data-logo-button
+                        data-logo-quote="<?= e($brandQuote); ?>"
+                        data-logo-author="<?= e($brandAuthor); ?>"
+                        data-logo-role="<?= e($brandRole); ?>"
+                    >
+                        <span class="logo-chip-name"><?= e($brandName); ?></span>
+                        <?php if ($brandTagline !== ''): ?>
+                            <span class="logo-chip-tagline"><?= e($brandTagline); ?></span>
+                        <?php endif; ?>
+                    </button>
                 <?php endforeach; ?>
             </div>
         </div>
-        <div class="card">
-            <div class="card-desc"><?= e($t->get('logos.quote')); ?></div>
-            <div class="card-title mt-8"><?= e($t->get('logos.quote_author')); ?></div>
+        <div class="card testimonial" data-logo-testimonial>
+            <div class="card-desc" data-logo-quote><?= e($defaultTestimonial['quote']); ?></div>
+            <div class="card-title mt-8" data-logo-author><?= e($defaultTestimonial['author']); ?></div>
+            <div class="muted small" data-logo-role<?= ($defaultTestimonial['role'] ?? '') === '' ? ' hidden' : ''; ?>><?= e($defaultTestimonial['role'] ?? ''); ?></div>
         </div>
     </div>
 </section>
@@ -399,13 +466,20 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
 <section id="faq" class="container pb-xxl">
     <h2 class="h2"><?= e($t->get('faq.title')); ?></h2>
     <div class="faq">
-        <?php foreach ($faqItems as $item): ?>
-            <div class="card faq-item">
-                <button class="faq-q" type="button">
-                    <span><?= e($item['question']); ?></span>
-                    <span class="icon chevron" aria-hidden="true"></span>
+        <?php foreach ($faqItems as $index => $item): ?>
+            <?php
+            $question = is_array($item) ? (string) ($item['question'] ?? '') : (string) $item;
+            $answer = is_array($item) ? (string) ($item['answer'] ?? '') : '';
+            $isInitiallyOpen = $index === 0;
+            ?>
+            <div class="card faq-item<?= $isInitiallyOpen ? ' open' : ''; ?>"<?= $isInitiallyOpen ? ' data-open="true"' : ''; ?>>
+                <button class="faq-toggle" type="button" data-faq-toggle aria-expanded="<?= $isInitiallyOpen ? 'true' : 'false'; ?>">
+                    <span class="faq-toggle-text"><?= e($question); ?></span>
+                    <span class="faq-icon" aria-hidden="true"><span class="icon <?= $isInitiallyOpen ? 'minus' : 'plus'; ?>" data-faq-icon></span></span>
                 </button>
-                <p class="faq-a"><?= e($item['answer']); ?></p>
+                <div class="faq-answer" data-faq-answer<?= $isInitiallyOpen ? '' : ' hidden'; ?>>
+                    <p><?= e($answer); ?></p>
+                </div>
             </div>
         <?php endforeach; ?>
     </div>

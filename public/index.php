@@ -39,6 +39,14 @@ $clientConfig = [
     'tokenPriceDecimals' => (int) $translator->get('pricing.token_price_decimals', [], 2),
     'tokenDecimals' => (int) $translator->get('pricing.token_decimals', [], 6),
     'fiatPerUsd' => (float) $translator->get('pricing.fiat_per_usd', [], 1.0),
+    'localeSequence' => array_keys($languages),
+    'localeUrls' => $localeUrls,
+    'currentLocale' => $localeManager->getCurrentLocale(),
+    'languageIcons' => [
+        'ru' => 'lang-ru',
+        'en' => 'lang-en',
+    ],
+    'languageLabels' => $languages,
 ];
 
 $content = View::render('home', [
