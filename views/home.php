@@ -9,6 +9,7 @@ $defaultAudience = array_key_first($audienceOptions) ?? 'business';
 $audiencePitch = $t->get('audience.pitches.' . $defaultAudience);
 $whyBlocks = $t->get('why.blocks');
 $howItems = $t->get('how.items');
+$outcomeItems = $t->get('outcomes.items');
 $partnerCards = $t->get('partners.cards');
 $logos = $t->get('logos.brands');
 $faqItems = $t->get('faq.items');
@@ -128,6 +129,24 @@ $pilotForm = $t->get('pilots.form');
             </div>
         <?php endforeach; ?>
     </div>
+</section>
+
+<div class="divider" role="presentation"></div>
+
+<section id="outcomes" class="container outcomes-section">
+    <h2 class="h2"><?= e($t->get('outcomes.title')); ?></h2>
+    <p class="muted outcomes-subtitle"><?= e($t->get('outcomes.subtitle')); ?></p>
+    <?php if (is_array($outcomeItems) && $outcomeItems !== []): ?>
+        <div class="grid three outcomes-grid">
+            <?php foreach ($outcomeItems as $item): ?>
+                <div class="card outcome-card">
+                    <div class="outcome-value"><?= e($item['value']); ?></div>
+                    <div class="outcome-label"><?= e($item['label']); ?></div>
+                    <p class="card-desc"><?= e($item['desc']); ?></p>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 </section>
 
 <div class="divider" role="presentation"></div>

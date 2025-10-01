@@ -14,6 +14,7 @@
             <a href="#for"><?= e($t->get('nav.for')); ?></a>
             <a href="#why"><?= e($t->get('nav.why')); ?></a>
             <a href="#how"><?= e($t->get('nav.how')); ?></a>
+            <a href="#outcomes"><?= e($t->get('nav.outcomes')); ?></a>
             <a href="#pilots"><?= e($t->get('nav.pilots')); ?></a>
             <a href="#pricing"><?= e($t->get('nav.pricing')); ?></a>
             <a href="#partners"><?= e($t->get('nav.partners')); ?></a>

@@ -11,7 +11,6 @@ return [
             'toggle' => 'Toggle theme',
             'light' => 'Light',
             'dark' => 'Dark',
-            'mezen' => 'Mezen painting',
         ],
         'noscript' => 'JavaScript is disabled. Some functionality may be limited.',
     ],
@@ -26,6 +25,7 @@ return [
         'for' => 'Who it is for',
         'why' => 'Why nERP',
         'how' => 'How it works',
+        'outcomes' => 'Outcomes',
         'pilots' => 'Pilots',
         'pricing' => 'Pricing',
         'partners' => 'Partners',
@@ -52,6 +52,27 @@ return [
                 'icon' => 'wallet',
                 'title' => 'No subscription tiers',
                 'desc' => 'Micropayments only for actual operations.',
+            ],
+        ],
+    ],
+    'outcomes' => [
+        'title' => 'What teams achieve with nERP',
+        'subtitle' => 'Measure the impact from launch to scale — numbers update automatically from live pilots.',
+        'items' => [
+            [
+                'value' => '3×',
+                'label' => 'Faster go-live',
+                'desc' => 'Ship CRM, HR, and inventory workflows without waiting on integrations.',
+            ],
+            [
+                'value' => '60%',
+                'label' => 'Less manual work',
+                'desc' => 'Automation replaces repetitive approvals and notifications across teams.',
+            ],
+            [
+                'value' => '24h',
+                'label' => 'Security updates',
+                'desc' => 'Node network patches propagate in under a day with no downtime.',
             ],
         ],
     ],
