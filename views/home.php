@@ -19,15 +19,24 @@ $pilotPoints = $t->get('pilots.points');
 $pilotForm = $t->get('pilots.form');
 $pricingOperations = $t->get('pricing.operations');
 $pricingOperations = is_array($pricingOperations) ? $pricingOperations : [];
-$tokenPerUsdDefault = (float) ($t->get('pricing.token_per_usd') ?? 1.0);
-$tokenDecimals = (int) ($t->get('pricing.token_decimals') ?? 6);
-$tokenPerUsdFormatted = number_format($tokenPerUsdDefault, $tokenDecimals, '.', '');
-$tokenStep = $tokenDecimals > 0 ? '0.' . str_repeat('0', max($tokenDecimals - 1, 0)) . '1' : '1';
 $pricingLocale = (string) ($t->get('pricing.locale') ?? 'en-US');
 $decimalSeparator = str_contains($pricingLocale, 'ru') ? ',' : '.';
 $thousandsSeparator = str_contains($pricingLocale, 'ru') ? "\u{00a0}" : ',';
 $operationsSuffix = (string) ($t->get('pricing.operations_suffix') ?? 'nERP');
 $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰ˆ');
+$usdPerTokenDefault = (float) ($t->get('pricing.usd_per_token') ?? 1.0);
+$tokenDecimals = (int) ($t->get('pricing.token_decimals') ?? 6);
+$fiatPerUsd = (float) ($t->get('pricing.fiat_per_usd') ?? 1.0);
+$fiatDecimals = (int) ($t->get('pricing.fiat_decimals') ?? 2);
+$pricingCurrencySymbol = (string) ($t->get('pricing.currency_symbol') ?? '$');
+$tokenPriceOptionsRaw = $t->get('pricing.token_price_options');
+$tokenPriceOptions = is_array($tokenPriceOptionsRaw) ? array_filter(array_map('floatval', $tokenPriceOptionsRaw), static fn (float $value): bool => $value > 0) : [];
+if ($tokenPriceOptions === []) {
+    $tokenPriceOptions = [1.0, 2.0, 3.0];
+}
+sort($tokenPriceOptions);
+$defaultLocaleTokenPrice = $usdPerTokenDefault * $fiatPerUsd;
+$defaultLocaleTokenPriceFormatted = number_format($defaultLocaleTokenPrice, $fiatDecimals, '.', '');
 ?>
 <section class="container section-hero" id="hero">
     <div class="grid two">
@@ -267,6 +276,33 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
             </label>
             <input type="range" id="apd" name="apd" min="5" max="200" step="5" value="20">
 
+            <div class="token-price" data-token-pricing data-currency-symbol="<?= e($pricingCurrencySymbol); ?>">
+                <div class="token-price-header">
+                    <p class="token-price-label"><?= e($t->get('pricing.token_price_label')); ?></p>
+                    <span class="token-price-active" data-token-price-display><?= e($pricingCurrencySymbol); ?><?= e(number_format($defaultLocaleTokenPrice, $fiatDecimals, $decimalSeparator, $thousandsSeparator)); ?></span>
+                </div>
+                <div class="token-price-options" data-token-options>
+                    <?php foreach ($tokenPriceOptions as $option): ?>
+                        <?php
+                        $optionLocaleValue = $option * $fiatPerUsd;
+                        $optionLocaleDisplay = number_format($optionLocaleValue, $fiatDecimals, $decimalSeparator, $thousandsSeparator);
+                        ?>
+                        <button type="button" class="token-price-option" data-token-price-option data-usd-value="<?= e(number_format($option, 4, '.', '')); ?>">
+                            <?= e($pricingCurrencySymbol . $optionLocaleDisplay); ?>
+                        </button>
+                    <?php endforeach; ?>
+                </div>
+                <div class="token-price-custom">
+                    <label for="tokenPrice" class="token-price-custom-label"><?= e($t->get('pricing.token_price_custom_label')); ?></label>
+                    <div class="token-price-input">
+                        <span class="token-price-prefix" aria-hidden="true"><?= e($pricingCurrencySymbol); ?></span>
+                        <input type="number" id="tokenPrice" name="tokenPrice" min="0.01" step="0.01" value="<?= e($defaultLocaleTokenPriceFormatted); ?>" data-token-price-input inputmode="decimal">
+                    </div>
+                </div>
+                <p class="muted small token-price-hint"><?= e($t->get('pricing.token_price_hint')); ?></p>
+                <p class="muted small token-price-preview"><?= e($t->get('pricing.token_price_preview_prefix')); ?> <span data-token-preview-value>â€”</span></p>
+            </div>
+
             <p class="muted small"><?= e($t->get('pricing.hint')); ?></p>
         </div>
         <div class="card calc-output">
@@ -283,16 +319,6 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                     <span><?= e($t->get('pricing.fiat_equivalent')); ?></span>
                     <strong id="fiatApprox">0</strong>
                 </div>
-            </div>
-            <div class="token-price" data-token-pricing>
-                <label class="token-price-label" for="tokenPerUsd"><?= e($t->get('pricing.token_price_label')); ?></label>
-                <div class="token-price-control">
-                    <span class="token-price-prefix"><?= e($t->get('pricing.token_price_prefix')); ?></span>
-                    <input type="number" id="tokenPerUsd" name="tokenPerUsd" min="<?= e($tokenStep); ?>" step="<?= e($tokenStep); ?>" value="<?= e($tokenPerUsdFormatted); ?>" data-token-input inputmode="decimal">
-                    <span class="token-price-suffix"><?= e($t->get('pricing.token_price_suffix')); ?></span>
-                </div>
-                <p class="muted small token-price-hint"><?= e($t->get('pricing.token_price_hint')); ?></p>
-                <p class="muted small token-price-preview"><?= e($t->get('pricing.token_price_preview_prefix')); ?> <span data-token-preview-value>â€”</span></p>
             </div>
             <?php if ($pricingOperations !== []): ?>
                 <div class="token-operations">
