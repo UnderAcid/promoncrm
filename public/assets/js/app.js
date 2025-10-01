@@ -7,7 +7,11 @@ const currencyCode = config.currency || 'USD';
 const themeLabels = config.themeLabels || {};
 const themes = config.themes || ['light', 'dark'];
 const microFee = typeof config.microFee === 'number' ? config.microFee : 0.001;
-const usdRate = typeof config.usdRate === 'number' ? config.usdRate : 1;
+let tokenPrice = typeof config.tokenPrice === 'number' ? config.tokenPrice : undefined;
+const legacyUsdRate = typeof config.usdRate === 'number' ? config.usdRate : 1;
+if (typeof tokenPrice !== 'number' || Number.isNaN(tokenPrice) || tokenPrice <= 0) {
+  tokenPrice = legacyUsdRate > 0 ? legacyUsdRate : 1;
+}
 
 if (!localStorage.getItem('prefersDarkSet')) {
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -34,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const currencyFormatter = new Intl.NumberFormat(numberLocale, {
     style: 'currency',
     currency: currencyCode,
-    maximumFractionDigits: 2,
+    maximumFractionDigits: 6,
   });
 
   function updateThemeLabel(theme) {
@@ -153,12 +157,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const opsMonthly = document.getElementById('opsMonthly');
   const nerpTotal = document.getElementById('nerpTotal');
   const usdApprox = document.getElementById('usdApprox');
+  const tokenInput = document.querySelector('[data-token-input]');
+  const opsItems = document.querySelectorAll('[data-op-cost]');
 
   function estimate(peopleCount, actionsPerDay) {
     const monthlyActions = actionsPerDay * 30 * Math.max(peopleCount, 1);
     const nerpSpend = monthlyActions * microFee;
-    const usd = nerpSpend * usdRate;
-    return { monthlyActions, nerpSpend, usd };
+    const fiat = nerpSpend * tokenPrice;
+    return { monthlyActions, nerpSpend, fiat };
   }
 
   function updateCalc() {
@@ -173,18 +179,100 @@ document.addEventListener('DOMContentLoaded', () => {
     const result = estimate(p, a);
     opsMonthly.textContent = numberFormatter.format(result.monthlyActions);
     nerpTotal.textContent = numberFormatter.format(result.nerpSpend);
-    usdApprox.textContent = currencyFormatter.format(result.usd);
+    usdApprox.textContent = currencyFormatter.format(result.fiat);
   }
 
   people?.addEventListener('input', updateCalc);
   apd?.addEventListener('input', updateCalc);
   updateCalc();
 
-  document.querySelectorAll('.faq-item').forEach((item) => {
+  function updateOperationsFiat() {
+    opsItems.forEach((item) => {
+      const fiatEl = item.querySelector('[data-op-fiat]');
+      if (!fiatEl) return;
+      const cost = Number.parseFloat(item.getAttribute('data-op-cost') || '0');
+      if (Number.isNaN(cost) || cost <= 0) {
+        fiatEl.textContent = '—';
+        return;
+      }
+      const fiatValue = cost * tokenPrice;
+      fiatEl.textContent = `≈ ${currencyFormatter.format(fiatValue)}`;
+    });
+  }
+
+  if (tokenInput instanceof HTMLInputElement) {
+    const initial = Number.parseFloat(tokenInput.value);
+    if (!Number.isNaN(initial) && initial > 0) {
+      tokenPrice = initial;
+      updateCalc();
+    }
+
+    tokenInput.addEventListener('input', () => {
+      const value = Number.parseFloat(tokenInput.value);
+      if (Number.isNaN(value) || value <= 0) {
+        return;
+      }
+      tokenPrice = value;
+      updateCalc();
+      updateOperationsFiat();
+    });
+  }
+
+  updateOperationsFiat();
+
+  document.querySelectorAll('.faq-item').forEach((item, index) => {
     const trigger = item.querySelector('.faq-q');
-    if (!trigger) return;
+    const answer = item.querySelector('.faq-a');
+    if (!(trigger instanceof HTMLElement) || !(answer instanceof HTMLElement)) {
+      return;
+    }
+
+    const answerId = answer.id || `faq-${index}`;
+    answer.id = answerId;
+    trigger.setAttribute('aria-controls', answerId);
+    trigger.setAttribute('aria-expanded', 'false');
+    answer.setAttribute('aria-hidden', 'true');
+    answer.style.height = '0px';
+    answer.style.overflow = 'hidden';
+    answer.style.opacity = '0';
+
+    const close = () => {
+      const currentHeight = answer.scrollHeight;
+      answer.style.height = `${currentHeight}px`;
+      requestAnimationFrame(() => {
+        answer.style.height = '0px';
+        answer.style.opacity = '0';
+      });
+      item.classList.remove('open');
+      trigger.setAttribute('aria-expanded', 'false');
+      answer.setAttribute('aria-hidden', 'true');
+    };
+
+    const open = () => {
+      answer.style.height = `${answer.scrollHeight}px`;
+      answer.style.opacity = '1';
+      item.classList.add('open');
+      trigger.setAttribute('aria-expanded', 'true');
+      answer.setAttribute('aria-hidden', 'false');
+    };
+
+    answer.addEventListener('transitionend', (event) => {
+      if (event.propertyName !== 'height') return;
+      if (item.classList.contains('open')) {
+        answer.style.height = 'auto';
+      }
+    });
+
     trigger.addEventListener('click', () => {
-      item.classList.toggle('open');
+      const isOpen = item.classList.contains('open');
+      if (isOpen) {
+        close();
+      } else {
+        answer.style.height = '0px';
+        requestAnimationFrame(() => {
+          open();
+        });
+      }
     });
   });
 

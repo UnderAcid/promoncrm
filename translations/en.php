@@ -175,6 +175,32 @@ return [
         'currency' => 'USD',
         'micro_fee' => 'Pay only for actions performed.',
         'primary_cta' => 'Talk to the nERP team',
+        'token_label' => 'Token pricing assumption',
+        'token_hint' => 'Adjust it for your scenario. Default: 1 $ = 1.000000 tokens.',
+        'token_reference' => '1 $',
+        'token_suffix' => 'tokens',
+        'token_default' => 1.0,
+        'token_min' => 0.000001,
+        'token_step' => 0.000001,
+        'operations_title' => 'Base operation pricing',
+        'operations_note' => 'Actual totals may vary by module mix and workload.',
+        'operations' => [
+            [
+                'title' => 'Read a block',
+                'cost' => 0.000010,
+                'suffix' => '',
+            ],
+            [
+                'title' => 'Write a block',
+                'cost' => 0.000100,
+                'suffix' => '',
+            ],
+            [
+                'title' => 'Store a block',
+                'cost' => 0.000010,
+                'suffix' => ' · day⁻¹',
+            ],
+        ],
     ],
     'partners' => [
         'title' => 'For partners and module authors',
