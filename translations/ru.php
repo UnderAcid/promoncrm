@@ -8,6 +8,7 @@ return [
         'locale_code' => 'ru-RU',
         'language_label' => 'Язык',
         'theme' => [
+            'label' => 'Тема',
             'toggle' => 'Переключить тему',
             'light' => 'Светлая',
             'dark' => 'Тёмная',
@@ -51,6 +52,7 @@ return [
                 'desc' => 'Микроплатежи только за реальные операции.',
             ],
         ],
+        'illustration_alt' => 'Абстрактная иллюстрация защищённых интеграций nERP',
     ],
     'audience' => [
         'title' => 'Для кого nERP',
@@ -176,6 +178,7 @@ return [
         'token_price_suffix' => '₽',
         'token_price_hint' => 'Базово 1 токен = $1. Значение пересчитывается по текущему курсу.',
         'token_price_preview_prefix' => '1 nERP ≈',
+        'token_price_presets_label' => 'Готовые варианты',
         'token_price_usd' => 1.0,
         'token_price_min_usd' => 1.0,
         'token_price_step_usd' => 1.0,

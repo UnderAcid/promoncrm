@@ -1,0 +1,45 @@
+<svg width="560" height="420" viewBox="0 0 560 420" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">nERP data mesh illustration</title>
+  <desc id="desc">Abstract orbit with connected nodes symbolising secure integrations.</desc>
+  <defs>
+    <linearGradient id="bg" x1="84" y1="40" x2="476" y2="380" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#60A5FA" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#312E81" stop-opacity="0.35"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="80" y1="210" x2="480" y2="210" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8FAFC" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#38BDF8" stop-opacity="0.9"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(280 210) rotate(90) scale(180 280)">
+      <stop stop-color="#C7D2FE" stop-opacity="0.65"/>
+      <stop offset="1" stop-color="#0F172A" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="spark" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FCD34D"/>
+      <stop offset="1" stop-color="#F97316"/>
+    </linearGradient>
+  </defs>
+  <rect x="12" y="12" width="536" height="396" rx="40" fill="url(#bg)" stroke="rgba(255,255,255,0.24)" stroke-width="1.5" />
+  <rect x="48" y="48" width="464" height="324" rx="28" fill="rgba(15,23,42,0.35)" stroke="rgba(255,255,255,0.08)" stroke-width="1.2"/>
+  <ellipse cx="280" cy="210" rx="220" ry="140" fill="url(#glow)"/>
+  <path d="M120 210C120 135.635 188.833 76 280 76C371.167 76 440 135.635 440 210C440 284.365 371.167 344 280 344C188.833 344 120 284.365 120 210Z" stroke="url(#ring)" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="12 18"/>
+  <path d="M160 214C160 162.771 211.961 121 276 121" stroke="rgba(148,163,184,0.45)" stroke-width="2.8" stroke-linecap="round"/>
+  <path d="M400 214C400 265.229 348.039 307 284 307" stroke="rgba(148,163,184,0.35)" stroke-width="2.8" stroke-linecap="round"/>
+  <path d="M206 142C206 120.804 229.43 104 258.5 104H298.5C327.57 104 351 120.804 351 142C351 163.196 327.57 180 298.5 180H258.5C229.43 180 206 163.196 206 142Z" fill="rgba(30,64,175,0.55)" stroke="rgba(255,255,255,0.22)" stroke-width="1.6"/>
+  <rect x="216" y="126" width="124" height="32" rx="16" fill="rgba(15,23,42,0.6)" stroke="rgba(255,255,255,0.18)"/>
+  <circle cx="226" cy="142" r="8" fill="#38BDF8"/>
+  <circle cx="250" cy="142" r="4" fill="#F8FAFC"/>
+  <rect x="268" y="134" width="32" height="16" rx="6" fill="#2563EB" opacity="0.8"/>
+  <rect x="308" y="134" width="20" height="16" rx="6" fill="#F97316" opacity="0.7"/>
+  <circle cx="156" cy="212" r="14" fill="#1E3A8A" stroke="rgba(255,255,255,0.35)" stroke-width="3"/>
+  <circle cx="160" cy="160" r="12" fill="#1D4ED8" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+  <circle cx="182" cy="272" r="9" fill="#F59E0B"/>
+  <circle cx="404" cy="204" r="14" fill="#0EA5E9" stroke="rgba(255,255,255,0.45)" stroke-width="3"/>
+  <circle cx="368" cy="146" r="11" fill="#22D3EE" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+  <circle cx="374" cy="286" r="10" fill="#F97316" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+  <path d="M280 210C299.882 210 316 193.882 316 174C316 154.118 299.882 138 280 138C260.118 138 244 154.118 244 174C244 193.882 260.118 210 280 210Z" fill="rgba(148,163,184,0.4)" stroke="rgba(255,255,255,0.28)" stroke-width="2"/>
+  <circle cx="280" cy="174" r="18" fill="#1D4ED8" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+  <path d="M280 200L292 216" stroke="url(#spark)" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="292" cy="216" r="6" fill="#F97316"/>
+  <circle cx="260" cy="206" r="6" fill="#38BDF8"/>
+</svg>

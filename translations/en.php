@@ -8,6 +8,7 @@ return [
         'locale_code' => 'en-US',
         'language_label' => 'Language',
         'theme' => [
+            'label' => 'Theme',
             'toggle' => 'Toggle theme',
             'light' => 'Light',
             'dark' => 'Dark',
@@ -51,6 +52,7 @@ return [
                 'desc' => 'Micropayments only for actual operations.',
             ],
         ],
+        'illustration_alt' => 'Abstract illustration of secure nERP integrations',
     ],
     'audience' => [
         'title' => 'Who nERP is for',
@@ -176,6 +178,7 @@ return [
         'token_price_suffix' => '$',
         'token_price_hint' => 'Start at $1 per nERP. Increase it to model premium tiers.',
         'token_price_preview_prefix' => '1 nERP ≈',
+        'token_price_presets_label' => 'Quick presets',
         'token_price_usd' => 1.0,
         'token_price_min_usd' => 1.0,
         'token_price_step_usd' => 1.0,

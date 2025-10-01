@@ -3,6 +3,14 @@
 /** @var array<string, string> $languages */
 /** @var string $currentLocale */
 /** @var string[] $themes */
+/** @var string $currentTheme */
+/** @var array<string, string> $localeUrls */
+$currentLanguageLabel = $languages[$currentLocale] ?? strtoupper($currentLocale);
+$currentThemeKey = in_array($currentTheme ?? '', $themes ?? [], true) ? $currentTheme : ($themes[0] ?? 'light');
+$currentThemeLabel = (string) $t->get('app.theme.' . $currentThemeKey);
+if ($currentThemeLabel === '') {
+    $currentThemeLabel = ucfirst($currentThemeKey);
+}
 ?>
 <header class="header" data-header>
     <div class="container header-inner">
@@ -26,8 +34,13 @@
         </nav>
         <div class="actions">
             <div class="lang-switcher" data-language-switcher>
-                <button class="icon-button" type="button" data-language-toggle aria-haspopup="true" aria-expanded="false" aria-label="<?= e($t->get('language_switcher.label')); ?>">
+                <button class="control-chip lang-chip" type="button" data-language-toggle aria-haspopup="true" aria-expanded="false" aria-label="<?= e($t->get('language_switcher.label')); ?>">
                     <span class="icon globe" aria-hidden="true"></span>
+                    <span class="chip-text">
+                        <span class="chip-subtitle"><?= e($t->get('app.language_label')); ?></span>
+                        <span class="chip-value" data-language-current><?= e($currentLanguageLabel); ?></span>
+                    </span>
+                    <span class="icon chevron" aria-hidden="true"></span>
                 </button>
                 <ul class="lang-menu" data-language-menu>
                     <?php foreach ($languages as $code => $label): ?>
@@ -45,8 +58,12 @@
                     <a href="<?= e($href); ?>"><?= e($label); ?></a>
                 <?php endforeach; ?>
             </noscript>
-            <button class="icon-button" type="button" data-theme-toggle aria-label="<?= e($t->get('app.theme.toggle')); ?>">
-                <span class="icon theme" aria-hidden="true"></span>
+            <button class="control-chip theme-chip" type="button" data-theme-toggle aria-label="<?= e($t->get('app.theme.toggle')); ?>">
+                <span class="icon theme-glyph" aria-hidden="true"></span>
+                <span class="chip-text">
+                    <span class="chip-subtitle"><?= e($t->get('app.theme.label')); ?></span>
+                    <span class="chip-value" data-theme-label><?= e($currentThemeLabel); ?></span>
+                </span>
             </button>
             <a class="btn btn-primary" href="#pilots" data-scroll-to-pilots>
                 <span class="icon rocket" aria-hidden="true"></span><?= e($t->get('hero.primary_cta')); ?>
