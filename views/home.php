@@ -15,8 +15,35 @@ $stackIntegrations = is_array($stack['integrations'] ?? null) ? $stack['integrat
 $tokenPricePresets = [0.1, 0.5, 1.0, 2.0];
 $tokenPresetCurrency = (string) ($t->get('pricing.token_price_presets_currency') ?? '$');
 $partnerCards = $t->get('partners.cards');
-$logos = $t->get('logos.brands');
+$logosConfig = $t->get('logos');
 $faqItems = $t->get('faq.items');
+$pilotStoriesRaw = is_array($logosConfig['pilots'] ?? null) ? $logosConfig['pilots'] : [];
+$pilotStories = [];
+foreach ($pilotStoriesRaw as $index => $story) {
+    if (!is_array($story)) {
+        continue;
+    }
+    $storyId = (string) ($story['id'] ?? '');
+    if ($storyId === '') {
+        $source = (string) ($story['company'] ?? $story['label'] ?? ('pilot-' . $index));
+        $storyId = strtolower(preg_replace('/[^a-z0-9]+/', '-', $source));
+        if ($storyId === '') {
+            $storyId = 'pilot-' . $index;
+        }
+    }
+    $pilotStories[] = [
+        'id' => $storyId,
+        'label' => (string) ($story['label'] ?? $story['company'] ?? $storyId),
+        'company' => (string) ($story['company'] ?? ''),
+        'quote' => (string) ($story['quote'] ?? ''),
+        'role' => (string) ($story['role'] ?? ''),
+        'metric' => (string) ($story['metric'] ?? ''),
+    ];
+}
+$defaultPilotId = (string) ($logosConfig['default'] ?? '');
+if ($defaultPilotId === '' && $pilotStories !== []) {
+    $defaultPilotId = $pilotStories[0]['id'];
+}
 $pilotPoints = $t->get('pilots.points');
 $pilotForm = $t->get('pilots.form');
 $pricingOperations = $t->get('pricing.operations');
@@ -172,8 +199,26 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                     </div>
                 <?php endif; ?>
             </div>
+            <?php
+            $integrationItems = [];
+            foreach ($stackIntegrations as $integration) {
+                if (is_array($integration)) {
+                    $integrationItems[] = [
+                        'name' => (string) ($integration['name'] ?? ''),
+                        'tag' => (string) ($integration['tag'] ?? ''),
+                        'status' => (string) ($integration['status'] ?? ''),
+                    ];
+                } else {
+                    $integrationItems[] = [
+                        'name' => (string) $integration,
+                        'tag' => '',
+                        'status' => '',
+                    ];
+                }
+            }
+            ?>
             <div class="card stack-integrations">
-                <div class="stack-integrations-top">
+                <div class="stack-integrations-header">
                     <div class="stack-integrations-icon" aria-hidden="true">
                         <span class="icon nodes"></span>
                     </div>
@@ -182,11 +227,25 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                         <p class="card-desc"><?= e($stack['integrations_desc'] ?? ''); ?></p>
                     </div>
                 </div>
-                <?php if ($stackIntegrations !== []): ?>
-                    <div class="chip-grid">
-                        <?php foreach ($stackIntegrations as $integration): ?>
-                            <span class="chip"><?= e($integration); ?></span>
-                        <?php endforeach; ?>
+                <?php if ($integrationItems !== []): ?>
+                    <div class="integration-map">
+                        <div class="integration-core" aria-hidden="true">
+                            <span class="integration-core-icon"><span class="icon shield"></span></span>
+                            <div class="integration-core-label"><?= e($stack['integrations_core'] ?? 'nERP'); ?></div>
+                        </div>
+                        <div class="integration-tiles">
+                            <?php foreach ($integrationItems as $item): ?>
+                                <div class="integration-tile">
+                                    <?php if ($item['status'] !== ''): ?>
+                                        <span class="integration-status"><?= e($item['status']); ?></span>
+                                    <?php endif; ?>
+                                    <span class="integration-name"><?= e($item['name']); ?></span>
+                                    <?php if ($item['tag'] !== ''): ?>
+                                        <span class="integration-tag"><?= e($item['tag']); ?></span>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
                 <?php endif; ?>
                 <?php if (!empty($stack['footnote'])): ?>
@@ -260,13 +319,17 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
 <section id="pricing" class="container pricing-section">
     <h2 class="h2"><?= e($t->get('pricing.title')); ?></h2>
     <p class="muted"><?= e($t->get('pricing.subtitle')); ?></p>
+    <?php $pricingNotice = (string) ($t->get('pricing.notice') ?? ''); ?>
+    <?php if ($pricingNotice !== ''): ?>
+        <p class="pricing-notice"><?= e($pricingNotice); ?></p>
+    <?php endif; ?>
     <div class="grid two pricing-grid">
         <div class="card calculator">
             <label for="people" class="calc-label">
                 <span class="calc-label-text"><?= e($t->get('pricing.team_size')); ?></span>
                 <span class="calc-label-value" id="peopleVal">50</span>
             </label>
-            <input type="range" id="people" name="people" min="5" max="200" step="5" value="50">
+            <input type="range" id="people" name="people" min="1" max="1000" step="1" value="50">
 
             <label for="apd" class="calc-label">
                 <span class="calc-label-text"><?= e($t->get('pricing.actions_per_day')); ?></span>
@@ -366,19 +429,61 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
 
 <div class="divider" role="presentation"></div>
 
+<?php
+$logosEyebrow = (string) ($logosConfig['eyebrow'] ?? '');
+$logosIntro = (string) ($logosConfig['intro'] ?? '');
+$defaultStory = null;
+foreach ($pilotStories as $story) {
+    if ($story['id'] === $defaultPilotId) {
+        $defaultStory = $story;
+        break;
+    }
+}
+if ($defaultStory === null && $pilotStories !== []) {
+    $defaultStory = $pilotStories[0];
+}
+$defaultRole = isset($defaultStory['role']) ? trim((string) $defaultStory['role']) : '';
+$defaultMetric = isset($defaultStory['metric']) ? trim((string) $defaultStory['metric']) : '';
+?>
 <section class="container logos-section">
-    <div class="grid two-66">
-        <div>
-            <div class="eyebrow"><?= e($t->get('logos.eyebrow')); ?></div>
-            <div class="logo-grid">
-                <?php foreach ($logos as $brand): ?>
-                    <div><?= e($brand); ?></div>
-                <?php endforeach; ?>
-            </div>
+    <div class="grid two-66 pilot-stories">
+        <div class="pilot-stories-list">
+            <?php if ($logosEyebrow !== ''): ?>
+                <div class="eyebrow"><?= e($logosEyebrow); ?></div>
+            <?php endif; ?>
+            <?php if ($logosIntro !== ''): ?>
+                <p class="muted"><?= e($logosIntro); ?></p>
+            <?php endif; ?>
+            <?php if ($pilotStories !== []): ?>
+                <div class="pilot-list" data-pilot-list>
+                    <?php foreach ($pilotStories as $story): ?>
+                        <?php $isActiveStory = $story['id'] === $defaultPilotId; ?>
+                        <button
+                            class="pilot-chip<?= $isActiveStory ? ' active' : ''; ?>"
+                            type="button"
+                            data-pilot-trigger
+                            data-pilot-id="<?= e($story['id']); ?>"
+                            data-pilot-quote="<?= e($story['quote']); ?>"
+                            data-pilot-company="<?= e($story['company']); ?>"
+                            data-pilot-role="<?= e($story['role']); ?>"
+                            data-pilot-metric="<?= e($story['metric']); ?>"
+                        >
+                            <span class="pilot-chip-label"><?= e($story['label']); ?></span>
+                            <?php if ($story['metric'] !== ''): ?>
+                                <span class="pilot-chip-metric"><?= e($story['metric']); ?></span>
+                            <?php endif; ?>
+                        </button>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
         </div>
-        <div class="card">
-            <div class="card-desc"><?= e($t->get('logos.quote')); ?></div>
-            <div class="card-title mt-8"><?= e($t->get('logos.quote_author')); ?></div>
+        <div class="card pilot-testimonial" data-pilot-display data-active-pilot="<?= e($defaultStory['id'] ?? ''); ?>">
+            <div class="pilot-quote" data-pilot-quote><?= e($defaultStory['quote'] ?? ''); ?></div>
+            <div class="pilot-meta">
+                <div class="pilot-company" data-pilot-company><?= e($defaultStory['company'] ?? ''); ?></div>
+                <div class="pilot-role" data-pilot-role<?= $defaultRole === '' ? ' hidden' : ''; ?>><?= e($defaultRole); ?></div>
+                <div class="pilot-metric" data-pilot-metric<?= $defaultMetric === '' ? ' hidden' : ''; ?>><?= e($defaultMetric); ?></div>
+            </div>
         </div>
     </div>
 </section>
@@ -398,14 +503,21 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
 
 <section id="faq" class="container pb-xxl">
     <h2 class="h2"><?= e($t->get('faq.title')); ?></h2>
-    <div class="faq">
-        <?php foreach ($faqItems as $item): ?>
-            <div class="card faq-item">
-                <button class="faq-q" type="button">
-                    <span><?= e($item['question']); ?></span>
-                    <span class="icon chevron" aria-hidden="true"></span>
+    <div class="faq" data-faq>
+        <?php foreach ($faqItems as $index => $item): ?>
+            <?php
+            $question = (string) ($item['question'] ?? '');
+            $answer = (string) ($item['answer'] ?? '');
+            $isOpen = $index === 0;
+            ?>
+            <div class="card faq-item<?= $isOpen ? ' open' : ''; ?>" data-faq-item>
+                <button class="faq-q" type="button" data-faq-question aria-expanded="<?= $isOpen ? 'true' : 'false'; ?>">
+                    <span><?= e($question); ?></span>
+                    <span class="faq-toggle-icon" aria-hidden="true"><span class="icon <?= $isOpen ? 'minus' : 'plus'; ?>"></span></span>
                 </button>
-                <p class="faq-a"><?= e($item['answer']); ?></p>
+                <div class="faq-a" data-faq-answer<?= $isOpen ? '' : ' hidden'; ?>>
+                    <p><?= e($answer); ?></p>
+                </div>
             </div>
         <?php endforeach; ?>
     </div>
