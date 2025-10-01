@@ -19,10 +19,18 @@ $pilotPoints = $t->get('pilots.points');
 $pilotForm = $t->get('pilots.form');
 $pricingOperations = $t->get('pricing.operations');
 $pricingOperations = is_array($pricingOperations) ? $pricingOperations : [];
-$tokenPerUsdDefault = (float) ($t->get('pricing.token_per_usd') ?? 1.0);
 $tokenDecimals = (int) ($t->get('pricing.token_decimals') ?? 6);
-$tokenPerUsdFormatted = number_format($tokenPerUsdDefault, $tokenDecimals, '.', '');
-$tokenStep = $tokenDecimals > 0 ? '0.' . str_repeat('0', max($tokenDecimals - 1, 0)) . '1' : '1';
+$tokenPriceUsdDefault = (float) ($t->get('pricing.token_price_usd') ?? 1.0);
+$tokenPriceMinUsd = max((float) ($t->get('pricing.token_price_min_usd') ?? 1.0), 0.01);
+$tokenPriceStepUsd = max((float) ($t->get('pricing.token_price_step_usd') ?? 1.0), 0.01);
+$tokenPriceDecimals = (int) ($t->get('pricing.token_price_decimals') ?? 2);
+$fiatPerUsd = (float) ($t->get('pricing.fiat_per_usd') ?? 1.0);
+$tokenPriceDefaultLocal = $tokenPriceUsdDefault * $fiatPerUsd;
+$tokenPriceMinLocal = $tokenPriceMinUsd * $fiatPerUsd;
+$tokenPriceStepLocal = $tokenPriceStepUsd * $fiatPerUsd;
+$tokenPriceDefaultFormatted = number_format($tokenPriceDefaultLocal, $tokenPriceDecimals, '.', '');
+$tokenPriceMinFormatted = number_format($tokenPriceMinLocal, $tokenPriceDecimals, '.', '');
+$tokenPriceStepFormatted = number_format($tokenPriceStepLocal, $tokenPriceDecimals, '.', '');
 $pricingLocale = (string) ($t->get('pricing.locale') ?? 'en-US');
 $decimalSeparator = str_contains($pricingLocale, 'ru') ? ',' : '.';
 $thousandsSeparator = str_contains($pricingLocale, 'ru') ? "\u{00a0}" : ',';
@@ -47,20 +55,6 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                     <span class="icon play" aria-hidden="true"></span><?= e($t->get('hero.secondary_cta')); ?>
                 </a>
             </div>
-
-            <div class="grid three feature-cards">
-                <?php foreach ($heroCards as $card): ?>
-                    <div class="card">
-                        <div class="card-row">
-                            <div class="icon-bubble"><span class="icon <?= e($card['icon']); ?>" aria-hidden="true"></span></div>
-                            <div>
-                                <div class="card-title"><?= e($card['title']); ?></div>
-                                <div class="card-desc"><?= e($card['desc']); ?></div>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
         </div>
 
         <div class="illustration" aria-hidden="true">
@@ -76,6 +70,20 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="grid three feature-cards hero-feature-cards">
+        <?php foreach ($heroCards as $card): ?>
+            <div class="card">
+                <div class="card-row">
+                    <div class="icon-bubble"><span class="icon <?= e($card['icon']); ?>" aria-hidden="true"></span></div>
+                    <div>
+                        <div class="card-title"><?= e($card['title']); ?></div>
+                        <div class="card-desc"><?= e($card['desc']); ?></div>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
     </div>
 </section>
 
@@ -267,6 +275,17 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
             </label>
             <input type="range" id="apd" name="apd" min="5" max="200" step="5" value="20">
 
+            <div class="token-price" data-token-pricing>
+                <label class="token-price-label" for="tokenPriceLocal"><?= e($t->get('pricing.token_price_label')); ?></label>
+                <div class="token-price-control">
+                    <span class="token-price-prefix"><?= e($t->get('pricing.token_price_prefix')); ?></span>
+                    <input type="number" id="tokenPriceLocal" name="tokenPriceLocal" min="<?= e($tokenPriceMinFormatted); ?>" step="<?= e($tokenPriceStepFormatted); ?>" value="<?= e($tokenPriceDefaultFormatted); ?>" data-token-input inputmode="decimal">
+                    <span class="token-price-suffix"><?= e($t->get('pricing.token_price_suffix')); ?></span>
+                </div>
+                <p class="muted small token-price-hint"><?= e($t->get('pricing.token_price_hint')); ?></p>
+                <p class="muted small token-price-preview"><?= e($t->get('pricing.token_price_preview_prefix')); ?> <span data-token-preview-value>â€”</span></p>
+            </div>
+
             <p class="muted small"><?= e($t->get('pricing.hint')); ?></p>
         </div>
         <div class="card calc-output">
@@ -283,16 +302,6 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                     <span><?= e($t->get('pricing.fiat_equivalent')); ?></span>
                     <strong id="fiatApprox">0</strong>
                 </div>
-            </div>
-            <div class="token-price" data-token-pricing>
-                <label class="token-price-label" for="tokenPerUsd"><?= e($t->get('pricing.token_price_label')); ?></label>
-                <div class="token-price-control">
-                    <span class="token-price-prefix"><?= e($t->get('pricing.token_price_prefix')); ?></span>
-                    <input type="number" id="tokenPerUsd" name="tokenPerUsd" min="<?= e($tokenStep); ?>" step="<?= e($tokenStep); ?>" value="<?= e($tokenPerUsdFormatted); ?>" data-token-input inputmode="decimal">
-                    <span class="token-price-suffix"><?= e($t->get('pricing.token_price_suffix')); ?></span>
-                </div>
-                <p class="muted small token-price-hint"><?= e($t->get('pricing.token_price_hint')); ?></p>
-                <p class="muted small token-price-preview"><?= e($t->get('pricing.token_price_preview_prefix')); ?> <span data-token-preview-value>â€”</span></p>
             </div>
             <?php if ($pricingOperations !== []): ?>
                 <div class="token-operations">

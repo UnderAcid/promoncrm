@@ -4,19 +4,19 @@ const defaultAudience = config.defaultAudience || 'business';
 const audiencePitches = config.audiencePitches || {};
 const numberLocale = config.numberLocale || 'en-US';
 const currencyCode = config.currency || 'USD';
-const themeLabels = config.themeLabels || {};
 const themes = config.themes || ['light', 'dark'];
 const microFee = typeof config.microFee === 'number' ? config.microFee : 0.001;
 const fiatPerUsd = typeof config.fiatPerUsd === 'number' ? config.fiatPerUsd : 1;
 const tokenDecimals = Number.isInteger(config.tokenDecimals) ? config.tokenDecimals : 6;
-const defaultTokensPerUsd = (() => {
-  const value = Number.parseFloat(config.tokenPerUsd);
+const priceDecimals = Number.isInteger(config.tokenPriceDecimals) ? config.tokenPriceDecimals : 2;
+const defaultTokenPriceUsd = (() => {
+  const value = Number.parseFloat(config.tokenPriceUsd);
   if (Number.isFinite(value) && value > 0) {
     return value;
   }
   return 1;
 })();
-let tokensPerUsd = defaultTokensPerUsd;
+let tokenPriceUsd = defaultTokenPriceUsd;
 
 if (!localStorage.getItem('prefersDarkSet')) {
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -29,9 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const audienceButtons = document.querySelectorAll('[data-audience]');
   const audiencePitchEl = document.querySelector('[data-audience-pitch]');
-  const languageSelect = document.querySelector('[data-language-select]');
+  const languageSwitcher = document.querySelector('[data-language-switcher]');
+  const languageToggle = document.querySelector('[data-language-toggle]');
+  const languageMenu = document.querySelector('[data-language-menu]');
   const themeToggle = document.querySelector('[data-theme-toggle]');
-  const themeLabel = themeToggle?.querySelector('[data-theme-label]');
   const navToggle = document.querySelector('[data-nav-toggle]');
   const nav = document.querySelector('[data-nav]');
   const headerEl = document.querySelector('[data-header]');
@@ -50,16 +51,9 @@ document.addEventListener('DOMContentLoaded', () => {
     maximumFractionDigits: tokenDecimals,
   });
 
-  function updateThemeLabel(theme) {
-    if (themeLabel) {
-      themeLabel.textContent = themeLabels[theme] || theme;
-    }
-  }
-
   function setTheme(theme) {
     const next = themes.includes(theme) ? theme : themes[0];
     docEl.setAttribute('data-theme', next);
-    updateThemeLabel(next);
     document.cookie = `theme=${next}; path=/; max-age=${60 * 60 * 24 * 30}`;
     localStorage.setItem('theme', next);
   }
@@ -68,8 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const storedTheme = localStorage.getItem('theme');
     if (storedTheme && themes.includes(storedTheme)) {
       setTheme(storedTheme);
-    } else {
-      updateThemeLabel(docEl.getAttribute('data-theme') || themes[0]);
     }
 
     themeToggle.addEventListener('click', () => {
@@ -150,11 +142,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderAudience(defaultAudience);
 
-  if (languageSelect) {
-    languageSelect.addEventListener('change', () => {
-      const target = languageSelect.value;
-      if (typeof target === 'string' && target !== '') {
-        window.location.href = target;
+  if (languageSwitcher && languageToggle && languageMenu) {
+    const closeMenu = () => {
+      languageSwitcher.classList.remove('open');
+      languageToggle.setAttribute('aria-expanded', 'false');
+    };
+
+    const openMenu = () => {
+      languageSwitcher.classList.add('open');
+      languageToggle.setAttribute('aria-expanded', 'true');
+    };
+
+    languageToggle.addEventListener('click', (event) => {
+      event.preventDefault();
+      const expanded = languageToggle.getAttribute('aria-expanded') === 'true';
+      if (expanded) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    });
+
+    languageMenu.querySelectorAll('[data-language-option]').forEach((option) => {
+      option.addEventListener('click', () => {
+        closeMenu();
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!(event.target instanceof Node)) return;
+      if (!languageSwitcher.contains(event.target)) {
+        closeMenu();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && languageToggle.getAttribute('aria-expanded') === 'true') {
+        closeMenu();
+        languageToggle.focus();
       }
     });
   }
@@ -170,6 +195,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const tokenPreviewValue = document.querySelector('[data-token-preview-value]');
   const operationFiatNodes = document.querySelectorAll('[data-operation-fiat]');
 
+  const parseLocaleNumber = (value) => {
+    if (typeof value !== 'string') return Number.NaN;
+    const sanitized = value.replace(/\s+/g, '').replace(/,/g, '.');
+    return Number.parseFloat(sanitized);
+  };
+
+  const getLocalTokenPrice = () => tokenPriceUsd * fiatPerUsd;
+
   function estimate(peopleCount, actionsPerDay) {
     const monthlyActions = actionsPerDay * 30 * Math.max(peopleCount, 1);
     const nerpSpend = monthlyActions * microFee;
@@ -177,20 +210,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateTokenDerived() {
+    const localTokenPrice = getLocalTokenPrice();
+
     if (tokenPreviewValue instanceof HTMLElement) {
-      const tokenValue = tokensPerUsd > 0 ? (fiatPerUsd / tokensPerUsd) : 0;
-      tokenPreviewValue.textContent = currencyFormatter.format(tokenValue);
+      tokenPreviewValue.textContent = currencyFormatter.format(localTokenPrice);
     }
 
     operationFiatNodes.forEach((node) => {
       if (!(node instanceof HTMLElement)) return;
       const prefix = node.dataset.prefix || '≈';
       const cost = Number.parseFloat(node.dataset.operationFiat || '0');
-      if (!Number.isFinite(cost) || cost <= 0 || tokensPerUsd <= 0) {
+      if (!Number.isFinite(cost) || cost <= 0 || !Number.isFinite(localTokenPrice) || localTokenPrice <= 0) {
         node.textContent = `${prefix} —`;
         return;
       }
-      const fiatValue = (cost / tokensPerUsd) * fiatPerUsd;
+      const fiatValue = cost * localTokenPrice;
       node.textContent = `${prefix} ${currencyFormatter.format(fiatValue)}`;
     });
   }
@@ -207,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const result = estimate(p, a);
     opsMonthly.textContent = numberFormatter.format(result.monthlyActions);
     nerpTotal.textContent = tokenFormatter.format(result.nerpSpend);
-    const fiatValue = tokensPerUsd > 0 ? (result.nerpSpend / tokensPerUsd) * fiatPerUsd : 0;
+    const fiatValue = tokenPriceUsd > 0 ? result.nerpSpend * tokenPriceUsd * fiatPerUsd : 0;
     fiatApprox.textContent = currencyFormatter.format(fiatValue);
     updateTokenDerived();
   }
@@ -215,21 +249,35 @@ document.addEventListener('DOMContentLoaded', () => {
   people?.addEventListener('input', updateCalc);
   apd?.addEventListener('input', updateCalc);
   if (tokenInput instanceof HTMLInputElement) {
-    const applyTokenInput = () => {
-      const next = Number.parseFloat(tokenInput.value);
-      if (!Number.isFinite(next) || next <= 0) {
+    const commitTokenPrice = () => {
+      const raw = parseLocaleNumber(tokenInput.value);
+      if (!Number.isFinite(raw) || raw <= 0) {
+        tokenInput.value = getLocalTokenPrice().toFixed(priceDecimals);
         return;
       }
-      tokensPerUsd = next;
-      tokenInput.value = next.toFixed(tokenDecimals);
+      tokenPriceUsd = fiatPerUsd > 0 ? raw / fiatPerUsd : raw;
+      tokenInput.value = getLocalTokenPrice().toFixed(priceDecimals);
       updateCalc();
     };
-    tokenInput.addEventListener('input', applyTokenInput);
-    tokenInput.addEventListener('change', applyTokenInput);
-    if (Number.isFinite(defaultTokensPerUsd)) {
-      tokenInput.value = defaultTokensPerUsd.toFixed(tokenDecimals);
-      tokensPerUsd = defaultTokensPerUsd;
-    }
+
+    tokenInput.addEventListener('input', () => {
+      const raw = parseLocaleNumber(tokenInput.value);
+      if (!Number.isFinite(raw) || raw <= 0) {
+        return;
+      }
+      tokenPriceUsd = fiatPerUsd > 0 ? raw / fiatPerUsd : raw;
+      updateCalc();
+    });
+
+    tokenInput.addEventListener('change', commitTokenPrice);
+    tokenInput.addEventListener('blur', commitTokenPrice);
+    tokenInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        commitTokenPrice();
+      }
+    });
+    tokenInput.value = getLocalTokenPrice().toFixed(priceDecimals);
   }
   updateCalc();
 
@@ -243,19 +291,15 @@ document.addEventListener('DOMContentLoaded', () => {
     trigger.addEventListener('click', () => {
       const isOpen = item.classList.contains('open');
       if (isOpen) {
-        const currentHeight = answer.scrollHeight;
-        if (currentHeight) {
-          answer.style.height = `${currentHeight}px`;
-          requestAnimationFrame(() => {
-            answer.style.height = '0px';
-          });
-        } else {
-          answer.style.height = '0px';
-        }
+        answer.style.height = `${answer.scrollHeight}px`;
+        void answer.offsetHeight;
+        answer.style.height = '0px';
         item.classList.remove('open');
       } else {
-        item.classList.add('open');
         const targetHeight = answer.scrollHeight;
+        answer.style.height = '0px';
+        item.classList.add('open');
+        void answer.offsetHeight;
         answer.style.height = `${targetHeight}px`;
       }
     });
@@ -264,8 +308,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (event.propertyName !== 'height') return;
       if (item.classList.contains('open')) {
         answer.style.height = 'auto';
-      } else {
-        answer.style.height = '0px';
       }
     });
   });

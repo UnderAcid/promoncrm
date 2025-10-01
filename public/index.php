@@ -35,7 +35,8 @@ $clientConfig = [
         'dark' => $translator->get('app.theme.dark'),
     ],
     'microFee' => 0.001,
-    'tokenPerUsd' => (float) $translator->get('pricing.token_per_usd', [], 1.0),
+    'tokenPriceUsd' => (float) $translator->get('pricing.token_price_usd', [], 1.0),
+    'tokenPriceDecimals' => (int) $translator->get('pricing.token_price_decimals', [], 2),
     'tokenDecimals' => (int) $translator->get('pricing.token_decimals', [], 6),
     'fiatPerUsd' => (float) $translator->get('pricing.fiat_per_usd', [], 1.0),
 ];
