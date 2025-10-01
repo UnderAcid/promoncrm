@@ -30,17 +30,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const audienceButtons = document.querySelectorAll('[data-audience]');
   const audiencePitchEl = document.querySelector('[data-audience-pitch]');
-  const languageSwitcher = document.querySelector('[data-language-switcher]');
-  const languageToggle = document.querySelector('[data-language-toggle]');
-  const languageMenu = document.querySelector('[data-language-menu]');
+  const languageButton = document.querySelector('[data-language-button]');
+  const languageIconTarget = document.querySelector('[data-language-icon]');
   const themeToggle = document.querySelector('[data-theme-toggle]');
-  const themeLabelTarget = document.querySelector('[data-theme-label]');
+  const themeIcon = document.querySelector('[data-theme-icon]');
   const navToggle = document.querySelector('[data-nav-toggle]');
   const nav = document.querySelector('[data-nav]');
   const headerEl = document.querySelector('[data-header]');
   const floatingCtaButton = document.querySelector('[data-floating-cta]');
   const floatingCta = floatingCtaButton?.parentElement ?? null;
   const pilotForm = document.querySelector('[data-pilot-form]');
+  const pilotDisplay = document.querySelector('[data-pilot-display]');
+  const pilotQuote = pilotDisplay?.querySelector('[data-pilot-quote]') ?? null;
+  const pilotCompany = pilotDisplay?.querySelector('[data-pilot-company]') ?? null;
+  const pilotRole = pilotDisplay?.querySelector('[data-pilot-role]') ?? null;
+  const pilotMetric = pilotDisplay?.querySelector('[data-pilot-metric]') ?? null;
+  const pilotTriggers = document.querySelectorAll('[data-pilot-trigger]');
 
   const numberFormatter = new Intl.NumberFormat(numberLocale);
   const currencyFormatter = new Intl.NumberFormat(numberLocale, {
@@ -54,13 +59,20 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function renderThemeState(theme) {
-    if (themeLabelTarget instanceof HTMLElement) {
-      const label = themeLabels[theme] || theme;
-      themeLabelTarget.textContent = label;
+    if (themeIcon instanceof HTMLElement) {
+      themeIcon.classList.remove('sun', 'moon');
+      themeIcon.classList.add(theme === 'dark' ? 'moon' : 'sun');
     }
 
     if (themeToggle instanceof HTMLElement) {
-      themeToggle.setAttribute('data-theme-active', theme);
+      themeToggle.setAttribute('aria-pressed', String(theme === 'dark'));
+      const currentIndex = themes.indexOf(theme);
+      const hasCycle = themes.length > 1;
+      const nextIndex = hasCycle ? (currentIndex + 1) % themes.length : currentIndex;
+      const nextTheme = themes[nextIndex] || theme;
+      const nextLabel = themeLabels[nextTheme] || nextTheme;
+      themeToggle.setAttribute('title', nextLabel);
+      themeToggle.toggleAttribute('disabled', !hasCycle);
     }
   }
 
@@ -79,6 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     themeToggle.addEventListener('click', () => {
+      if (themeToggle.hasAttribute('disabled')) {
+        return;
+      }
       const current = docEl.getAttribute('data-theme') || themes[0];
       const currentIndex = themes.indexOf(current);
       const nextTheme = themes[(currentIndex + 1) % themes.length];
@@ -158,46 +173,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderAudience(defaultAudience);
 
-  if (languageSwitcher && languageToggle && languageMenu) {
-    const closeMenu = () => {
-      languageSwitcher.classList.remove('open');
-      languageToggle.setAttribute('aria-expanded', 'false');
+  if (languageButton instanceof HTMLButtonElement && languageIconTarget instanceof HTMLElement) {
+    const baseLabel = languageButton.getAttribute('data-label') || '';
+    const rawCycle = languageButton.getAttribute('data-locale-cycle') || '[]';
+    let localeCycle = [];
+    try {
+      const parsed = JSON.parse(rawCycle);
+      if (Array.isArray(parsed)) {
+        localeCycle = parsed
+          .map((entry) => ({
+            code: typeof entry.code === 'string' ? entry.code : '',
+            href: typeof entry.href === 'string' ? entry.href : '',
+            label: typeof entry.label === 'string' ? entry.label : '',
+          }))
+          .filter((entry) => entry.code);
+      }
+    } catch (error) {
+      localeCycle = [];
+    }
+
+    let currentLocale = languageButton.getAttribute('data-current-locale') || (localeCycle[0]?.code || '');
+
+    const iconForLocale = (locale) => {
+      const value = (locale || '').toLowerCase();
+      if (value.startsWith('ru')) return 'flag-ru';
+      if (value.startsWith('en')) return 'flag-en';
+      return 'globe';
     };
 
-    const openMenu = () => {
-      languageSwitcher.classList.add('open');
-      languageToggle.setAttribute('aria-expanded', 'true');
-    };
-
-    languageToggle.addEventListener('click', (event) => {
-      event.preventDefault();
-      const expanded = languageToggle.getAttribute('aria-expanded') === 'true';
-      if (expanded) {
-        closeMenu();
+    const applyLocaleState = () => {
+      languageIconTarget.className = `icon ${iconForLocale(currentLocale)}`;
+      const match = localeCycle.find((entry) => entry.code === currentLocale);
+      const label = match?.label || (currentLocale ? currentLocale.toUpperCase() : baseLabel || 'Language');
+      if (baseLabel) {
+        const composed = `${baseLabel}: ${label}`;
+        languageButton.setAttribute('aria-label', composed);
+        languageButton.setAttribute('title', composed);
       } else {
-        openMenu();
+        languageButton.setAttribute('aria-label', label);
+        languageButton.setAttribute('title', label);
       }
-    });
+    };
 
-    languageMenu.querySelectorAll('[data-language-option]').forEach((option) => {
-      option.addEventListener('click', () => {
-        closeMenu();
+    applyLocaleState();
+
+    if (localeCycle.length <= 1) {
+      languageButton.disabled = true;
+      languageButton.setAttribute('aria-disabled', 'true');
+    } else {
+      languageButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        const currentIndex = localeCycle.findIndex((entry) => entry.code === currentLocale);
+        const nextEntry = localeCycle[(currentIndex + 1) % localeCycle.length];
+        if (!nextEntry) {
+          return;
+        }
+        currentLocale = nextEntry.code;
+        applyLocaleState();
+        setTimeout(() => {
+          if (nextEntry.href) {
+            window.location.href = nextEntry.href;
+          }
+        }, 160);
       });
-    });
-
-    document.addEventListener('click', (event) => {
-      if (!(event.target instanceof Node)) return;
-      if (!languageSwitcher.contains(event.target)) {
-        closeMenu();
-      }
-    });
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && languageToggle.getAttribute('aria-expanded') === 'true') {
-        closeMenu();
-        languageToggle.focus();
-      }
-    });
+    }
   }
 
   const people = document.getElementById('people');
@@ -330,34 +369,71 @@ document.addEventListener('DOMContentLoaded', () => {
   updatePresetState();
   updateCalc();
 
-  document.querySelectorAll('.faq-item').forEach((item) => {
-    const trigger = item.querySelector('.faq-q');
-    const answer = item.querySelector('.faq-a');
+  const pilotButtons = Array.from(pilotTriggers).filter((trigger) => trigger instanceof HTMLElement);
+
+  const setPilotField = (target, value, { hideWhenEmpty = false, fallback = '' } = {}) => {
+    if (!(target instanceof HTMLElement)) {
+      return;
+    }
+    const text = typeof value === 'string' ? value.trim() : '';
+    if (hideWhenEmpty) {
+      if (!text) {
+        target.textContent = '';
+        target.setAttribute('hidden', 'true');
+        return;
+      }
+      target.removeAttribute('hidden');
+    }
+    target.textContent = text || fallback;
+  };
+
+  const activatePilot = (trigger) => {
+    if (!(trigger instanceof HTMLElement)) return;
+    pilotButtons.forEach((btn) => {
+      btn.classList.toggle('active', btn === trigger);
+    });
+    if (pilotDisplay instanceof HTMLElement) {
+      pilotDisplay.setAttribute('data-active-pilot', trigger.dataset.pilotId || '');
+    }
+    setPilotField(pilotQuote, trigger.dataset.pilotQuote || '', { fallback: '—' });
+    setPilotField(pilotCompany, trigger.dataset.pilotCompany || '', { fallback: '—' });
+    setPilotField(pilotRole, trigger.dataset.pilotRole || '', { hideWhenEmpty: true });
+    setPilotField(pilotMetric, trigger.dataset.pilotMetric || '', { hideWhenEmpty: true });
+  };
+
+  pilotButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      activatePilot(button);
+    });
+  });
+
+  if (pilotButtons.length > 0) {
+    const initial = pilotButtons.find((btn) => btn.classList.contains('active')) || pilotButtons[0];
+    activatePilot(initial);
+  }
+
+  document.querySelectorAll('[data-faq-item]').forEach((item) => {
+    if (!(item instanceof HTMLElement)) return;
+    const trigger = item.querySelector('[data-faq-question]');
+    const answer = item.querySelector('[data-faq-answer]');
+    const iconNode = item.querySelector('.faq-toggle-icon .icon');
     if (!(trigger instanceof HTMLElement) || !(answer instanceof HTMLElement)) return;
 
-    answer.style.height = '0px';
+    const setState = (open) => {
+      item.classList.toggle('open', open);
+      trigger.setAttribute('aria-expanded', String(open));
+      answer.hidden = !open;
+      if (iconNode instanceof HTMLElement) {
+        iconNode.classList.remove('plus', 'minus');
+        iconNode.classList.add(open ? 'minus' : 'plus');
+      }
+    };
+
+    setState(trigger.getAttribute('aria-expanded') === 'true');
 
     trigger.addEventListener('click', () => {
       const isOpen = item.classList.contains('open');
-      if (isOpen) {
-        answer.style.height = `${answer.scrollHeight}px`;
-        void answer.offsetHeight;
-        answer.style.height = '0px';
-        item.classList.remove('open');
-      } else {
-        const targetHeight = answer.scrollHeight;
-        answer.style.height = '0px';
-        item.classList.add('open');
-        void answer.offsetHeight;
-        answer.style.height = `${targetHeight}px`;
-      }
-    });
-
-    answer.addEventListener('transitionend', (event) => {
-      if (event.propertyName !== 'height') return;
-      if (item.classList.contains('open')) {
-        answer.style.height = 'auto';
-      }
+      setState(!isOpen);
     });
   });
 

@@ -4,7 +4,27 @@
 /** @var string $currentLocale */
 /** @var string[] $themes */
 ?>
-<?php $currentLanguageLabel = $languages[$currentLocale] ?? strtoupper($currentLocale); ?>
+<?php
+$localeCycle = [];
+foreach ($languages as $code => $label) {
+    $localeCycle[] = [
+        'code' => $code,
+        'label' => $label,
+        'href' => $localeUrls[$code] ?? ('/' . $code . '/'),
+    ];
+}
+
+$localeCycleJson = json_encode($localeCycle, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '[]';
+$languageIconCode = strtolower((string) $currentLocale);
+$languageIconCode = preg_replace('/[^a-z]/', '', $languageIconCode);
+if (strlen($languageIconCode) > 2) {
+    $languageIconCode = substr($languageIconCode, 0, 2);
+}
+if ($languageIconCode === '') {
+    $languageIconCode = 'globe';
+}
+$languageIconClass = in_array($languageIconCode, ['ru', 'en'], true) ? 'flag-' . $languageIconCode : 'globe';
+?>
 <header class="header" data-header>
     <div class="container header-inner">
         <a class="brand" href="#main">
@@ -26,38 +46,32 @@
             <a href="#pilots"><?= e($t->get('nav.pilots')); ?></a>
         </nav>
         <div class="actions">
-            <div class="control-cluster">
-                <div class="lang-switcher" data-language-switcher>
-                    <button class="menu-control" type="button" data-language-toggle aria-haspopup="true" aria-expanded="false" aria-label="<?= e($t->get('language_switcher.label')); ?>">
-                        <span class="menu-control-icon" aria-hidden="true"><span class="icon globe"></span></span>
-                        <span class="menu-control-text">
-                            <span class="menu-control-label"><?= e($t->get('language_switcher.label')); ?></span>
-                            <span class="menu-control-value" data-language-current><?= e($currentLanguageLabel); ?></span>
-                        </span>
-                        <span class="menu-control-chevron" aria-hidden="true"><span class="icon chevron"></span></span>
-                    </button>
-                    <ul class="lang-menu" data-language-menu>
-                        <?php foreach ($languages as $code => $label): ?>
-                            <?php if ($code === $currentLocale) { continue; } ?>
-                            <?php $href = $localeUrls[$code] ?? ('/' . $code . '/'); ?>
-                            <li>
-                                <a href="<?= e($href); ?>" data-language-option><?= e($label); ?></a>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-                <noscript class="lang-switcher-links">
-                    <?php foreach ($languages as $code => $label): ?>
-                        <?php $href = $localeUrls[$code] ?? ('/' . $code . '/'); ?>
-                        <a href="<?= e($href); ?>"><?= e($label); ?></a>
+            <div class="icon-switchers">
+                <button
+                    class="icon-toggle"
+                    type="button"
+                    data-language-button
+                    data-current-locale="<?= e($currentLocale); ?>"
+                    data-label="<?= e($t->get('language_switcher.label')); ?>"
+                    data-locale-cycle='<?= e($localeCycleJson); ?>'
+                >
+                    <span class="icon <?= e($languageIconClass); ?>" data-language-icon aria-hidden="true"></span>
+                    <span class="sr-only"><?= e($t->get('language_switcher.label')); ?></span>
+                </button>
+                <noscript class="lang-links">
+                    <?php foreach ($localeCycle as $entry): ?>
+                        <a href="<?= e($entry['href']); ?>"><?= e($entry['label']); ?></a>
                     <?php endforeach; ?>
                 </noscript>
-                <button class="menu-control theme-toggle" type="button" data-theme-toggle aria-label="<?= e($t->get('app.theme.toggle')); ?>">
-                    <span class="menu-control-icon" aria-hidden="true"><span class="icon theme"></span></span>
-                    <span class="menu-control-text">
-                        <span class="menu-control-label"><?= e($t->get('app.theme.label')); ?></span>
-                        <span class="menu-control-value" data-theme-label><?= e($t->get('app.theme.' . $currentTheme)); ?></span>
-                    </span>
+                <button
+                    class="icon-toggle"
+                    type="button"
+                    data-theme-toggle
+                    aria-label="<?= e($t->get('app.theme.toggle')); ?>"
+                    aria-pressed="<?= $currentTheme === 'dark' ? 'true' : 'false'; ?>"
+                >
+                    <span class="icon <?= $currentTheme === 'dark' ? 'moon' : 'sun'; ?>" data-theme-icon aria-hidden="true"></span>
+                    <span class="sr-only"><?= e($t->get('app.theme.toggle')); ?></span>
                 </button>
             </div>
             <a class="btn btn-primary" href="#pilots" data-scroll-to-pilots>
