@@ -20,10 +20,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const audienceButtons = document.querySelectorAll('[data-audience]');
   const audiencePitchEl = document.querySelector('[data-audience-pitch]');
-  const languageForm = document.querySelector('[data-language-switcher]');
+  const languageSelect = document.querySelector('[data-language-select]');
   const themeToggle = document.querySelector('[data-theme-toggle]');
   const themeLabel = themeToggle?.querySelector('[data-theme-label]');
-  const floatingCta = document.querySelector('[data-floating-cta]')?.parentElement;
+  const floatingCtaButton = document.querySelector('[data-floating-cta]');
+  const floatingCta = floatingCtaButton?.parentElement ?? null;
+  const pilotForm = document.querySelector('[data-pilot-form]');
 
   const numberFormatter = new Intl.NumberFormat(numberLocale);
   const currencyFormatter = new Intl.NumberFormat(numberLocale, {
@@ -90,9 +92,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderAudience(defaultAudience);
 
-  if (languageForm) {
-    languageForm.addEventListener('change', () => {
-      languageForm.submit();
+  if (languageSelect) {
+    languageSelect.addEventListener('change', () => {
+      const target = languageSelect.value;
+      if (typeof target === 'string' && target !== '') {
+        window.location.href = target;
+      }
     });
   }
 
@@ -138,6 +143,37 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  function focusPilotForm() {
+    if (!pilotForm) return;
+    const firstField = pilotForm.querySelector('input, textarea');
+    if (firstField instanceof HTMLElement) {
+      setTimeout(() => {
+        try {
+          firstField.focus({ preventScroll: true });
+        } catch (error) {
+          firstField.focus();
+        }
+      }, 300);
+    }
+  }
+
+  function scrollToPilots(event) {
+    if (!pilotForm) return;
+    if (event) {
+      event.preventDefault();
+    }
+    pilotForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    focusPilotForm();
+  }
+
+  document.querySelectorAll('[data-scroll-to-pilots]').forEach((el) => {
+    el.addEventListener('click', scrollToPilots);
+  });
+
+  if (floatingCtaButton) {
+    floatingCtaButton.addEventListener('click', scrollToPilots);
+  }
+
   if (floatingCta) {
     const toggleFloating = () => {
       const threshold = 400;
@@ -150,5 +186,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
     toggleFloating();
     window.addEventListener('scroll', toggleFloating, { passive: true });
+  }
+
+  if (pilotForm) {
+    const successMessage = pilotForm.querySelector('[data-pilot-success]');
+    const errorMessage = pilotForm.querySelector('[data-pilot-error]');
+    const submitButton = pilotForm.querySelector('button[type="submit"]');
+    let fallbackSubmission = false;
+
+    pilotForm.addEventListener('submit', async (event) => {
+      if (fallbackSubmission) {
+        fallbackSubmission = false;
+        return;
+      }
+
+      event.preventDefault();
+
+      if (successMessage) successMessage.hidden = true;
+      if (errorMessage) errorMessage.hidden = true;
+      if (submitButton) submitButton.disabled = true;
+
+      const formData = new FormData(pilotForm);
+      const payload = {};
+      formData.forEach((value, key) => {
+        payload[key] = typeof value === 'string' ? value : String(value);
+      });
+
+      const action = pilotForm.getAttribute('action') || '';
+      const method = (pilotForm.getAttribute('method') || 'POST').toUpperCase();
+
+      try {
+        if (!action || action === '#') {
+          pilotForm.reset();
+          if (successMessage) successMessage.hidden = false;
+          return;
+        }
+
+        const response = await fetch(action, {
+          method,
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+          credentials: 'omit',
+        });
+
+        if (!response.ok) {
+          throw new Error('Request failed');
+        }
+
+        pilotForm.reset();
+        if (successMessage) successMessage.hidden = false;
+      } catch (error) {
+        if (action && action !== '#') {
+          fallbackSubmission = true;
+          if (submitButton) submitButton.disabled = false;
+          pilotForm.submit();
+          return;
+        }
+
+        if (errorMessage) errorMessage.hidden = false;
+      } finally {
+        if (submitButton) submitButton.disabled = false;
+      }
+    });
   }
 });

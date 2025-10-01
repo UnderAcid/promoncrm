@@ -6,9 +6,16 @@
 /** @var string $currentTheme */
 /** @var array<string, mixed> $clientConfig */
 /** @var string[] $themes */
+/** @var array<string, string> $localeUrls */
 
 $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$host = $_SERVER['HTTP_HOST'] ?? 'nerp.app';
+if ($host === 'localhost' || str_starts_with($host, '127.') || str_starts_with($host, '0.0.0.0')) {
+    $host = 'nerp.app';
+}
+if ($host === 'nerp.app') {
+    $scheme = 'https';
+}
 $uri = strtok($_SERVER['REQUEST_URI'] ?? '/', '?') ?: '/';
 $canonical = $scheme . '://' . $host . $uri;
 $localeCode = (string) $t->get('app.locale_code', [], $currentLocale);
@@ -23,6 +30,10 @@ $localeCode = (string) $t->get('app.locale_code', [], $currentLocale);
     <meta name="description" content="<?= e($t->get('meta.description')); ?>">
     <meta name="keywords" content="<?= e($t->get('meta.keywords')); ?>">
     <link rel="canonical" href="<?= e($canonical); ?>">
+    <?php foreach ($localeUrls as $code => $path): ?>
+        <link rel="alternate" hreflang="<?= e($code); ?>" href="<?= e($scheme . '://' . $host . $path); ?>">
+    <?php endforeach; ?>
+    <link rel="alternate" hreflang="x-default" href="<?= e($scheme . '://' . $host . '/'); ?>">
     <meta property="og:title" content="<?= e($t->get('meta.og_title')); ?>">
     <meta property="og:description" content="<?= e($t->get('meta.og_description')); ?>">
     <meta property="og:url" content="<?= e($canonical); ?>">
@@ -52,7 +63,7 @@ $localeCode = (string) $t->get('app.locale_code', [], $currentLocale);
         <?php require BASE_PATH . '/views/partials/footer.php'; ?>
     </div>
     <div class="floating-cta">
-        <button class="btn btn-primary" data-floating-cta>
+        <button class="btn btn-primary" data-floating-cta data-scroll-target="pilotForm">
             <span class="icon rocket" aria-hidden="true"></span><?= e($t->get('floating_cta')); ?>
         </button>
     </div>

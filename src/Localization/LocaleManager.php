@@ -15,6 +15,9 @@ final class LocaleManager
 
     private Translator $translator;
 
+    /** @var string[] */
+    private array $baseSegments = [];
+
     /**
      * @param array<string, string> $available
      */
@@ -29,27 +32,37 @@ final class LocaleManager
 
     public function bootstrap(): void
     {
+        $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/';
+        $segments = $this->extractSegments($path);
+        $localeFromPath = $segments[0] ?? null;
+
+        if ($localeFromPath !== null && $this->isSupported($localeFromPath)) {
+            $this->baseSegments = array_slice($segments, 1);
+            $this->applyLocale($localeFromPath);
+        } else {
+            $this->baseSegments = $segments;
+            $this->applyLocale($this->determineStoredLocale());
+        }
+
         $requested = $_GET['lang'] ?? null;
         if (is_string($requested) && $requested !== '') {
-            if ($this->isSupported($requested)) {
-                $_SESSION['locale'] = $requested;
-                setcookie('locale', $requested, time() + 60 * 60 * 24 * 30, '/');
+            $targetLocale = $this->isSupported($requested) ? $requested : $this->default;
+            $this->applyLocale($targetLocale);
+
+            $redirectSegments = $this->baseSegments;
+            array_unshift($redirectSegments, $targetLocale);
+
+            $redirectPath = $this->segmentsToPath($redirectSegments);
+            $query = $_GET;
+            unset($query['lang']);
+            $redirectUrl = $redirectPath;
+            if (!empty($query)) {
+                $redirectUrl .= '?' . http_build_query($query);
             }
 
-            $redirectTo = strtok($_SERVER['REQUEST_URI'] ?? '/', '?') ?: '/';
-            header('Location: ' . $redirectTo);
+            header('Location: ' . $redirectUrl);
             exit;
         }
-
-        $stored = $_SESSION['locale'] ?? ($_COOKIE['locale'] ?? $this->default);
-        $locale = is_string($stored) ? $stored : $this->default;
-
-        if (!$this->isSupported($locale)) {
-            $locale = $this->default;
-        }
-
-        $this->current = $locale;
-        $this->translator = new Translator($locale, $this->loadLines($locale));
     }
 
     /**
@@ -58,6 +71,22 @@ final class LocaleManager
     public function getAvailableLocales(): array
     {
         return $this->locales;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getLocalizedPaths(): array
+    {
+        $paths = [];
+
+        foreach ($this->locales as $code => $_label) {
+            $segments = $this->baseSegments;
+            array_unshift($segments, $code);
+            $paths[$code] = $this->segmentsToPath($segments);
+        }
+
+        return $paths;
     }
 
     public function getCurrentLocale(): string
@@ -73,6 +102,54 @@ final class LocaleManager
     private function isSupported(string $locale): bool
     {
         return array_key_exists($locale, $this->locales);
+    }
+
+    private function applyLocale(string $locale): void
+    {
+        if (!$this->isSupported($locale)) {
+            $locale = $this->default;
+        }
+
+        $this->current = $locale;
+        $_SESSION['locale'] = $locale;
+        setcookie('locale', $locale, time() + 60 * 60 * 24 * 30, '/');
+        $this->translator = new Translator($locale, $this->loadLines($locale));
+    }
+
+    private function determineStoredLocale(): string
+    {
+        $stored = $_SESSION['locale'] ?? ($_COOKIE['locale'] ?? $this->default);
+        if (is_string($stored) && $this->isSupported($stored)) {
+            return $stored;
+        }
+
+        return $this->default;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function extractSegments(string $path): array
+    {
+        $trimmed = trim($path, '/');
+        if ($trimmed === '') {
+            return [];
+        }
+
+        $parts = explode('/', $trimmed);
+
+        return array_values(array_filter($parts, static fn (string $segment): bool => $segment !== ''));
+    }
+
+    private function segmentsToPath(array $segments): string
+    {
+        $filtered = array_values(array_filter($segments, static fn ($segment): bool => is_string($segment) && $segment !== ''));
+
+        if ($filtered === []) {
+            return '/';
+        }
+
+        return '/' . implode('/', $filtered) . '/';
     }
 
     /**

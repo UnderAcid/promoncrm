@@ -1,5 +1,6 @@
 <?php
 /** @var App\Localization\Translator $t */
+/** @var string $currentLocale */
 
 $heroTags = $t->get('hero.tags');
 $heroCards = $t->get('hero.feature_cards');
@@ -11,6 +12,8 @@ $howItems = $t->get('how.items');
 $partnerCards = $t->get('partners.cards');
 $logos = $t->get('logos.brands');
 $faqItems = $t->get('faq.items');
+$pilotPoints = $t->get('pilots.points');
+$pilotForm = $t->get('pilots.form');
 ?>
 <section class="container section-hero" id="hero">
     <div class="grid two">
@@ -23,7 +26,7 @@ $faqItems = $t->get('faq.items');
             <h1 class="h1"><?= e($t->get('hero.title')); ?></h1>
             <p class="lead"><?= e($t->get('hero.lead')); ?></p>
             <div class="cta-row">
-                <a class="btn btn-primary" href="#pricing">
+                <a class="btn btn-primary" href="#pilots">
                     <span class="icon rocket" aria-hidden="true"></span><?= e($t->get('hero.primary_cta')); ?>
                 </a>
                 <a class="btn btn-ghost" href="#how">
@@ -90,7 +93,7 @@ $faqItems = $t->get('faq.items');
         </div>
     </div>
     <div class="cta-row">
-        <a class="btn btn-primary" href="#pricing"><span class="icon sparkles" aria-hidden="true"></span><?= e($t->get('audience.cta')); ?></a>
+        <a class="btn btn-primary" href="#pilots"><span class="icon sparkles" aria-hidden="true"></span><?= e($t->get('audience.cta')); ?></a>
     </div>
 </section>
 
@@ -129,6 +132,64 @@ $faqItems = $t->get('faq.items');
 
 <div class="divider" role="presentation"></div>
 
+<section id="pilots" class="container pilots-section">
+    <div class="pilots-grid">
+        <div class="pilot-overview">
+            <div class="eyebrow"><?= e($t->get('pilots.eyebrow')); ?></div>
+            <h2 class="h2"><?= e($t->get('pilots.title')); ?></h2>
+            <p class="lead"><?= e($t->get('pilots.subtitle')); ?></p>
+            <?php if (is_array($pilotPoints) && $pilotPoints !== []): ?>
+                <ul class="pilot-points">
+                    <?php foreach ($pilotPoints as $point): ?>
+                        <li><span><?= e($point); ?></span></li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+        </div>
+        <div class="card pilots-card">
+            <h3 class="card-title"><?= e($pilotForm['title'] ?? ''); ?></h3>
+            <p class="card-desc"><?= e($pilotForm['subtitle'] ?? ''); ?></p>
+            <form id="pilotForm" class="pilot-form" action="<?= e($pilotForm['action'] ?? 'https://nerp.app/api/pilot-request'); ?>" method="post" data-pilot-form>
+                <input type="hidden" name="locale" value="<?= e($currentLocale ?? 'ru'); ?>">
+                <div class="form-grid">
+                    <div class="input-control">
+                        <label for="pilotName"><?= e($pilotForm['name'] ?? ''); ?></label>
+                        <input type="text" id="pilotName" name="name" autocomplete="name" placeholder="<?= e($pilotForm['name_placeholder'] ?? ''); ?>" required>
+                    </div>
+                    <div class="input-control">
+                        <label for="pilotEmail"><?= e($pilotForm['email'] ?? ''); ?></label>
+                        <input type="email" id="pilotEmail" name="email" autocomplete="email" placeholder="<?= e($pilotForm['email_placeholder'] ?? ''); ?>" required>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="input-control">
+                        <label for="pilotCompany"><?= e($pilotForm['company'] ?? ''); ?></label>
+                        <input type="text" id="pilotCompany" name="company" autocomplete="organization" placeholder="<?= e($pilotForm['company_placeholder'] ?? ''); ?>">
+                    </div>
+                    <div class="input-control">
+                        <label for="pilotRole"><?= e($pilotForm['role'] ?? ''); ?></label>
+                        <input type="text" id="pilotRole" name="role" placeholder="<?= e($pilotForm['role_placeholder'] ?? ''); ?>">
+                    </div>
+                </div>
+                <div class="input-control">
+                    <label for="pilotMessage"><?= e($pilotForm['message'] ?? ''); ?></label>
+                    <textarea id="pilotMessage" name="message" rows="4" placeholder="<?= e($pilotForm['message_placeholder'] ?? ''); ?>"></textarea>
+                </div>
+                <p class="form-consent"><?= e($pilotForm['consent'] ?? ''); ?></p>
+                <div class="pilot-form-actions">
+                    <button class="btn btn-primary" type="submit">
+                        <span class="icon rocket" aria-hidden="true"></span><?= e($pilotForm['submit'] ?? ''); ?>
+                    </button>
+                </div>
+                <p class="form-message success" data-pilot-success hidden><?= e($pilotForm['success'] ?? ''); ?></p>
+                <p class="form-message error" data-pilot-error hidden><?= e($pilotForm['error'] ?? ''); ?></p>
+            </form>
+        </div>
+    </div>
+</section>
+
+<div class="divider" role="presentation"></div>
+
 <section id="pricing" class="container pricing-section">
     <h2 class="h2"><?= e($t->get('pricing.title')); ?></h2>
     <p class="muted"><?= e($t->get('pricing.subtitle')); ?></p>
@@ -160,7 +221,7 @@ $faqItems = $t->get('faq.items');
                 <strong id="usdApprox">$0</strong>
             </div>
             <p class="muted small"><?= e($t->get('pricing.micro_fee')); ?></p>
-            <a class="btn btn-primary" href="#contact">
+            <a class="btn btn-primary" href="#pilots">
                 <span class="icon chat" aria-hidden="true"></span><?= e($t->get('pricing.primary_cta')); ?>
             </a>
         </div>
@@ -211,7 +272,7 @@ $faqItems = $t->get('faq.items');
     <h2 class="h2"><?= e($t->get('cta.title')); ?></h2>
     <p class="muted"><?= e($t->get('cta.subtitle')); ?></p>
     <div class="cta-row">
-        <a class="btn btn-primary" href="#pricing"><span class="icon rocket" aria-hidden="true"></span><?= e($t->get('cta.primary_cta')); ?></a>
+        <a class="btn btn-primary" href="#pilots"><span class="icon rocket" aria-hidden="true"></span><?= e($t->get('cta.primary_cta')); ?></a>
         <a class="btn btn-ghost" href="#how"><span class="icon play" aria-hidden="true"></span><?= e($t->get('cta.secondary_cta')); ?></a>
     </div>
 </section>
