@@ -8,6 +8,9 @@ const themeLabels = config.themeLabels || {};
 const themes = config.themes || ['light', 'dark'];
 const microFee = typeof config.microFee === 'number' ? config.microFee : 0.001;
 const usdRate = typeof config.usdRate === 'number' ? config.usdRate : 1;
+const pilotEndpoint = config.pilotEndpoint || '';
+const pilotSuccess = config.pilotSuccess || '';
+const pilotError = config.pilotError || '';
 
 if (!localStorage.getItem('prefersDarkSet')) {
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -24,6 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const themeToggle = document.querySelector('[data-theme-toggle]');
   const themeLabel = themeToggle?.querySelector('[data-theme-label]');
   const floatingCta = document.querySelector('[data-floating-cta]')?.parentElement;
+  const pilotForm = document.querySelector('[data-pilot-form]');
+  const pilotStatus = pilotForm?.querySelector('[data-pilot-status]');
+  const pilotSubmit = pilotForm?.querySelector('[data-pilot-submit]');
 
   const numberFormatter = new Intl.NumberFormat(numberLocale);
   const currencyFormatter = new Intl.NumberFormat(numberLocale, {
@@ -92,7 +98,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (languageForm) {
     languageForm.addEventListener('change', () => {
-      languageForm.submit();
+      const select = languageForm.querySelector('select');
+      const selectedOption = select?.options[select.selectedIndex];
+      const url = selectedOption?.dataset.url;
+      if (url) {
+        window.location.href = url;
+      } else {
+        languageForm.submit();
+      }
     });
   }
 
@@ -150,5 +163,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
     toggleFloating();
     window.addEventListener('scroll', toggleFloating, { passive: true });
+  }
+
+  document.querySelector('[data-floating-cta]')?.addEventListener('click', () => {
+    const target = document.getElementById('pilot');
+    target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  if (pilotForm && pilotSubmit && pilotStatus) {
+    const resetStatus = () => {
+      pilotStatus.textContent = '';
+      pilotStatus.classList.remove('is-success', 'is-error');
+    };
+
+    pilotForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!pilotForm.checkValidity()) {
+        pilotForm.reportValidity();
+        return;
+      }
+
+      resetStatus();
+      pilotSubmit.setAttribute('disabled', 'disabled');
+      pilotSubmit.classList.add('is-loading');
+
+      const formData = new FormData(pilotForm);
+      const payload = Object.fromEntries(formData.entries());
+
+      const targetEndpoint = pilotEndpoint || pilotForm.getAttribute('action') || '';
+
+      if (!targetEndpoint) {
+        pilotStatus.textContent = pilotError || 'Endpoint is not configured.';
+        pilotStatus.classList.add('is-error');
+        pilotSubmit.removeAttribute('disabled');
+        pilotSubmit.classList.remove('is-loading');
+        return;
+      }
+
+      try {
+        const response = await fetch(targetEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          throw new Error('Request failed');
+        }
+
+        pilotForm.reset();
+        pilotStatus.textContent = pilotSuccess || 'Application sent successfully.';
+        pilotStatus.classList.add('is-success');
+      } catch (error) {
+        pilotStatus.textContent = pilotError || 'Something went wrong. Please try again.';
+        pilotStatus.classList.add('is-error');
+      } finally {
+        pilotSubmit.removeAttribute('disabled');
+        pilotSubmit.classList.remove('is-loading');
+      }
+    });
   }
 });

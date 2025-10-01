@@ -11,15 +11,16 @@ return [
             'toggle' => 'Toggle theme',
             'light' => 'Light',
             'dark' => 'Dark',
+            'mezen' => 'Mezen pattern',
         ],
         'noscript' => 'JavaScript is disabled. Some functionality may be limited.',
     ],
     'meta' => [
-        'title' => 'nERP — Web3 ERP Builder',
-        'description' => 'Assemble CRM, HR, and inventory workflows in a single day. The nERP Web3 ERP builder keeps data encrypted locally, scales via nodes, and charges only for real actions.',
-        'keywords' => 'Web3 ERP, CRM builder, HR automation, decentralized inventory, encrypted data, micro payments',
-        'og_title' => 'nERP — Web3 ERP Builder',
-        'og_description' => 'Build CRM, HR, and inventory in one day. Your data stays with you, payments only for activity.',
+        'title' => 'nERP — Web3 ERP builder from the future',
+        'description' => 'Launch CRM, HR, and inventory on nerp.app in a single day. nERP keeps data encrypted locally, scales via nodes, and charges only for real actions.',
+        'keywords' => 'nerp.app, Web3 ERP, CRM builder, HR automation, decentralized inventory, encrypted data, micro payments',
+        'og_title' => 'nERP — Web3 ERP builder on nerp.app',
+        'og_description' => 'Assemble CRM, HR, and inventory in one day. Your data stays with you, payments only for activity.',
     ],
     'nav' => [
         'for' => 'Who it is for',
@@ -27,19 +28,20 @@ return [
         'how' => 'How it works',
         'pricing' => 'Pricing',
         'partners' => 'Partners',
+        'pilot' => 'Pilots',
         'faq' => 'FAQ',
     ],
     'hero' => [
-        'tags' => ['Web3.0', 'Encryption', 'No tiers'],
+        'tags' => ['nerp.app', 'Web3.0', 'Encryption'],
         'title' => 'Web3.0 ERP builder',
-        'lead' => 'Build CRM, HR, and inventory in one day. Data is encrypted locally and stays with you. Scale the node network and only pay for the actions performed.',
-        'primary_cta' => 'Get started',
+        'lead' => 'Build CRM, HR, and inventory on nerp.app in a single day. Data is encrypted locally and stays with you. Scale the node network and only pay for the actions performed.',
+        'primary_cta' => 'Apply for pilot',
         'secondary_cta' => 'Watch demo',
         'feature_cards' => [
             [
                 'icon' => 'zap',
-                'title' => 'Up and running in a day',
-                'desc' => 'Modular blocks, no heavy integrations required.',
+                'title' => 'Live in one day',
+                'desc' => 'Modular blocks with no heavy integrations.',
             ],
             [
                 'icon' => 'lock',
@@ -55,7 +57,7 @@ return [
     ],
     'audience' => [
         'title' => 'Who nERP is for',
-        'subtitle' => 'Pick a profile — content and examples will adapt.',
+        'subtitle' => 'Pick a profile — content and examples will adapt to your use case.',
         'options' => [
             'business' => [
                 'icon' => 'building',
@@ -90,7 +92,7 @@ return [
                 'desc' => 'Publish features and get paid automatically based on usage.',
             ],
         ],
-        'cta' => 'Request a tailored quote',
+        'cta' => 'Apply for the pilot program',
     ],
     'why' => [
         'title' => 'Why teams choose nERP',
@@ -131,7 +133,7 @@ return [
     ],
     'pricing' => [
         'title' => 'What nERP costs',
-        'subtitle' => 'Only pay for actions performed. Adjust the calculator to estimate.',
+        'subtitle' => 'Only pay for actions executed on the node. Adjust the calculator to estimate.',
         'team_size' => 'Team size',
         'actions_per_day' => 'Actions per person per day',
         'monthly_actions' => 'Actions per month',
@@ -140,8 +142,8 @@ return [
         'hint' => 'Numbers are indicative and depend on the modules you activate.',
         'locale' => 'en-US',
         'currency' => 'USD',
-        'micro_fee' => 'Pay only for actions performed.',
-        'primary_cta' => 'Talk to sales',
+        'micro_fee' => 'Pay only for actions performed on the node.',
+        'primary_cta' => 'Reserve a pilot slot',
     ],
     'partners' => [
         'title' => 'For partners and module authors',
@@ -167,12 +169,37 @@ return [
         'eyebrow' => 'Pilots and integrations',
         'brands' => ['Astra', 'Orion', 'Mercury', 'Helix', 'Nord', 'Sigma'],
         'quote' => '“We assembled CRM+HR in two days with no server or integrator required. Paying per action keeps budgets transparent.”',
-        'quote_author' => 'Acme LLC',
+        'quote_author' => 'Polarise LLC',
+    ],
+    'pilot' => [
+        'title' => 'Join the nERP pilot program',
+        'subtitle' => 'Launch your first node with the nerp.app team on call and a direct product feedback loop.',
+        'benefits' => [
+            '90 days of white-glove onboarding from nerp.app',
+            'Access to the private roadmap and early releases',
+            'Module tailoring for your use case plus security review',
+        ],
+        'fields' => [
+            'name' => 'Your name',
+            'email' => 'Work email',
+            'company' => 'Company or project',
+            'goal' => 'What you plan to automate',
+        ],
+        'placeholders' => [
+            'name' => 'Anna Smith',
+            'email' => 'founder@company.io',
+            'company' => 'Northern Networks Inc.',
+            'goal' => 'CRM, inventory, smart contracts for logistics…',
+        ],
+        'consent' => 'By submitting you agree with the nerp.app privacy policy.',
+        'submit' => 'Submit application',
+        'success' => 'Thanks! We will get back to you within one business day.',
+        'error' => 'Could not submit the form. Please try again or email hi@nerp.app.',
     ],
     'cta' => [
         'title' => 'Ready to try it?',
         'subtitle' => 'Spin up an ERP in minutes and run your first workflow today.',
-        'primary_cta' => 'Get started',
+        'primary_cta' => 'Apply now',
         'secondary_cta' => 'Watch demo',
     ],
     'faq' => [
@@ -195,13 +222,13 @@ return [
     'footer' => [
         'copyright' => '© :year nERP. All rights reserved.',
         'links' => [
-            ['label' => 'Privacy', 'href' => '#'],
-            ['label' => 'Docs', 'href' => '#'],
-            ['label' => 'Contact', 'href' => '#'],
+            ['label' => 'Privacy', 'href' => 'https://nerp.app/privacy'],
+            ['label' => 'Docs', 'href' => 'https://nerp.app/docs'],
+            ['label' => 'Contact', 'href' => 'mailto:hi@nerp.app'],
         ],
     ],
     'language_switcher' => [
         'label' => 'Interface language',
     ],
-    'floating_cta' => 'Try for free',
+    'floating_cta' => 'Apply for pilot',
 ];

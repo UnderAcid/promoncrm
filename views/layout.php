@@ -1,14 +1,18 @@
 <?php
 /** @var App\Localization\Translator $t */
 /** @var string $content */
-/** @var array<string, string> $languages */
+/** @var array<int, array{code: string, label: string, url: string, active: bool}> $languages */
 /** @var string $currentLocale */
 /** @var string $currentTheme */
 /** @var array<string, mixed> $clientConfig */
 /** @var string[] $themes */
 
 $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$host = $_SERVER['HTTP_HOST'] ?? 'nerp.app';
+if ($host === 'localhost' || $host === '127.0.0.1') {
+    $host = 'nerp.app';
+    $scheme = 'https';
+}
 $uri = strtok($_SERVER['REQUEST_URI'] ?? '/', '?') ?: '/';
 $canonical = $scheme . '://' . $host . $uri;
 $localeCode = (string) $t->get('app.locale_code', [], $currentLocale);
@@ -52,7 +56,7 @@ $localeCode = (string) $t->get('app.locale_code', [], $currentLocale);
         <?php require BASE_PATH . '/views/partials/footer.php'; ?>
     </div>
     <div class="floating-cta">
-        <button class="btn btn-primary" data-floating-cta>
+        <button class="btn btn-primary" type="button" data-floating-cta>
             <span class="icon rocket" aria-hidden="true"></span><?= e($t->get('floating_cta')); ?>
         </button>
     </div>

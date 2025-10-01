@@ -1,5 +1,6 @@
 <?php
 /** @var App\Localization\Translator $t */
+/** @var string $pilotEndpoint */
 
 $heroTags = $t->get('hero.tags');
 $heroCards = $t->get('hero.feature_cards');
@@ -11,6 +12,7 @@ $howItems = $t->get('how.items');
 $partnerCards = $t->get('partners.cards');
 $logos = $t->get('logos.brands');
 $faqItems = $t->get('faq.items');
+$pilotFields = $t->get('pilot.fields');
 ?>
 <section class="container section-hero" id="hero">
     <div class="grid two">
@@ -23,7 +25,7 @@ $faqItems = $t->get('faq.items');
             <h1 class="h1"><?= e($t->get('hero.title')); ?></h1>
             <p class="lead"><?= e($t->get('hero.lead')); ?></p>
             <div class="cta-row">
-                <a class="btn btn-primary" href="#pricing">
+                <a class="btn btn-primary" href="#pilot">
                     <span class="icon rocket" aria-hidden="true"></span><?= e($t->get('hero.primary_cta')); ?>
                 </a>
                 <a class="btn btn-ghost" href="#how">
@@ -90,7 +92,7 @@ $faqItems = $t->get('faq.items');
         </div>
     </div>
     <div class="cta-row">
-        <a class="btn btn-primary" href="#pricing"><span class="icon sparkles" aria-hidden="true"></span><?= e($t->get('audience.cta')); ?></a>
+        <a class="btn btn-primary" href="#pilot"><span class="icon sparkles" aria-hidden="true"></span><?= e($t->get('audience.cta')); ?></a>
     </div>
 </section>
 
@@ -160,7 +162,7 @@ $faqItems = $t->get('faq.items');
                 <strong id="usdApprox">$0</strong>
             </div>
             <p class="muted small"><?= e($t->get('pricing.micro_fee')); ?></p>
-            <a class="btn btn-primary" href="#contact">
+            <a class="btn btn-primary" href="#pilot">
                 <span class="icon chat" aria-hidden="true"></span><?= e($t->get('pricing.primary_cta')); ?>
             </a>
         </div>
@@ -207,11 +209,54 @@ $faqItems = $t->get('faq.items');
 
 <div class="divider" role="presentation"></div>
 
+<section id="pilot" class="container pilot-section">
+    <div class="grid two-66 pilot-content">
+        <div>
+            <h2 class="h2"><?= e($t->get('pilot.title')); ?></h2>
+            <p class="muted"><?= e($t->get('pilot.subtitle')); ?></p>
+            <ul class="pilot-list">
+                <?php foreach ($t->get('pilot.benefits') as $benefit): ?>
+                    <li><span class="icon check" aria-hidden="true"></span><?= e($benefit); ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+        <form class="card pilot-form" method="post" action="<?= e($pilotEndpoint); ?>" data-pilot-form>
+            <div class="form-grid two">
+                <label class="form-field">
+                    <span><?= e($pilotFields['name']); ?></span>
+                    <input type="text" name="name" required placeholder="<?= e($t->get('pilot.placeholders.name')); ?>">
+                </label>
+                <label class="form-field">
+                    <span><?= e($pilotFields['email']); ?></span>
+                    <input type="email" name="email" required placeholder="<?= e($t->get('pilot.placeholders.email')); ?>">
+                </label>
+            </div>
+            <label class="form-field">
+                <span><?= e($pilotFields['company']); ?></span>
+                <input type="text" name="company" required placeholder="<?= e($t->get('pilot.placeholders.company')); ?>">
+            </label>
+            <label class="form-field">
+                <span><?= e($pilotFields['goal']); ?></span>
+                <textarea name="goal" rows="4" required placeholder="<?= e($t->get('pilot.placeholders.goal')); ?>"></textarea>
+            </label>
+            <div class="form-footer">
+                <p class="muted small"><?= e($t->get('pilot.consent')); ?></p>
+                <button class="btn btn-primary" type="submit" data-pilot-submit>
+                    <span class="icon rocket" aria-hidden="true"></span><?= e($t->get('pilot.submit')); ?>
+                </button>
+            </div>
+            <p class="form-status" data-pilot-status role="status" aria-live="polite"></p>
+        </form>
+    </div>
+</section>
+
+<div class="divider" role="presentation"></div>
+
 <section class="container center">
     <h2 class="h2"><?= e($t->get('cta.title')); ?></h2>
     <p class="muted"><?= e($t->get('cta.subtitle')); ?></p>
     <div class="cta-row">
-        <a class="btn btn-primary" href="#pricing"><span class="icon rocket" aria-hidden="true"></span><?= e($t->get('cta.primary_cta')); ?></a>
+        <a class="btn btn-primary" href="#pilot"><span class="icon rocket" aria-hidden="true"></span><?= e($t->get('cta.primary_cta')); ?></a>
         <a class="btn btn-ghost" href="#how"><span class="icon play" aria-hidden="true"></span><?= e($t->get('cta.secondary_cta')); ?></a>
     </div>
 </section>
