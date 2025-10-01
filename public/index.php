@@ -28,14 +28,15 @@ $clientConfig = [
     'defaultAudience' => $defaultAudience,
     'audiencePitches' => $audiencePitches,
     'numberLocale' => $translator->get('pricing.locale', [], $translator->get('app.locale_code')),
-    'currency' => $translator->get('pricing.currency', [], 'USD'),
+    'currencyCode' => $translator->get('pricing.currency_code', [], 'USD'),
+    'currencySymbol' => $translator->get('pricing.currency_symbol', [], '$'),
+    'tokensPerCurrency' => (float) $translator->get('pricing.token_default', [], 1),
     'themes' => $themeManager->getAvailableThemes(),
     'themeLabels' => [
         'light' => $translator->get('app.theme.light'),
         'dark' => $translator->get('app.theme.dark'),
     ],
     'microFee' => 0.001,
-    'usdRate' => 1,
 ];
 
 $content = View::render('home', [

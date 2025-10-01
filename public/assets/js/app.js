@@ -3,11 +3,14 @@ const docEl = document.documentElement;
 const defaultAudience = config.defaultAudience || 'business';
 const audiencePitches = config.audiencePitches || {};
 const numberLocale = config.numberLocale || 'en-US';
-const currencyCode = config.currency || 'USD';
+const currencyCode = config.currencyCode || 'USD';
 const themeLabels = config.themeLabels || {};
 const themes = config.themes || ['light', 'dark'];
 const microFee = typeof config.microFee === 'number' ? config.microFee : 0.001;
-const usdRate = typeof config.usdRate === 'number' ? config.usdRate : 1;
+const defaultTokensPerCurrency =
+  typeof config.tokensPerCurrency === 'number' && config.tokensPerCurrency > 0
+    ? config.tokensPerCurrency
+    : 1;
 
 if (!localStorage.getItem('prefersDarkSet')) {
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -29,13 +32,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const floatingCtaButton = document.querySelector('[data-floating-cta]');
   const floatingCta = floatingCtaButton?.parentElement ?? null;
   const pilotForm = document.querySelector('[data-pilot-form]');
+  const tokenInput = document.querySelector('[data-token-input]');
+  const tokenDisplay = document.querySelector('[data-token-display]');
 
-  const numberFormatter = new Intl.NumberFormat(numberLocale);
+  const integerFormatter = new Intl.NumberFormat(numberLocale);
+  const tokenFormatter = new Intl.NumberFormat(numberLocale, {
+    minimumFractionDigits: 6,
+    maximumFractionDigits: 6,
+  });
   const currencyFormatter = new Intl.NumberFormat(numberLocale, {
     style: 'currency',
     currency: currencyCode,
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+
+  let currentTokensPerCurrency = defaultTokensPerCurrency;
 
   function updateThemeLabel(theme) {
     if (themeLabel) {
@@ -152,17 +164,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const apdVal = document.getElementById('apdVal');
   const opsMonthly = document.getElementById('opsMonthly');
   const nerpTotal = document.getElementById('nerpTotal');
-  const usdApprox = document.getElementById('usdApprox');
+  const fiatApprox = document.getElementById('fiatApprox');
+
+  function updateTokenMeta(value) {
+    if (!tokenDisplay) return;
+    const normalized = Number.isFinite(value) && value > 0 ? value : defaultTokensPerCurrency;
+    tokenDisplay.textContent = normalized.toFixed(6);
+  }
 
   function estimate(peopleCount, actionsPerDay) {
     const monthlyActions = actionsPerDay * 30 * Math.max(peopleCount, 1);
     const nerpSpend = monthlyActions * microFee;
-    const usd = nerpSpend * usdRate;
-    return { monthlyActions, nerpSpend, usd };
+    const fiat = currentTokensPerCurrency > 0 ? nerpSpend / currentTokensPerCurrency : 0;
+    return { monthlyActions, nerpSpend, fiat };
   }
 
   function updateCalc() {
-    if (!(people && apd && peopleVal && apdVal && opsMonthly && nerpTotal && usdApprox)) {
+    if (!(people && apd && peopleVal && apdVal && opsMonthly && nerpTotal && fiatApprox)) {
       return;
     }
 
@@ -171,20 +189,103 @@ document.addEventListener('DOMContentLoaded', () => {
     peopleVal.textContent = p.toString();
     apdVal.textContent = a.toString();
     const result = estimate(p, a);
-    opsMonthly.textContent = numberFormatter.format(result.monthlyActions);
-    nerpTotal.textContent = numberFormatter.format(result.nerpSpend);
-    usdApprox.textContent = currencyFormatter.format(result.usd);
+    opsMonthly.textContent = integerFormatter.format(result.monthlyActions);
+    nerpTotal.textContent = tokenFormatter.format(result.nerpSpend);
+    fiatApprox.textContent = currencyFormatter.format(result.fiat);
   }
 
   people?.addEventListener('input', updateCalc);
   apd?.addEventListener('input', updateCalc);
   updateCalc();
 
+  if (tokenInput) {
+    const clampTokenValue = (value) => {
+      const numeric = Number.parseFloat(String(value).replace(',', '.'));
+      if (!Number.isFinite(numeric) || numeric <= 0) {
+        return defaultTokensPerCurrency;
+      }
+      return numeric;
+    };
+
+    const commitTokenValue = (value) => {
+      currentTokensPerCurrency = clampTokenValue(value);
+      tokenInput.value = currentTokensPerCurrency.toFixed(6);
+      updateTokenMeta(currentTokensPerCurrency);
+      updateCalc();
+    };
+
+    tokenInput.addEventListener('input', () => {
+      const numeric = Number.parseFloat(String(tokenInput.value).replace(',', '.'));
+      if (!Number.isFinite(numeric) || numeric <= 0) {
+        updateTokenMeta(currentTokensPerCurrency);
+        return;
+      }
+      currentTokensPerCurrency = numeric;
+      updateTokenMeta(numeric);
+      updateCalc();
+    });
+
+    ['change', 'blur'].forEach((eventName) => {
+      tokenInput.addEventListener(eventName, () => {
+        commitTokenValue(tokenInput.value);
+      });
+    });
+
+    tokenInput.setAttribute('inputmode', 'decimal');
+    tokenInput.value = currentTokensPerCurrency.toFixed(6);
+    updateTokenMeta(currentTokensPerCurrency);
+  } else {
+    updateTokenMeta(currentTokensPerCurrency);
+  }
+
   document.querySelectorAll('.faq-item').forEach((item) => {
     const trigger = item.querySelector('.faq-q');
-    if (!trigger) return;
+    const answer = item.querySelector('.faq-a');
+    if (!(trigger && answer)) return;
+    let animating = false;
+
+    const expand = () => {
+      animating = true;
+      answer.style.maxHeight = '0px';
+      item.classList.add('open');
+      requestAnimationFrame(() => {
+        answer.style.maxHeight = `${answer.scrollHeight}px`;
+      });
+    };
+
+    const collapse = () => {
+      animating = true;
+      const currentHeight = answer.scrollHeight;
+      answer.style.maxHeight = `${currentHeight}px`;
+      requestAnimationFrame(() => {
+        item.classList.remove('open');
+        answer.style.maxHeight = '0px';
+      });
+    };
+
     trigger.addEventListener('click', () => {
-      item.classList.toggle('open');
+      if (animating) return;
+      const isOpen = item.classList.contains('open');
+      if (isOpen) {
+        collapse();
+      } else {
+        expand();
+      }
+    });
+
+    answer.addEventListener('transitionend', (event) => {
+      if (event.propertyName !== 'max-height') return;
+      animating = false;
+      if (item.classList.contains('open')) {
+        answer.style.maxHeight = 'none';
+      } else {
+        answer.style.maxHeight = '';
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (!item.classList.contains('open')) return;
+      answer.style.maxHeight = 'none';
     });
   });
 
