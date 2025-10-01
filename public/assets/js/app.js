@@ -6,6 +6,8 @@ const numberLocale = config.numberLocale || 'en-US';
 const currencyCode = config.currency || 'USD';
 const themes = config.themes || ['light', 'dark'];
 const themeLabels = config.themeLabels || {};
+const languageOptions = Array.isArray(config.languages) ? config.languages : [];
+const currentLanguageCode = typeof config.currentLanguage === 'string' ? config.currentLanguage : (languageOptions[0]?.code || 'ru');
 const microFee = typeof config.microFee === 'number' ? config.microFee : 0.001;
 const fiatPerUsd = typeof config.fiatPerUsd === 'number' ? config.fiatPerUsd : 1;
 const tokenDecimals = Number.isInteger(config.tokenDecimals) ? config.tokenDecimals : 6;
@@ -30,17 +32,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const audienceButtons = document.querySelectorAll('[data-audience]');
   const audiencePitchEl = document.querySelector('[data-audience-pitch]');
-  const languageSwitcher = document.querySelector('[data-language-switcher]');
   const languageToggle = document.querySelector('[data-language-toggle]');
-  const languageMenu = document.querySelector('[data-language-menu]');
   const themeToggle = document.querySelector('[data-theme-toggle]');
-  const themeLabelTarget = document.querySelector('[data-theme-label]');
   const navToggle = document.querySelector('[data-nav-toggle]');
   const nav = document.querySelector('[data-nav]');
   const headerEl = document.querySelector('[data-header]');
   const floatingCtaButton = document.querySelector('[data-floating-cta]');
   const floatingCta = floatingCtaButton?.parentElement ?? null;
   const pilotForm = document.querySelector('[data-pilot-form]');
+  const pilotQuoteText = document.querySelector('[data-pilot-quote-text]');
+  const pilotQuoteAuthor = document.querySelector('[data-pilot-quote-author]');
+  const pilotQuoteMeta = document.querySelector('[data-pilot-quote-meta]');
+  const pilotQuoteLabel = document.querySelector('[data-pilot-quote-label]');
 
   const numberFormatter = new Intl.NumberFormat(numberLocale);
   const currencyFormatter = new Intl.NumberFormat(numberLocale, {
@@ -54,13 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function renderThemeState(theme) {
-    if (themeLabelTarget instanceof HTMLElement) {
-      const label = themeLabels[theme] || theme;
-      themeLabelTarget.textContent = label;
-    }
-
     if (themeToggle instanceof HTMLElement) {
+      const label = themeLabels[theme] || theme;
       themeToggle.setAttribute('data-theme-active', theme);
+      themeToggle.dataset.tooltip = label;
     }
   }
 
@@ -158,46 +158,94 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderAudience(defaultAudience);
 
-  if (languageSwitcher && languageToggle && languageMenu) {
-    const closeMenu = () => {
-      languageSwitcher.classList.remove('open');
-      languageToggle.setAttribute('aria-expanded', 'false');
-    };
+  const pilotCards = document.querySelectorAll('[data-pilot-card]');
 
-    const openMenu = () => {
-      languageSwitcher.classList.add('open');
-      languageToggle.setAttribute('aria-expanded', 'true');
-    };
-
-    languageToggle.addEventListener('click', (event) => {
-      event.preventDefault();
-      const expanded = languageToggle.getAttribute('aria-expanded') === 'true';
-      if (expanded) {
-        closeMenu();
-      } else {
-        openMenu();
+  const renderPilotQuote = (card) => {
+    if (!(card instanceof HTMLElement)) return;
+    pilotCards.forEach((node) => {
+      if (node instanceof HTMLElement) {
+        node.classList.toggle('active', node === card);
       }
     });
 
-    languageMenu.querySelectorAll('[data-language-option]').forEach((option) => {
-      option.addEventListener('click', () => {
-        closeMenu();
+    if (pilotQuoteText instanceof HTMLElement) {
+      pilotQuoteText.textContent = card.dataset.pilotQuote || '';
+    }
+    if (pilotQuoteAuthor instanceof HTMLElement) {
+      const author = card.dataset.pilotAuthor || '';
+      pilotQuoteAuthor.textContent = author;
+      pilotQuoteAuthor.toggleAttribute('hidden', author.trim().length === 0);
+    }
+    if (pilotQuoteMeta instanceof HTMLElement) {
+      const meta = card.dataset.pilotIndustry || '';
+      pilotQuoteMeta.textContent = meta;
+      pilotQuoteMeta.toggleAttribute('hidden', meta.trim().length === 0);
+    }
+    if (pilotQuoteLabel instanceof HTMLElement) {
+      const label = card.dataset.pilotResult || '';
+      pilotQuoteLabel.textContent = label;
+      pilotQuoteLabel.toggleAttribute('hidden', label.trim().length === 0);
+    }
+  };
+
+  if (pilotCards.length > 0) {
+    const initial = Array.from(pilotCards).find((node) => node instanceof HTMLElement && node.classList.contains('active'))
+      || pilotCards[0];
+    if (initial instanceof HTMLElement) {
+      renderPilotQuote(initial);
+    }
+
+    pilotCards.forEach((card) => {
+      if (!(card instanceof HTMLElement)) return;
+      card.addEventListener('click', () => {
+        renderPilotQuote(card);
       });
     });
+  }
 
-    document.addEventListener('click', (event) => {
-      if (!(event.target instanceof Node)) return;
-      if (!languageSwitcher.contains(event.target)) {
-        closeMenu();
-      }
-    });
+  const preparedLanguages = languageOptions
+    .map((item) => {
+      if (!item || typeof item !== 'object') return null;
+      const code = typeof item.code === 'string' ? item.code : '';
+      const url = typeof item.url === 'string' ? item.url : '';
+      const label = typeof item.label === 'string' ? item.label : code.toUpperCase();
+      if (!code || !url) return null;
+      return { code, url, label };
+    })
+    .filter(Boolean);
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && languageToggle.getAttribute('aria-expanded') === 'true') {
-        closeMenu();
-        languageToggle.focus();
-      }
-    });
+  let activeLanguage = preparedLanguages.find((entry) => entry.code === currentLanguageCode)?.code
+    || preparedLanguages[0]?.code
+    || currentLanguageCode;
+
+  function renderLanguageState(code) {
+    if (!(languageToggle instanceof HTMLElement)) return;
+    const entry = preparedLanguages.find((item) => item.code === code) || preparedLanguages[0];
+    const nextCode = entry ? entry.code : code;
+    activeLanguage = nextCode;
+    languageToggle.setAttribute('data-language-active', nextCode);
+    if (entry) {
+      languageToggle.dataset.tooltip = entry.label;
+    } else {
+      languageToggle.dataset.tooltip = '';
+    }
+  }
+
+  if (languageToggle instanceof HTMLElement) {
+    if (preparedLanguages.length <= 1) {
+      languageToggle.disabled = true;
+      renderLanguageState(activeLanguage);
+    } else {
+      renderLanguageState(activeLanguage);
+      languageToggle.addEventListener('click', () => {
+        const currentIndex = preparedLanguages.findIndex((entry) => entry.code === activeLanguage);
+        const next = preparedLanguages[(currentIndex + 1) % preparedLanguages.length];
+        if (!next) return;
+        languageToggle.disabled = true;
+        languageToggle.classList.add('is-busy');
+        window.location.href = next.url;
+      });
+    }
   }
 
   const people = document.getElementById('people');
@@ -329,37 +377,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   updatePresetState();
   updateCalc();
-
-  document.querySelectorAll('.faq-item').forEach((item) => {
-    const trigger = item.querySelector('.faq-q');
-    const answer = item.querySelector('.faq-a');
-    if (!(trigger instanceof HTMLElement) || !(answer instanceof HTMLElement)) return;
-
-    answer.style.height = '0px';
-
-    trigger.addEventListener('click', () => {
-      const isOpen = item.classList.contains('open');
-      if (isOpen) {
-        answer.style.height = `${answer.scrollHeight}px`;
-        void answer.offsetHeight;
-        answer.style.height = '0px';
-        item.classList.remove('open');
-      } else {
-        const targetHeight = answer.scrollHeight;
-        answer.style.height = '0px';
-        item.classList.add('open');
-        void answer.offsetHeight;
-        answer.style.height = `${targetHeight}px`;
-      }
-    });
-
-    answer.addEventListener('transitionend', (event) => {
-      if (event.propertyName !== 'height') return;
-      if (item.classList.contains('open')) {
-        answer.style.height = 'auto';
-      }
-    });
-  });
 
   function focusPilotForm() {
     if (!pilotForm) return;

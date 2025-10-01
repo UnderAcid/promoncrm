@@ -34,6 +34,16 @@ $clientConfig = [
         'light' => $translator->get('app.theme.light'),
         'dark' => $translator->get('app.theme.dark'),
     ],
+    'languages' => array_map(
+        static fn (string $code, string $label): array => [
+            'code' => $code,
+            'label' => $label,
+            'url' => $localeUrls[$code] ?? ('/' . $code . '/'),
+        ],
+        array_keys($languages),
+        array_values($languages)
+    ),
+    'currentLanguage' => $localeManager->getCurrentLocale(),
     'microFee' => 0.001,
     'tokenPriceUsd' => (float) $translator->get('pricing.token_price_usd', [], 1.0),
     'tokenPriceDecimals' => (int) $translator->get('pricing.token_price_decimals', [], 2),
