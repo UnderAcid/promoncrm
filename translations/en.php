@@ -21,6 +21,7 @@ return [
         'keywords' => 'nerp.app, Web3 ERP, CRM builder, HR automation, decentralized inventory, encrypted data, micropayments',
         'og_title' => 'nERP — Web3 ERP Builder | nerp.app',
         'og_description' => 'Launch CRM, HR, and inventory with encrypted nodes at nerp.app. Your data stays yours, payments track real usage.',
+        'og_image_alt' => 'nERP hero illustration with encrypted node and connected modules',
     ],
     'nav' => [
         'for' => 'Who it is for',
@@ -261,14 +262,6 @@ return [
                 'quote' => 'Usage-based billing went live without new code. Finance dashboards refresh every five minutes.',
                 'role' => 'CFO',
                 'metric' => '5 min refresh',
-            ],
-            [
-                'id' => 'helix-manufacturing',
-                'label' => 'Helix Manufacturing',
-                'company' => 'Helix Industries',
-                'quote' => 'Mapped production routes and QA. Shift leads get push alerts whenever a line slows down.',
-                'role' => 'Production director',
-                'metric' => '−27% downtime',
             ],
         ],
     ],
