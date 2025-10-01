@@ -29,23 +29,44 @@ final class LocaleManager
 
     public function bootstrap(): void
     {
+        $path = strtok($_SERVER['REQUEST_URI'] ?? '/', '?') ?: '/';
+        $segments = array_values(array_filter(explode('/', $path), static fn ($part) => $part !== ''));
+
+        $pathLocale = null;
+        if (isset($segments[0]) && $this->isSupported($segments[0])) {
+            $pathLocale = $segments[0];
+        }
+
+        $remainingSegments = $pathLocale !== null ? array_slice($segments, 1) : $segments;
+
         $requested = $_GET['lang'] ?? null;
         if (is_string($requested) && $requested !== '') {
-            if ($this->isSupported($requested)) {
-                $_SESSION['locale'] = $requested;
-                setcookie('locale', $requested, time() + 60 * 60 * 24 * 30, '/');
-            }
+            $targetLocale = $this->isSupported($requested) ? $requested : $this->default;
+            $this->rememberLocale($targetLocale);
 
-            $redirectTo = strtok($_SERVER['REQUEST_URI'] ?? '/', '?') ?: '/';
+            $redirectTo = $this->buildLocalePath($targetLocale, $remainingSegments);
             header('Location: ' . $redirectTo);
             exit;
         }
 
-        $stored = $_SESSION['locale'] ?? ($_COOKIE['locale'] ?? $this->default);
-        $locale = is_string($stored) ? $stored : $this->default;
+        if ($pathLocale !== null) {
+            $locale = $pathLocale;
+            $this->rememberLocale($locale);
+            $targetPath = $this->buildLocalePath($locale, $remainingSegments);
+            if ($targetPath !== $path) {
+                header('Location: ' . $targetPath);
+                exit;
+            }
+        } else {
+            $stored = $_SESSION['locale'] ?? ($_COOKIE['locale'] ?? $this->default);
+            $locale = is_string($stored) && $this->isSupported($stored) ? $stored : $this->default;
+            $this->rememberLocale($locale);
 
-        if (!$this->isSupported($locale)) {
-            $locale = $this->default;
+            $redirectTo = $this->buildLocalePath($locale, $remainingSegments);
+            if ($redirectTo !== $path) {
+                header('Location: ' . $redirectTo);
+                exit;
+            }
         }
 
         $this->current = $locale;
@@ -73,6 +94,24 @@ final class LocaleManager
     private function isSupported(string $locale): bool
     {
         return array_key_exists($locale, $this->locales);
+    }
+
+    private function rememberLocale(string $locale): void
+    {
+        $_SESSION['locale'] = $locale;
+        setcookie('locale', $locale, time() + 60 * 60 * 24 * 30, '/');
+    }
+
+    /**
+     * @param string[] $segments
+     */
+    private function buildLocalePath(string $locale, array $segments): string
+    {
+        if ($segments !== []) {
+            return '/' . $locale . '/' . implode('/', $segments);
+        }
+
+        return '/' . $locale . '/';
     }
 
     /**

@@ -12,6 +12,7 @@ $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 $uri = strtok($_SERVER['REQUEST_URI'] ?? '/', '?') ?: '/';
 $canonical = $scheme . '://' . $host . $uri;
 $localeCode = (string) $t->get('app.locale_code', [], $currentLocale);
+$alternateBase = rtrim($scheme . '://' . $host, '/');
 ?>
 <!DOCTYPE html>
 <html lang="<?= e($localeCode); ?>" data-theme="<?= e($currentTheme); ?>" class="no-js">
@@ -23,6 +24,14 @@ $localeCode = (string) $t->get('app.locale_code', [], $currentLocale);
     <meta name="description" content="<?= e($t->get('meta.description')); ?>">
     <meta name="keywords" content="<?= e($t->get('meta.keywords')); ?>">
     <link rel="canonical" href="<?= e($canonical); ?>">
+    <?php foreach ($languages as $code => $label): ?>
+        <?php
+        $hreflang = $code === 'ru' ? 'ru-RU' : ($code === 'en' ? 'en-US' : $code);
+        $href = $alternateBase . '/' . $code . '/';
+        ?>
+        <link rel="alternate" href="<?= e($href); ?>" hreflang="<?= e($hreflang); ?>">
+    <?php endforeach; ?>
+    <link rel="alternate" href="<?= e($alternateBase . '/ru/'); ?>" hreflang="x-default">
     <meta property="og:title" content="<?= e($t->get('meta.og_title')); ?>">
     <meta property="og:description" content="<?= e($t->get('meta.og_description')); ?>">
     <meta property="og:url" content="<?= e($canonical); ?>">

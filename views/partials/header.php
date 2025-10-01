@@ -16,6 +16,7 @@
             <a href="#how"><?= e($t->get('nav.how')); ?></a>
             <a href="#pricing"><?= e($t->get('nav.pricing')); ?></a>
             <a href="#partners"><?= e($t->get('nav.partners')); ?></a>
+            <a href="#pilots"><?= e($t->get('nav.pilots')); ?></a>
             <a href="#faq"><?= e($t->get('nav.faq')); ?></a>
         </nav>
         <div class="actions">
@@ -31,7 +32,7 @@
                 <span class="icon theme" aria-hidden="true"></span>
                 <span data-theme-label><?= e($t->get('app.theme.' . ($currentTheme ?? 'light'))); ?></span>
             </button>
-            <a class="btn btn-primary" href="#pricing">
+            <a class="btn btn-primary" href="#pilots">
                 <span class="icon rocket" aria-hidden="true"></span><?= e($t->get('hero.primary_cta')); ?>
             </a>
         </div>

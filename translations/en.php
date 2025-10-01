@@ -11,12 +11,13 @@ return [
             'toggle' => 'Toggle theme',
             'light' => 'Light',
             'dark' => 'Dark',
+            'mezen' => 'Mezen folk art',
         ],
         'noscript' => 'JavaScript is disabled. Some functionality may be limited.',
     ],
     'meta' => [
-        'title' => 'nERP — Web3 ERP Builder',
-        'description' => 'Assemble CRM, HR, and inventory workflows in a single day. The nERP Web3 ERP builder keeps data encrypted locally, scales via nodes, and charges only for real actions.',
+        'title' => 'nERP — Web3 ERP Builder | nerp.app',
+        'description' => 'Visit nerp.app to assemble CRM, HR, and inventory workflows in a single day. The nERP Web3 ERP builder keeps data encrypted locally, scales via nodes, and charges only for real actions.',
         'keywords' => 'Web3 ERP, CRM builder, HR automation, decentralized inventory, encrypted data, micro payments',
         'og_title' => 'nERP — Web3 ERP Builder',
         'og_description' => 'Build CRM, HR, and inventory in one day. Your data stays with you, payments only for activity.',
@@ -27,13 +28,14 @@ return [
         'how' => 'How it works',
         'pricing' => 'Pricing',
         'partners' => 'Partners',
+        'pilots' => 'Pilot program',
         'faq' => 'FAQ',
     ],
     'hero' => [
         'tags' => ['Web3.0', 'Encryption', 'No tiers'],
         'title' => 'Web3.0 ERP builder',
         'lead' => 'Build CRM, HR, and inventory in one day. Data is encrypted locally and stays with you. Scale the node network and only pay for the actions performed.',
-        'primary_cta' => 'Get started',
+        'primary_cta' => 'Join the pilot',
         'secondary_cta' => 'Watch demo',
         'feature_cards' => [
             [
@@ -90,7 +92,7 @@ return [
                 'desc' => 'Publish features and get paid automatically based on usage.',
             ],
         ],
-        'cta' => 'Request a tailored quote',
+        'cta' => 'Apply for pilot access',
     ],
     'why' => [
         'title' => 'Why teams choose nERP',
@@ -141,7 +143,7 @@ return [
         'locale' => 'en-US',
         'currency' => 'USD',
         'micro_fee' => 'Pay only for actions performed.',
-        'primary_cta' => 'Talk to sales',
+        'primary_cta' => 'Book a pilot call',
     ],
     'partners' => [
         'title' => 'For partners and module authors',
@@ -169,10 +171,34 @@ return [
         'quote' => '“We assembled CRM+HR in two days with no server or integrator required. Paying per action keeps budgets transparent.”',
         'quote_author' => 'Acme LLC',
     ],
+    'pilots' => [
+        'title' => 'Join the nERP pilot program',
+        'subtitle' => 'Leave a request to roll out your first workflows on nerp.app together with our team.',
+        'form_title' => 'Pilot access request',
+        'fields' => [
+            'name' => 'Full name',
+            'email' => 'Work email',
+            'company' => 'Company or team',
+            'message' => 'What processes do you want to launch first?',
+        ],
+        'placeholders' => [
+            'name' => 'Jane Doe',
+            'email' => 'team@company.com',
+            'company' => 'Acme Inc.',
+            'message' => 'CRM for pilots, HR automation, inventory for 3 hubs…',
+        ],
+        'submit' => 'Request pilot access',
+        'success' => 'Thank you! We will contact you within one business day.',
+        'errors' => [
+            'general' => 'Could not save your request. Please try again later.',
+            'required' => 'This field is required.',
+            'email' => 'Enter a valid email address.',
+        ],
+    ],
     'cta' => [
         'title' => 'Ready to try it?',
         'subtitle' => 'Spin up an ERP in minutes and run your first workflow today.',
-        'primary_cta' => 'Get started',
+        'primary_cta' => 'Join the pilot',
         'secondary_cta' => 'Watch demo',
     ],
     'faq' => [
@@ -203,5 +229,5 @@ return [
     'language_switcher' => [
         'label' => 'Interface language',
     ],
-    'floating_cta' => 'Try for free',
+    'floating_cta' => 'Join the pilot',
 ];

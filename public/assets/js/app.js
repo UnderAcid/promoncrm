@@ -23,7 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const languageForm = document.querySelector('[data-language-switcher]');
   const themeToggle = document.querySelector('[data-theme-toggle]');
   const themeLabel = themeToggle?.querySelector('[data-theme-label]');
-  const floatingCta = document.querySelector('[data-floating-cta]')?.parentElement;
+  const floatingCtaButton = document.querySelector('[data-floating-cta]');
+  const floatingCta = floatingCtaButton?.parentElement;
+  const pilotSection = document.getElementById('pilots');
 
   const numberFormatter = new Intl.NumberFormat(numberLocale);
   const currencyFormatter = new Intl.NumberFormat(numberLocale, {
@@ -150,5 +152,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     toggleFloating();
     window.addEventListener('scroll', toggleFloating, { passive: true });
+  }
+
+  if (floatingCtaButton && pilotSection) {
+    floatingCtaButton.addEventListener('click', () => {
+      pilotSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }
 });
