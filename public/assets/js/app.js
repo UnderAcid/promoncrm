@@ -4,10 +4,11 @@ const defaultAudience = config.defaultAudience || 'business';
 const audiencePitches = config.audiencePitches || {};
 const numberLocale = config.numberLocale || 'en-US';
 const currencyCode = config.currency || 'USD';
+const currencySymbol = typeof config.currencySymbol === 'string' ? config.currencySymbol : '$';
 const themeLabels = config.themeLabels || {};
 const themes = config.themes || ['light', 'dark'];
 const microFee = typeof config.microFee === 'number' ? config.microFee : 0.001;
-const usdRate = typeof config.usdRate === 'number' ? config.usdRate : 1;
+let tokenPrice = typeof config.tokenPrice === 'number' && config.tokenPrice > 0 ? config.tokenPrice : 1;
 
 if (!localStorage.getItem('prefersDarkSet')) {
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -29,12 +30,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const floatingCtaButton = document.querySelector('[data-floating-cta]');
   const floatingCta = floatingCtaButton?.parentElement ?? null;
   const pilotForm = document.querySelector('[data-pilot-form]');
+  const tokenPriceInput = document.getElementById('tokenPrice');
+  const tokenConditionEl = document.querySelector('[data-token-condition]');
+  const operationItems = document.querySelectorAll('[data-operation]');
 
   const numberFormatter = new Intl.NumberFormat(numberLocale);
+  const tokenAmountFormatter = new Intl.NumberFormat(numberLocale, {
+    minimumFractionDigits: 6,
+    maximumFractionDigits: 6,
+  });
   const currencyFormatter = new Intl.NumberFormat(numberLocale, {
     style: 'currency',
     currency: currencyCode,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 6,
+  });
+  const tokenFormatter = new Intl.NumberFormat(numberLocale, {
+    minimumFractionDigits: 6,
+    maximumFractionDigits: 6,
   });
 
   function updateThemeLabel(theme) {
@@ -152,17 +165,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const apdVal = document.getElementById('apdVal');
   const opsMonthly = document.getElementById('opsMonthly');
   const nerpTotal = document.getElementById('nerpTotal');
-  const usdApprox = document.getElementById('usdApprox');
+  const fiatApprox = document.getElementById('fiatApprox');
 
   function estimate(peopleCount, actionsPerDay) {
     const monthlyActions = actionsPerDay * 30 * Math.max(peopleCount, 1);
     const nerpSpend = monthlyActions * microFee;
-    const usd = nerpSpend * usdRate;
-    return { monthlyActions, nerpSpend, usd };
+    const fiat = nerpSpend * tokenPrice;
+    return { monthlyActions, nerpSpend, fiat };
   }
 
   function updateCalc() {
-    if (!(people && apd && peopleVal && apdVal && opsMonthly && nerpTotal && usdApprox)) {
+    if (!(people && apd && peopleVal && apdVal && opsMonthly && nerpTotal && fiatApprox)) {
       return;
     }
 
@@ -172,19 +185,104 @@ document.addEventListener('DOMContentLoaded', () => {
     apdVal.textContent = a.toString();
     const result = estimate(p, a);
     opsMonthly.textContent = numberFormatter.format(result.monthlyActions);
-    nerpTotal.textContent = numberFormatter.format(result.nerpSpend);
-    usdApprox.textContent = currencyFormatter.format(result.usd);
+    nerpTotal.textContent = tokenAmountFormatter.format(result.nerpSpend);
+    fiatApprox.textContent = currencyFormatter.format(result.fiat);
+  }
+
+  function updateTokenCondition() {
+    if (!tokenConditionEl) return;
+    const pattern = tokenConditionEl.dataset.tokenPattern || '';
+    const tokensPerCurrency = tokenPrice > 0 ? 1 / tokenPrice : 0;
+    const formattedTokens = tokenFormatter.format(tokensPerCurrency);
+    if (pattern.includes(':currency') || pattern.includes(':tokens')) {
+      tokenConditionEl.textContent = pattern
+        .replaceAll(':currency', currencySymbol)
+        .replaceAll(':tokens', formattedTokens);
+    } else {
+      tokenConditionEl.textContent = `${currencySymbol} → ${formattedTokens}`;
+    }
+  }
+
+  function updateOperations() {
+    if (!operationItems.length) return;
+    operationItems.forEach((item) => {
+      const tokenAmount = Number.parseFloat(item.dataset.operationTokens || '0') || 0;
+      const fiatValue = tokenAmount * tokenPrice;
+      const currencyEl = item.querySelector('[data-operation-currency]');
+      if (currencyEl) {
+        currencyEl.textContent = `≈ ${currencyFormatter.format(fiatValue)}`;
+      }
+    });
   }
 
   people?.addEventListener('input', updateCalc);
   apd?.addEventListener('input', updateCalc);
   updateCalc();
+  updateTokenCondition();
+  updateOperations();
+
+  const handleTokenChange = () => {
+    if (!tokenPriceInput) return;
+    const parsed = Number.parseFloat(tokenPriceInput.value);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      return;
+    }
+    tokenPrice = parsed;
+    updateTokenCondition();
+    updateOperations();
+    updateCalc();
+  };
+
+  tokenPriceInput?.addEventListener('input', handleTokenChange);
+  tokenPriceInput?.addEventListener('change', handleTokenChange);
 
   document.querySelectorAll('.faq-item').forEach((item) => {
     const trigger = item.querySelector('.faq-q');
-    if (!trigger) return;
+    const answer = item.querySelector('.faq-a');
+    if (!(trigger instanceof HTMLElement) || !(answer instanceof HTMLElement)) {
+      return;
+    }
+
+    if (!item.classList.contains('open')) {
+      answer.style.maxHeight = '0px';
+    }
+    trigger.setAttribute('aria-expanded', item.classList.contains('open') ? 'true' : 'false');
+    answer.setAttribute('aria-hidden', item.classList.contains('open') ? 'false' : 'true');
+
+    const collapse = () => {
+      item.classList.remove('open');
+      trigger.setAttribute('aria-expanded', 'false');
+      answer.setAttribute('aria-hidden', 'true');
+      answer.style.maxHeight = `${answer.scrollHeight}px`;
+      requestAnimationFrame(() => {
+        answer.style.maxHeight = '0px';
+      });
+    };
+
+    const expand = () => {
+      item.classList.add('open');
+      trigger.setAttribute('aria-expanded', 'true');
+      answer.setAttribute('aria-hidden', 'false');
+      answer.style.maxHeight = `${answer.scrollHeight}px`;
+      const handleTransitionEnd = () => {
+        if (item.classList.contains('open')) {
+          answer.style.maxHeight = 'none';
+        }
+        answer.removeEventListener('transitionend', handleTransitionEnd);
+      };
+      answer.addEventListener('transitionend', handleTransitionEnd);
+    };
+
     trigger.addEventListener('click', () => {
-      item.classList.toggle('open');
+      const isOpen = item.classList.contains('open');
+      if (answer.style.maxHeight === 'none') {
+        answer.style.maxHeight = `${answer.scrollHeight}px`;
+      }
+      if (isOpen) {
+        collapse();
+      } else {
+        expand();
+      }
     });
   });
 

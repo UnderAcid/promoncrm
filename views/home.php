@@ -17,6 +17,22 @@ $logos = $t->get('logos.brands');
 $faqItems = $t->get('faq.items');
 $pilotPoints = $t->get('pilots.points');
 $pilotForm = $t->get('pilots.form');
+$pricing = $t->get('pricing');
+$pricingOperations = is_array($pricing['operations'] ?? null) ? $pricing['operations'] : [];
+$pricingTokenUnit = (string) ($pricing['token_unit'] ?? 'nERP');
+$pricingCurrencySymbol = (string) ($pricing['currency_symbol'] ?? '$');
+$pricingTokenPattern = (string) ($pricing['token_condition'] ?? '1 :currency = :tokens');
+$pricingTokenDefault = (float) ($pricing['token_default_price'] ?? 1);
+if ($pricingTokenDefault <= 0) {
+    $pricingTokenDefault = 1.0;
+}
+$tokensPerCurrency = $pricingTokenDefault > 0 ? 1 / $pricingTokenDefault : 0;
+$formatTokens = static fn(float $value): string => number_format($value, 6, '.', ' ');
+$pricingTokenCondition = str_replace(
+    [':currency', ':tokens'],
+    [$pricingCurrencySymbol, $formatTokens($tokensPerCurrency)],
+    $pricingTokenPattern
+);
 ?>
 <section class="container section-hero" id="hero">
     <div class="grid two">
@@ -136,41 +152,43 @@ $pilotForm = $t->get('pilots.form');
 <div class="divider" role="presentation"></div>
 
 <section id="stack" class="container stack-section">
-    <div class="stack-grid">
-        <div>
-            <h2 class="h2"><?= e($stack['title'] ?? ''); ?></h2>
-            <?php if (!empty($stack['subtitle'])): ?>
-                <p class="muted"><?= e($stack['subtitle']); ?></p>
-            <?php endif; ?>
-            <?php if ($stackHighlights !== []): ?>
-                <div class="stack-highlights">
-                    <?php foreach ($stackHighlights as $item): ?>
-                        <div class="card stack-highlight">
-                            <div class="card-row">
-                                <div class="icon-bubble"><span class="icon <?= e($item['icon'] ?? ''); ?>" aria-hidden="true"></span></div>
-                                <div>
-                                    <div class="card-title"><?= e($item['title'] ?? ''); ?></div>
-                                    <div class="card-desc"><?= e($item['desc'] ?? ''); ?></div>
+    <div class="stack-surface">
+        <div class="stack-grid">
+            <div>
+                <h2 class="h2"><?= e($stack['title'] ?? ''); ?></h2>
+                <?php if (!empty($stack['subtitle'])): ?>
+                    <p class="muted"><?= e($stack['subtitle']); ?></p>
+                <?php endif; ?>
+                <?php if ($stackHighlights !== []): ?>
+                    <div class="stack-highlights">
+                        <?php foreach ($stackHighlights as $item): ?>
+                            <div class="card stack-highlight">
+                                <div class="card-row">
+                                    <div class="icon-bubble"><span class="icon <?= e($item['icon'] ?? ''); ?>" aria-hidden="true"></span></div>
+                                    <div>
+                                        <div class="card-title"><?= e($item['title'] ?? ''); ?></div>
+                                        <div class="card-desc"><?= e($item['desc'] ?? ''); ?></div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-        </div>
-        <div class="card stack-integrations">
-            <div class="card-title"><?= e($stack['integrations_title'] ?? ''); ?></div>
-            <p class="card-desc"><?= e($stack['integrations_desc'] ?? ''); ?></p>
-            <?php if ($stackIntegrations !== []): ?>
-                <div class="chip-grid">
-                    <?php foreach ($stackIntegrations as $integration): ?>
-                        <span class="chip"><?= e($integration); ?></span>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-            <?php if (!empty($stack['footnote'])): ?>
-                <p class="stack-footnote"><?= e($stack['footnote']); ?></p>
-            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+            <div class="card stack-integrations">
+                <div class="card-title"><?= e($stack['integrations_title'] ?? ''); ?></div>
+                <p class="card-desc"><?= e($stack['integrations_desc'] ?? ''); ?></p>
+                <?php if ($stackIntegrations !== []): ?>
+                    <div class="chip-grid">
+                        <?php foreach ($stackIntegrations as $integration): ?>
+                            <span class="chip"><?= e($integration); ?></span>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+                <?php if (!empty($stack['footnote'])): ?>
+                    <p class="stack-footnote"><?= e($stack['footnote']); ?></p>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </section>
@@ -238,19 +256,41 @@ $pilotForm = $t->get('pilots.form');
 <section id="pricing" class="container pricing-section">
     <h2 class="h2"><?= e($t->get('pricing.title')); ?></h2>
     <p class="muted"><?= e($t->get('pricing.subtitle')); ?></p>
-    <div class="grid two">
+    <div class="grid two pricing-grid">
         <div class="card calculator">
-            <label for="people" class="calc-label">
-                <span class="calc-label-text"><?= e($t->get('pricing.team_size')); ?></span>
-                <span class="calc-label-value" id="peopleVal">50</span>
-            </label>
-            <input type="range" id="people" name="people" min="5" max="200" step="5" value="50">
+            <div class="calc-group">
+                <label for="people" class="calc-label">
+                    <span class="calc-label-text"><?= e($t->get('pricing.team_size')); ?></span>
+                    <span class="calc-label-value" id="peopleVal">50</span>
+                </label>
+                <input type="range" id="people" name="people" min="5" max="200" step="5" value="50">
+            </div>
 
-            <label for="apd" class="calc-label">
-                <span class="calc-label-text"><?= e($t->get('pricing.actions_per_day')); ?></span>
-                <span class="calc-label-value" id="apdVal">20</span>
-            </label>
-            <input type="range" id="apd" name="apd" min="5" max="200" step="5" value="20">
+            <div class="calc-group">
+                <label for="apd" class="calc-label">
+                    <span class="calc-label-text"><?= e($t->get('pricing.actions_per_day')); ?></span>
+                    <span class="calc-label-value" id="apdVal">20</span>
+                </label>
+                <input type="range" id="apd" name="apd" min="5" max="200" step="5" value="20">
+            </div>
+
+            <div class="calc-group">
+                <div class="calc-label">
+                    <span class="calc-label-text"><?= e($pricing['token_label'] ?? ''); ?></span>
+                    <span class="calc-label-value token-condition" data-token-condition data-token-pattern="<?= e($pricingTokenPattern); ?>"><?= e($pricingTokenCondition); ?></span>
+                </div>
+                <label for="tokenPrice" class="calc-sub-label"><?= e($pricing['token_input_label'] ?? ''); ?></label>
+                <div class="token-field">
+                    <?php if (!empty($pricing['token_input_prefix'])): ?>
+                        <span class="token-affix token-affix-prefix"><?= e($pricing['token_input_prefix']); ?></span>
+                    <?php endif; ?>
+                    <input type="number" id="tokenPrice" name="tokenPrice" min="0.000001" step="0.000001" value="<?= e(number_format($pricingTokenDefault, 6, '.', '')); ?>" inputmode="decimal">
+                    <?php if (!empty($pricing['token_input_suffix'])): ?>
+                        <span class="token-affix token-affix-suffix"><?= e($pricing['token_input_suffix']); ?></span>
+                    <?php endif; ?>
+                </div>
+                <p class="muted small"><?= e($pricing['token_hint'] ?? ''); ?></p>
+            </div>
 
             <p class="muted small"><?= e($t->get('pricing.hint')); ?></p>
         </div>
@@ -265,9 +305,35 @@ $pilotForm = $t->get('pilots.form');
             </div>
             <div class="calc-row">
                 <span><?= e($t->get('pricing.usd_equivalent')); ?></span>
-                <strong id="usdApprox">$0</strong>
+                <strong id="fiatApprox"><?= e($pricingCurrencySymbol); ?>0</strong>
             </div>
             <p class="muted small"><?= e($t->get('pricing.micro_fee')); ?></p>
+
+            <?php if ($pricingOperations !== []): ?>
+                <div class="operations">
+                    <div class="operations-title"><?= e($pricing['operations_title'] ?? ''); ?></div>
+                    <ul class="operations-list">
+                        <?php foreach ($pricingOperations as $operation): ?>
+                            <?php
+                            $tokens = (float) ($operation['tokens'] ?? 0);
+                            $tokenText = $formatTokens($tokens) . ' ' . $pricingTokenUnit;
+                            $suffix = (string) ($operation['suffix'] ?? '');
+                            $fiatValue = $tokens * $pricingTokenDefault;
+                            $fiatDisplay = $pricingCurrencySymbol . number_format($fiatValue, 6, '.', ' ');
+                            ?>
+                            <li class="operations-item" data-operation data-operation-tokens="<?= e(number_format($tokens, 6, '.', '')); ?>">
+                                <span class="operations-name"><?= e($operation['label'] ?? ''); ?></span>
+                                <span class="operations-values">
+                                    <span class="operations-token"><?= e($tokenText . ($suffix !== '' ? ' ' . $suffix : '')); ?></span>
+                                    <span class="operations-fiat" data-operation-currency>≈ <?= e($fiatDisplay); ?></span>
+                                </span>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                    <p class="muted small"><?= e($pricing['operations_caption'] ?? ''); ?></p>
+                </div>
+            <?php endif; ?>
+
             <a class="btn btn-primary" href="#pilots">
                 <span class="icon chat" aria-hidden="true"></span><?= e($t->get('pricing.primary_cta')); ?>
             </a>
