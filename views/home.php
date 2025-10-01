@@ -12,15 +12,40 @@ $howItems = $t->get('how.items');
 $stack = $t->get('stack');
 $stackHighlights = is_array($stack['highlights'] ?? null) ? $stack['highlights'] : [];
 $stackIntegrations = is_array($stack['integrations'] ?? null) ? $stack['integrations'] : [];
+$stackIntegrationsNote = (string) ($stack['integrations_note'] ?? '');
 $tokenPricePresets = [0.1, 0.5, 1.0, 2.0];
 $tokenPresetCurrency = (string) ($t->get('pricing.token_price_presets_currency') ?? '$');
 $partnerCards = $t->get('partners.cards');
-$logos = $t->get('logos.brands');
+$logos = $t->get('logos');
+$logoEntries = is_array($logos['entries'] ?? null) ? $logos['entries'] : [];
+$defaultLogoKey = (string) ($logos['default'] ?? ($logoEntries[0]['key'] ?? ''));
+$defaultLogo = null;
+if ($logoEntries !== []) {
+    foreach ($logoEntries as $entry) {
+        if (($entry['key'] ?? '') === $defaultLogoKey) {
+            $defaultLogo = $entry;
+            break;
+        }
+    }
+
+    if ($defaultLogo === null) {
+        $defaultLogo = $logoEntries[0];
+    }
+}
+
+$defaultLogoData = is_array($defaultLogo) ? $defaultLogo : [];
+$defaultLogoQuote = (string) ($defaultLogoData['quote'] ?? '');
+$defaultLogoAuthor = (string) ($defaultLogoData['author'] ?? '');
+$defaultLogoRole = (string) ($defaultLogoData['role'] ?? '');
 $faqItems = $t->get('faq.items');
+$faqItems = is_array($faqItems) ? $faqItems : [];
 $pilotPoints = $t->get('pilots.points');
 $pilotForm = $t->get('pilots.form');
 $pricingOperations = $t->get('pricing.operations');
 $pricingOperations = is_array($pricingOperations) ? $pricingOperations : [];
+$pricingDescription = (string) ($t->get('pricing.description') ?? '');
+$teamSizeHint = (string) ($t->get('pricing.team_size_hint') ?? '');
+$actionsHint = (string) ($t->get('pricing.actions_hint') ?? '');
 $tokenDecimals = (int) ($t->get('pricing.token_decimals') ?? 6);
 $tokenPriceUsdDefault = (float) ($t->get('pricing.token_price_usd') ?? 1.0);
 $tokenPriceMinUsd = max((float) ($t->get('pricing.token_price_min_usd') ?? 1.0), 0.01);
@@ -183,11 +208,25 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                     </div>
                 </div>
                 <?php if ($stackIntegrations !== []): ?>
-                    <div class="chip-grid">
+                    <div class="integration-grid">
                         <?php foreach ($stackIntegrations as $integration): ?>
-                            <span class="chip"><?= e($integration); ?></span>
+                            <?php
+                            $integrationIcon = (string) ($integration['icon'] ?? 'plug');
+                            $integrationTitle = (string) ($integration['title'] ?? '');
+                            $integrationDesc = (string) ($integration['desc'] ?? '');
+                            ?>
+                            <div class="integration-card">
+                                <div class="integration-icon" aria-hidden="true"><span class="icon <?= e($integrationIcon); ?>"></span></div>
+                                <div>
+                                    <div class="integration-title"><?= e($integrationTitle); ?></div>
+                                    <p class="integration-desc"><?= e($integrationDesc); ?></p>
+                                </div>
+                            </div>
                         <?php endforeach; ?>
                     </div>
+                <?php endif; ?>
+                <?php if ($stackIntegrationsNote !== ''): ?>
+                    <p class="stack-note"><?= e($stackIntegrationsNote); ?></p>
                 <?php endif; ?>
                 <?php if (!empty($stack['footnote'])): ?>
                     <p class="stack-footnote"><?= e($stack['footnote']); ?></p>
@@ -260,16 +299,29 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
 <section id="pricing" class="container pricing-section">
     <h2 class="h2"><?= e($t->get('pricing.title')); ?></h2>
     <p class="muted"><?= e($t->get('pricing.subtitle')); ?></p>
+    <?php if ($pricingDescription !== ''): ?>
+        <p class="muted pricing-description"><?= e($pricingDescription); ?></p>
+    <?php endif; ?>
     <div class="grid two pricing-grid">
         <div class="card calculator">
             <label for="people" class="calc-label">
-                <span class="calc-label-text"><?= e($t->get('pricing.team_size')); ?></span>
+                <span class="calc-label-group">
+                    <span class="calc-label-text"><?= e($t->get('pricing.team_size')); ?></span>
+                    <?php if ($teamSizeHint !== ''): ?>
+                        <span class="calc-label-meta"><?= e($teamSizeHint); ?></span>
+                    <?php endif; ?>
+                </span>
                 <span class="calc-label-value" id="peopleVal">50</span>
             </label>
-            <input type="range" id="people" name="people" min="5" max="200" step="5" value="50">
+            <input type="range" id="people" name="people" min="1" max="1000" step="1" value="50">
 
             <label for="apd" class="calc-label">
-                <span class="calc-label-text"><?= e($t->get('pricing.actions_per_day')); ?></span>
+                <span class="calc-label-group">
+                    <span class="calc-label-text"><?= e($t->get('pricing.actions_per_day')); ?></span>
+                    <?php if ($actionsHint !== ''): ?>
+                        <span class="calc-label-meta"><?= e($actionsHint); ?></span>
+                    <?php endif; ?>
+                </span>
                 <span class="calc-label-value" id="apdVal">20</span>
             </label>
             <input type="range" id="apd" name="apd" min="5" max="200" step="5" value="20">
@@ -297,7 +349,7 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                 <p class="muted small token-price-preview"><?= e($t->get('pricing.token_price_preview_prefix')); ?> <span data-token-preview-value>â€”</span></p>
             </div>
 
-            <p class="muted small"><?= e($t->get('pricing.hint')); ?></p>
+            <p class="muted small pricing-hint"><?= e($t->get('pricing.hint')); ?></p>
         </div>
         <div class="card calc-output">
             <div class="calc-summary">
@@ -367,18 +419,47 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
 <div class="divider" role="presentation"></div>
 
 <section class="container logos-section">
-    <div class="grid two-66">
-        <div>
+    <div class="grid two-66 pilot-showcase">
+        <div class="pilot-list">
             <div class="eyebrow"><?= e($t->get('logos.eyebrow')); ?></div>
-            <div class="logo-grid">
-                <?php foreach ($logos as $brand): ?>
-                    <div><?= e($brand); ?></div>
+            <div class="pilot-grid">
+                <?php foreach ($logoEntries as $entry): ?>
+                    <?php
+                    $entryKey = (string) ($entry['key'] ?? '');
+                    if ($entryKey === '') {
+                        continue;
+                    }
+                    $entryTagline = (string) ($entry['tagline'] ?? '');
+                    $isActive = $entryKey === $defaultLogoKey;
+                    ?>
+                    <button
+                        class="pilot-chip<?= $isActive ? ' active' : ''; ?>"
+                        type="button"
+                        data-pilot-item
+                        data-pilot-key="<?= e($entryKey); ?>"
+                        data-pilot-quote="<?= e($entry['quote'] ?? ''); ?>"
+                        data-pilot-author="<?= e($entry['author'] ?? ''); ?>"
+                        data-pilot-role="<?= e($entry['role'] ?? ''); ?>"
+                        aria-pressed="<?= $isActive ? 'true' : 'false'; ?>"
+                    >
+                        <span class="pilot-chip-name"><?= e($entry['name'] ?? ''); ?></span>
+                        <?php if ($entryTagline !== ''): ?>
+                            <span class="pilot-chip-tagline"><?= e($entryTagline); ?></span>
+                        <?php endif; ?>
+                    </button>
                 <?php endforeach; ?>
             </div>
         </div>
-        <div class="card">
-            <div class="card-desc"><?= e($t->get('logos.quote')); ?></div>
-            <div class="card-title mt-8"><?= e($t->get('logos.quote_author')); ?></div>
+        <div class="card pilot-quote-card" data-pilot-card>
+            <div class="pilot-quote-text" data-pilot-quote><?= e($defaultLogoQuote); ?></div>
+            <div class="pilot-quote-author">
+                <div class="card-title" data-pilot-author><?= e($defaultLogoAuthor); ?></div>
+                <?php if ($defaultLogoRole !== ''): ?>
+                    <div class="pilot-quote-role" data-pilot-role><?= e($defaultLogoRole); ?></div>
+                <?php else: ?>
+                    <div class="pilot-quote-role" data-pilot-role hidden></div>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </section>
@@ -399,14 +480,24 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
 <section id="faq" class="container pb-xxl">
     <h2 class="h2"><?= e($t->get('faq.title')); ?></h2>
     <div class="faq">
-        <?php foreach ($faqItems as $item): ?>
-            <div class="card faq-item">
-                <button class="faq-q" type="button">
-                    <span><?= e($item['question']); ?></span>
+        <?php foreach ($faqItems as $index => $item): ?>
+            <?php
+            $question = (string) ($item['question'] ?? '');
+            $answer = (string) ($item['answer'] ?? '');
+            if ($question === '' || $answer === '') {
+                continue;
+            }
+            $isOpen = $index === 0;
+            ?>
+            <details class="faq-item"<?= $isOpen ? ' open' : ''; ?>>
+                <summary>
+                    <span><?= e($question); ?></span>
                     <span class="icon chevron" aria-hidden="true"></span>
-                </button>
-                <p class="faq-a"><?= e($item['answer']); ?></p>
-            </div>
+                </summary>
+                <div class="faq-content">
+                    <p><?= e($answer); ?></p>
+                </div>
+            </details>
         <?php endforeach; ?>
     </div>
 </section>

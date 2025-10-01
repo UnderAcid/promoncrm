@@ -30,15 +30,14 @@ $clientConfig = [
     'numberLocale' => $translator->get('pricing.locale', [], $translator->get('app.locale_code')),
     'currency' => $translator->get('pricing.currency', [], 'USD'),
     'themes' => $themeManager->getAvailableThemes(),
-    'themeLabels' => [
-        'light' => $translator->get('app.theme.light'),
-        'dark' => $translator->get('app.theme.dark'),
-    ],
     'microFee' => 0.001,
     'tokenPriceUsd' => (float) $translator->get('pricing.token_price_usd', [], 1.0),
     'tokenPriceDecimals' => (int) $translator->get('pricing.token_price_decimals', [], 2),
     'tokenDecimals' => (int) $translator->get('pricing.token_decimals', [], 6),
     'fiatPerUsd' => (float) $translator->get('pricing.fiat_per_usd', [], 1.0),
+    'locales' => $localeUrls,
+    'localeOrder' => array_keys($languages),
+    'currentLocale' => $localeManager->getCurrentLocale(),
 ];
 
 $content = View::render('home', [

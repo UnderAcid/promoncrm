@@ -5,11 +5,16 @@ const audiencePitches = config.audiencePitches || {};
 const numberLocale = config.numberLocale || 'en-US';
 const currencyCode = config.currency || 'USD';
 const themes = config.themes || ['light', 'dark'];
-const themeLabels = config.themeLabels || {};
 const microFee = typeof config.microFee === 'number' ? config.microFee : 0.001;
 const fiatPerUsd = typeof config.fiatPerUsd === 'number' ? config.fiatPerUsd : 1;
 const tokenDecimals = Number.isInteger(config.tokenDecimals) ? config.tokenDecimals : 6;
 const priceDecimals = Number.isInteger(config.tokenPriceDecimals) ? config.tokenPriceDecimals : 2;
+const localePaths = typeof config.locales === 'object' && config.locales !== null ? config.locales : {};
+const localeOrder = Array.isArray(config.localeOrder) ? config.localeOrder : Object.keys(localePaths);
+const defaultLocaleCode = typeof config.currentLocale === 'string' && config.currentLocale !== ''
+  ? config.currentLocale
+  : (localeOrder[0] || '');
+let currentLocaleCode = defaultLocaleCode;
 const defaultTokenPriceUsd = (() => {
   const value = Number.parseFloat(config.tokenPriceUsd);
   if (Number.isFinite(value) && value > 0) {
@@ -30,17 +35,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const audienceButtons = document.querySelectorAll('[data-audience]');
   const audiencePitchEl = document.querySelector('[data-audience-pitch]');
-  const languageSwitcher = document.querySelector('[data-language-switcher]');
-  const languageToggle = document.querySelector('[data-language-toggle]');
-  const languageMenu = document.querySelector('[data-language-menu]');
+  const languageButton = document.querySelector('[data-language-toggle]');
   const themeToggle = document.querySelector('[data-theme-toggle]');
-  const themeLabelTarget = document.querySelector('[data-theme-label]');
   const navToggle = document.querySelector('[data-nav-toggle]');
   const nav = document.querySelector('[data-nav]');
   const headerEl = document.querySelector('[data-header]');
   const floatingCtaButton = document.querySelector('[data-floating-cta]');
   const floatingCta = floatingCtaButton?.parentElement ?? null;
   const pilotForm = document.querySelector('[data-pilot-form]');
+  const pilotButtons = document.querySelectorAll('[data-pilot-item]');
+  const pilotQuote = document.querySelector('[data-pilot-quote]');
+  const pilotAuthor = document.querySelector('[data-pilot-author]');
+  const pilotRole = document.querySelector('[data-pilot-role]');
+  const pilotCard = document.querySelector('[data-pilot-card]');
 
   const numberFormatter = new Intl.NumberFormat(numberLocale);
   const currencyFormatter = new Intl.NumberFormat(numberLocale, {
@@ -54,13 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function renderThemeState(theme) {
-    if (themeLabelTarget instanceof HTMLElement) {
-      const label = themeLabels[theme] || theme;
-      themeLabelTarget.textContent = label;
-    }
-
     if (themeToggle instanceof HTMLElement) {
-      themeToggle.setAttribute('data-theme-active', theme);
+      themeToggle.setAttribute('data-theme', theme);
     }
   }
 
@@ -87,6 +89,40 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   renderThemeState(docEl.getAttribute('data-theme') || themes[0]);
+
+  function updateLanguageButton(locale) {
+    if (!(languageButton instanceof HTMLElement)) {
+      return;
+    }
+    const normalized = (locale || '').toString().toUpperCase();
+    languageButton.setAttribute('data-locale-code', normalized);
+    const face = languageButton.querySelector('.lang-button-face');
+    if (face instanceof HTMLElement) {
+      face.textContent = normalized;
+    }
+  }
+
+  updateLanguageButton(currentLocaleCode);
+
+  if (languageButton instanceof HTMLElement) {
+    languageButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      if (!Array.isArray(localeOrder) || localeOrder.length === 0) {
+        return;
+      }
+      const currentIndex = localeOrder.indexOf(currentLocaleCode);
+      const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % localeOrder.length;
+      const nextLocale = localeOrder[nextIndex];
+      currentLocaleCode = nextLocale;
+      updateLanguageButton(nextLocale);
+      const targetPath = typeof localePaths[nextLocale] === 'string' && localePaths[nextLocale] !== ''
+        ? localePaths[nextLocale]
+        : `/${nextLocale}/`;
+      setTimeout(() => {
+        window.location.href = targetPath;
+      }, 160);
+    });
+  }
 
   if (navToggle && nav && headerEl instanceof HTMLElement) {
     const closeNav = () => {
@@ -157,48 +193,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   renderAudience(defaultAudience);
-
-  if (languageSwitcher && languageToggle && languageMenu) {
-    const closeMenu = () => {
-      languageSwitcher.classList.remove('open');
-      languageToggle.setAttribute('aria-expanded', 'false');
-    };
-
-    const openMenu = () => {
-      languageSwitcher.classList.add('open');
-      languageToggle.setAttribute('aria-expanded', 'true');
-    };
-
-    languageToggle.addEventListener('click', (event) => {
-      event.preventDefault();
-      const expanded = languageToggle.getAttribute('aria-expanded') === 'true';
-      if (expanded) {
-        closeMenu();
-      } else {
-        openMenu();
-      }
-    });
-
-    languageMenu.querySelectorAll('[data-language-option]').forEach((option) => {
-      option.addEventListener('click', () => {
-        closeMenu();
-      });
-    });
-
-    document.addEventListener('click', (event) => {
-      if (!(event.target instanceof Node)) return;
-      if (!languageSwitcher.contains(event.target)) {
-        closeMenu();
-      }
-    });
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && languageToggle.getAttribute('aria-expanded') === 'true') {
-        closeMenu();
-        languageToggle.focus();
-      }
-    });
-  }
 
   const people = document.getElementById('people');
   const apd = document.getElementById('apd');
@@ -330,36 +324,63 @@ document.addEventListener('DOMContentLoaded', () => {
   updatePresetState();
   updateCalc();
 
-  document.querySelectorAll('.faq-item').forEach((item) => {
-    const trigger = item.querySelector('.faq-q');
-    const answer = item.querySelector('.faq-a');
-    if (!(trigger instanceof HTMLElement) || !(answer instanceof HTMLElement)) return;
+  function activatePilot(button, animate = true) {
+    if (!(button instanceof HTMLElement)) {
+      return;
+    }
 
-    answer.style.height = '0px';
-
-    trigger.addEventListener('click', () => {
-      const isOpen = item.classList.contains('open');
-      if (isOpen) {
-        answer.style.height = `${answer.scrollHeight}px`;
-        void answer.offsetHeight;
-        answer.style.height = '0px';
-        item.classList.remove('open');
-      } else {
-        const targetHeight = answer.scrollHeight;
-        answer.style.height = '0px';
-        item.classList.add('open');
-        void answer.offsetHeight;
-        answer.style.height = `${targetHeight}px`;
+    pilotButtons.forEach((item) => {
+      if (!(item instanceof HTMLElement)) {
+        return;
       }
+      const isActive = item === button;
+      item.classList.toggle('active', isActive);
+      item.setAttribute('aria-pressed', String(isActive));
     });
 
-    answer.addEventListener('transitionend', (event) => {
-      if (event.propertyName !== 'height') return;
-      if (item.classList.contains('open')) {
-        answer.style.height = 'auto';
+    const quote = button.dataset.pilotQuote || '';
+    const author = button.dataset.pilotAuthor || '';
+    const role = button.dataset.pilotRole || '';
+
+    if (pilotQuote instanceof HTMLElement) {
+      pilotQuote.textContent = quote;
+    }
+
+    if (pilotAuthor instanceof HTMLElement) {
+      pilotAuthor.textContent = author;
+    }
+
+    if (pilotRole instanceof HTMLElement) {
+      pilotRole.textContent = role;
+      pilotRole.hidden = role.trim() === '';
+    }
+
+    if (pilotCard instanceof HTMLElement) {
+      if (animate) {
+        pilotCard.classList.remove('is-updating');
+        void pilotCard.offsetWidth;
+        pilotCard.classList.add('is-updating');
       }
+      const pilotKey = button.dataset.pilotKey || '';
+      pilotCard.setAttribute('data-active-pilot', pilotKey);
+    }
+  }
+
+  if (pilotButtons.length > 0) {
+    const initialActive = Array.from(pilotButtons).find((button) => button instanceof HTMLElement && button.classList.contains('active'));
+    if (initialActive instanceof HTMLElement) {
+      activatePilot(initialActive, false);
+    }
+
+    pilotButtons.forEach((button) => {
+      if (!(button instanceof HTMLElement)) {
+        return;
+      }
+      button.addEventListener('click', () => {
+        activatePilot(button);
+      });
     });
-  });
+  }
 
   function focusPilotForm() {
     if (!pilotForm) return;

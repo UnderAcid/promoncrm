@@ -4,7 +4,6 @@
 /** @var string $currentLocale */
 /** @var string[] $themes */
 ?>
-<?php $currentLanguageLabel = $languages[$currentLocale] ?? strtoupper($currentLocale); ?>
 <header class="header" data-header>
     <div class="container header-inner">
         <a class="brand" href="#main">
@@ -26,38 +25,31 @@
             <a href="#pilots"><?= e($t->get('nav.pilots')); ?></a>
         </nav>
         <div class="actions">
-            <div class="control-cluster">
-                <div class="lang-switcher" data-language-switcher>
-                    <button class="menu-control" type="button" data-language-toggle aria-haspopup="true" aria-expanded="false" aria-label="<?= e($t->get('language_switcher.label')); ?>">
-                        <span class="menu-control-icon" aria-hidden="true"><span class="icon globe"></span></span>
-                        <span class="menu-control-text">
-                            <span class="menu-control-label"><?= e($t->get('language_switcher.label')); ?></span>
-                            <span class="menu-control-value" data-language-current><?= e($currentLanguageLabel); ?></span>
-                        </span>
-                        <span class="menu-control-chevron" aria-hidden="true"><span class="icon chevron"></span></span>
-                    </button>
-                    <ul class="lang-menu" data-language-menu>
-                        <?php foreach ($languages as $code => $label): ?>
-                            <?php if ($code === $currentLocale) { continue; } ?>
-                            <?php $href = $localeUrls[$code] ?? ('/' . $code . '/'); ?>
-                            <li>
-                                <a href="<?= e($href); ?>" data-language-option><?= e($label); ?></a>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
+            <div class="icon-switchers">
+                <button
+                    class="icon-button lang-button js-only"
+                    type="button"
+                    data-language-toggle
+                    data-locale-code="<?= e(strtoupper($currentLocale)); ?>"
+                    aria-label="<?= e($t->get('language_switcher.label')); ?>"
+                >
+                    <span class="lang-button-face" aria-hidden="true"><?= e(strtoupper($currentLocale)); ?></span>
+                </button>
                 <noscript class="lang-switcher-links">
                     <?php foreach ($languages as $code => $label): ?>
                         <?php $href = $localeUrls[$code] ?? ('/' . $code . '/'); ?>
                         <a href="<?= e($href); ?>"><?= e($label); ?></a>
                     <?php endforeach; ?>
                 </noscript>
-                <button class="menu-control theme-toggle" type="button" data-theme-toggle aria-label="<?= e($t->get('app.theme.toggle')); ?>">
-                    <span class="menu-control-icon" aria-hidden="true"><span class="icon theme"></span></span>
-                    <span class="menu-control-text">
-                        <span class="menu-control-label"><?= e($t->get('app.theme.label')); ?></span>
-                        <span class="menu-control-value" data-theme-label><?= e($t->get('app.theme.' . $currentTheme)); ?></span>
-                    </span>
+                <button
+                    class="icon-button theme-button js-only"
+                    type="button"
+                    data-theme-toggle
+                    data-theme="<?= e($currentTheme); ?>"
+                    aria-label="<?= e($t->get('app.theme.toggle')); ?>"
+                >
+                    <span class="icon sun" data-theme-icon="light" aria-hidden="true"></span>
+                    <span class="icon moon" data-theme-icon="dark" aria-hidden="true"></span>
                 </button>
             </div>
             <a class="btn btn-primary" href="#pilots" data-scroll-to-pilots>
