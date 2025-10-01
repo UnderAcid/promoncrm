@@ -17,6 +17,17 @@ $logos = $t->get('logos.brands');
 $faqItems = $t->get('faq.items');
 $pilotPoints = $t->get('pilots.points');
 $pilotForm = $t->get('pilots.form');
+$pricingOperations = $t->get('pricing.operations');
+$pricingOperations = is_array($pricingOperations) ? $pricingOperations : [];
+$tokenPerUsdDefault = (float) ($t->get('pricing.token_per_usd') ?? 1.0);
+$tokenDecimals = (int) ($t->get('pricing.token_decimals') ?? 6);
+$tokenPerUsdFormatted = number_format($tokenPerUsdDefault, $tokenDecimals, '.', '');
+$tokenStep = $tokenDecimals > 0 ? '0.' . str_repeat('0', max($tokenDecimals - 1, 0)) . '1' : '1';
+$pricingLocale = (string) ($t->get('pricing.locale') ?? 'en-US');
+$decimalSeparator = str_contains($pricingLocale, 'ru') ? ',' : '.';
+$thousandsSeparator = str_contains($pricingLocale, 'ru') ? "\u{00a0}" : ',';
+$operationsSuffix = (string) ($t->get('pricing.operations_suffix') ?? 'nERP');
+$operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? '≈');
 ?>
 <section class="container section-hero" id="hero">
     <div class="grid two">
@@ -136,41 +147,45 @@ $pilotForm = $t->get('pilots.form');
 <div class="divider" role="presentation"></div>
 
 <section id="stack" class="container stack-section">
-    <div class="stack-grid">
-        <div>
-            <h2 class="h2"><?= e($stack['title'] ?? ''); ?></h2>
-            <?php if (!empty($stack['subtitle'])): ?>
-                <p class="muted"><?= e($stack['subtitle']); ?></p>
-            <?php endif; ?>
-            <?php if ($stackHighlights !== []): ?>
-                <div class="stack-highlights">
-                    <?php foreach ($stackHighlights as $item): ?>
-                        <div class="card stack-highlight">
-                            <div class="card-row">
-                                <div class="icon-bubble"><span class="icon <?= e($item['icon'] ?? ''); ?>" aria-hidden="true"></span></div>
-                                <div>
-                                    <div class="card-title"><?= e($item['title'] ?? ''); ?></div>
-                                    <div class="card-desc"><?= e($item['desc'] ?? ''); ?></div>
+    <div class="stack-panel">
+        <div class="stack-grid">
+            <div class="stack-overview">
+                <div class="stack-heading">
+                    <h2 class="h2"><?= e($stack['title'] ?? ''); ?></h2>
+                    <?php if (!empty($stack['subtitle'])): ?>
+                        <p class="muted"><?= e($stack['subtitle']); ?></p>
+                    <?php endif; ?>
+                </div>
+                <?php if ($stackHighlights !== []): ?>
+                    <div class="stack-highlights">
+                        <?php foreach ($stackHighlights as $item): ?>
+                            <div class="card stack-highlight">
+                                <div class="card-row">
+                                    <div class="icon-bubble"><span class="icon <?= e($item['icon'] ?? ''); ?>" aria-hidden="true"></span></div>
+                                    <div>
+                                        <div class="card-title"><?= e($item['title'] ?? ''); ?></div>
+                                        <div class="card-desc"><?= e($item['desc'] ?? ''); ?></div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-        </div>
-        <div class="card stack-integrations">
-            <div class="card-title"><?= e($stack['integrations_title'] ?? ''); ?></div>
-            <p class="card-desc"><?= e($stack['integrations_desc'] ?? ''); ?></p>
-            <?php if ($stackIntegrations !== []): ?>
-                <div class="chip-grid">
-                    <?php foreach ($stackIntegrations as $integration): ?>
-                        <span class="chip"><?= e($integration); ?></span>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-            <?php if (!empty($stack['footnote'])): ?>
-                <p class="stack-footnote"><?= e($stack['footnote']); ?></p>
-            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+            <div class="card stack-integrations">
+                <div class="card-title"><?= e($stack['integrations_title'] ?? ''); ?></div>
+                <p class="card-desc"><?= e($stack['integrations_desc'] ?? ''); ?></p>
+                <?php if ($stackIntegrations !== []): ?>
+                    <div class="chip-grid">
+                        <?php foreach ($stackIntegrations as $integration): ?>
+                            <span class="chip"><?= e($integration); ?></span>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+                <?php if (!empty($stack['footnote'])): ?>
+                    <p class="stack-footnote"><?= e($stack['footnote']); ?></p>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </section>
@@ -238,7 +253,7 @@ $pilotForm = $t->get('pilots.form');
 <section id="pricing" class="container pricing-section">
     <h2 class="h2"><?= e($t->get('pricing.title')); ?></h2>
     <p class="muted"><?= e($t->get('pricing.subtitle')); ?></p>
-    <div class="grid two">
+    <div class="grid two pricing-grid">
         <div class="card calculator">
             <label for="people" class="calc-label">
                 <span class="calc-label-text"><?= e($t->get('pricing.team_size')); ?></span>
@@ -255,18 +270,53 @@ $pilotForm = $t->get('pilots.form');
             <p class="muted small"><?= e($t->get('pricing.hint')); ?></p>
         </div>
         <div class="card calc-output">
-            <div class="calc-row">
-                <span><?= e($t->get('pricing.monthly_actions')); ?></span>
-                <strong id="opsMonthly">0</strong>
+            <div class="calc-summary">
+                <div class="calc-row">
+                    <span><?= e($t->get('pricing.monthly_actions')); ?></span>
+                    <strong id="opsMonthly">0</strong>
+                </div>
+                <div class="calc-row">
+                    <span><?= e($t->get('pricing.nerp_total')); ?></span>
+                    <strong id="nerpTotal">0</strong>
+                </div>
+                <div class="calc-row">
+                    <span><?= e($t->get('pricing.fiat_equivalent')); ?></span>
+                    <strong id="fiatApprox">0</strong>
+                </div>
             </div>
-            <div class="calc-row">
-                <span><?= e($t->get('pricing.nerp_total')); ?></span>
-                <strong id="nerpTotal">0</strong>
+            <div class="token-price" data-token-pricing>
+                <label class="token-price-label" for="tokenPerUsd"><?= e($t->get('pricing.token_price_label')); ?></label>
+                <div class="token-price-control">
+                    <span class="token-price-prefix"><?= e($t->get('pricing.token_price_prefix')); ?></span>
+                    <input type="number" id="tokenPerUsd" name="tokenPerUsd" min="<?= e($tokenStep); ?>" step="<?= e($tokenStep); ?>" value="<?= e($tokenPerUsdFormatted); ?>" data-token-input inputmode="decimal">
+                    <span class="token-price-suffix"><?= e($t->get('pricing.token_price_suffix')); ?></span>
+                </div>
+                <p class="muted small token-price-hint"><?= e($t->get('pricing.token_price_hint')); ?></p>
+                <p class="muted small token-price-preview"><?= e($t->get('pricing.token_price_preview_prefix')); ?> <span data-token-preview-value>—</span></p>
             </div>
-            <div class="calc-row">
-                <span><?= e($t->get('pricing.usd_equivalent')); ?></span>
-                <strong id="usdApprox">$0</strong>
-            </div>
+            <?php if ($pricingOperations !== []): ?>
+                <div class="token-operations">
+                    <div class="token-operations-title"><?= e($t->get('pricing.operations_title')); ?></div>
+                    <ul>
+                        <?php foreach ($pricingOperations as $operation): ?>
+                            <?php
+                            $operationTokens = (float) ($operation['cost'] ?? 0);
+                            $operationTokensRaw = number_format($operationTokens, $tokenDecimals, '.', '');
+                            $operationTokensLabel = number_format($operationTokens, $tokenDecimals, $decimalSeparator, $thousandsSeparator);
+                            $operationPostfix = isset($operation['postfix']) ? ' ' . (string) $operation['postfix'] : '';
+                            $operationTitle = (string) ($operation['title'] ?? '');
+                            ?>
+                            <li>
+                                <span><?= e($operationTitle); ?></span>
+                                <span>
+                                    <span class="token-amount"><?= e($operationTokensLabel . ' ' . $operationsSuffix . $operationPostfix); ?></span>
+                                    <span class="token-fiat" data-operation-fiat="<?= e($operationTokensRaw); ?>" data-prefix="<?= e($operationFiatPrefix); ?>"><?= e($operationFiatPrefix); ?> —</span>
+                                </span>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
             <p class="muted small"><?= e($t->get('pricing.micro_fee')); ?></p>
             <a class="btn btn-primary" href="#pilots">
                 <span class="icon chat" aria-hidden="true"></span><?= e($t->get('pricing.primary_cta')); ?>
