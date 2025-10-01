@@ -262,14 +262,6 @@ return [
                 'role' => 'CFO',
                 'metric' => '5 min refresh',
             ],
-            [
-                'id' => 'helix-manufacturing',
-                'label' => 'Helix Manufacturing',
-                'company' => 'Helix Industries',
-                'quote' => 'Mapped production routes and QA. Shift leads get push alerts whenever a line slows down.',
-                'role' => 'Production director',
-                'metric' => '−27% downtime',
-            ],
         ],
     ],
     'cta' => [

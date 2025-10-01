@@ -228,21 +228,24 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                     </div>
                 </div>
                 <?php if ($integrationItems !== []): ?>
-                    <div class="integration-map">
-                        <div class="integration-core" aria-hidden="true">
-                            <span class="integration-core-icon"><span class="icon shield"></span></span>
+                    <div class="integration-diagram">
+                        <div class="integration-core">
+                            <span class="integration-core-icon" aria-hidden="true"><span class="icon shield"></span></span>
                             <div class="integration-core-label"><?= e($stack['integrations_core'] ?? 'nERP'); ?></div>
                         </div>
-                        <div class="integration-tiles">
+                        <div class="integration-nodes">
                             <?php foreach ($integrationItems as $item): ?>
-                                <div class="integration-tile">
-                                    <?php if ($item['status'] !== ''): ?>
-                                        <span class="integration-status"><?= e($item['status']); ?></span>
-                                    <?php endif; ?>
-                                    <span class="integration-name"><?= e($item['name']); ?></span>
-                                    <?php if ($item['tag'] !== ''): ?>
-                                        <span class="integration-tag"><?= e($item['tag']); ?></span>
-                                    <?php endif; ?>
+                                <div class="integration-node">
+                                    <div class="integration-node-icon" aria-hidden="true"><span class="icon plug"></span></div>
+                                    <div class="integration-node-body">
+                                        <?php if ($item['status'] !== ''): ?>
+                                            <span class="integration-status"><?= e($item['status']); ?></span>
+                                        <?php endif; ?>
+                                        <span class="integration-name"><?= e($item['name']); ?></span>
+                                        <?php if ($item['tag'] !== ''): ?>
+                                            <span class="integration-tag"><?= e($item['tag']); ?></span>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                             <?php endforeach; ?>
                         </div>
