@@ -57,18 +57,11 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
             </div>
         </div>
 
-        <div class="illustration" aria-hidden="true">
-            <div class="illus">
-                <div class="illus-grid">
-                    <div></div><div></div><div></div>
-                    <div></div><div></div><div></div>
-                    <div></div><div></div><div></div>
-                </div>
-                <div class="illus-bottom">
-                    <div class="illus-bar"></div>
-                    <div class="illus-chip"></div>
-                </div>
-            </div>
+        <div class="illustration">
+            <picture>
+                <source srcset="<?= e(asset('assets/images/hero-illustration.svg')); ?>" type="image/svg+xml">
+                <img src="<?= e(asset('assets/images/hero-illustration.svg')); ?>" alt="Illustration of connected nERP dashboards" loading="lazy">
+            </picture>
         </div>
     </div>
 
@@ -181,18 +174,33 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                 <?php endif; ?>
             </div>
             <div class="card stack-integrations">
-                <div class="card-title"><?= e($stack['integrations_title'] ?? ''); ?></div>
-                <p class="card-desc"><?= e($stack['integrations_desc'] ?? ''); ?></p>
-                <?php if ($stackIntegrations !== []): ?>
-                    <div class="chip-grid">
-                        <?php foreach ($stackIntegrations as $integration): ?>
-                            <span class="chip"><?= e($integration); ?></span>
+                <?php $integrationHighlights = array_slice($stackIntegrations, 0, 3); ?>
+                <?php if ($integrationHighlights !== []): ?>
+                    <div class="stack-integrations-visual" aria-hidden="true">
+                        <div class="stack-integrations-core"><span class="icon api" aria-hidden="true"></span></div>
+                        <?php foreach ($integrationHighlights as $highlight): ?>
+                            <span class="stack-integrations-badge"><?= e($highlight); ?></span>
                         <?php endforeach; ?>
                     </div>
+                <?php else: ?>
+                    <div class="stack-integrations-visual" aria-hidden="true">
+                        <div class="stack-integrations-core"><span class="icon api" aria-hidden="true"></span></div>
+                    </div>
                 <?php endif; ?>
-                <?php if (!empty($stack['footnote'])): ?>
-                    <p class="stack-footnote"><?= e($stack['footnote']); ?></p>
-                <?php endif; ?>
+                <div class="stack-integrations-content">
+                    <div class="card-title"><?= e($stack['integrations_title'] ?? ''); ?></div>
+                    <p class="card-desc"><?= e($stack['integrations_desc'] ?? ''); ?></p>
+                    <?php if ($stackIntegrations !== []): ?>
+                        <div class="chip-grid">
+                            <?php foreach ($stackIntegrations as $integration): ?>
+                                <span class="chip"><?= e($integration); ?></span>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                    <?php if (!empty($stack['footnote'])): ?>
+                        <p class="stack-footnote"><?= e($stack['footnote']); ?></p>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
     </div>
@@ -281,6 +289,14 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                     <span class="token-price-prefix"><?= e($t->get('pricing.token_price_prefix')); ?></span>
                     <input type="number" id="tokenPriceLocal" name="tokenPriceLocal" min="<?= e($tokenPriceMinFormatted); ?>" step="<?= e($tokenPriceStepFormatted); ?>" value="<?= e($tokenPriceDefaultFormatted); ?>" data-token-input inputmode="decimal">
                     <span class="token-price-suffix"><?= e($t->get('pricing.token_price_suffix')); ?></span>
+                </div>
+                <div class="token-price-presets" role="group" aria-label="<?= e($t->get('pricing.token_price_presets')); ?>">
+                    <?php foreach ([0.1, 0.5, 1.0, 2.0] as $preset): ?>
+                        <?php $isActive = abs($preset - $tokenPriceUsdDefault) < 0.0001; ?>
+                        <button type="button" class="token-price-preset<?= $isActive ? ' is-active' : ''; ?>" data-token-preset="<?= e(number_format($preset, 2, '.', '')); ?>" aria-pressed="<?= $isActive ? 'true' : 'false'; ?>">
+                            <?= e('$' . number_format($preset, 2)); ?>
+                        </button>
+                    <?php endforeach; ?>
                 </div>
                 <p class="muted small token-price-hint"><?= e($t->get('pricing.token_price_hint')); ?></p>
                 <p class="muted small token-price-preview"><?= e($t->get('pricing.token_price_preview_prefix')); ?> <span data-token-preview-value>â€”</span></p>

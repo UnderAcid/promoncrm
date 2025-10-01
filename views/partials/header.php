@@ -3,6 +3,8 @@
 /** @var array<string, string> $languages */
 /** @var string $currentLocale */
 /** @var string[] $themes */
+
+$currentLanguageLabel = $languages[$currentLocale] ?? strtoupper($currentLocale);
 ?>
 <header class="header" data-header>
     <div class="container header-inner">
@@ -26,8 +28,10 @@
         </nav>
         <div class="actions">
             <div class="lang-switcher" data-language-switcher>
-                <button class="icon-button" type="button" data-language-toggle aria-haspopup="true" aria-expanded="false" aria-label="<?= e($t->get('language_switcher.label')); ?>">
-                    <span class="icon globe" aria-hidden="true"></span>
+                <button class="switcher-button" type="button" data-language-toggle aria-haspopup="true" aria-expanded="false" aria-label="<?= e($t->get('language_switcher.label')); ?>">
+                    <span class="switcher-icon"><span class="icon globe" aria-hidden="true"></span></span>
+                    <span class="switcher-label"><?= e($currentLanguageLabel); ?></span>
+                    <span class="switcher-caret" aria-hidden="true"></span>
                 </button>
                 <ul class="lang-menu" data-language-menu>
                     <?php foreach ($languages as $code => $label): ?>
@@ -45,9 +49,19 @@
                     <a href="<?= e($href); ?>"><?= e($label); ?></a>
                 <?php endforeach; ?>
             </noscript>
-            <button class="icon-button" type="button" data-theme-toggle aria-label="<?= e($t->get('app.theme.toggle')); ?>">
-                <span class="icon theme" aria-hidden="true"></span>
-            </button>
+            <div class="theme-switcher" data-theme-switcher aria-label="<?= e($t->get('app.theme.toggle')); ?>" role="group">
+                <?php foreach ($themes as $theme): ?>
+                    <?php
+                    $isActive = $theme === $currentTheme;
+                    $icon = $theme === 'dark' ? 'moon' : 'sun';
+                    $themeLabel = $t->get('app.theme.' . $theme) ?? ucfirst($theme);
+                    ?>
+                    <button class="theme-option<?= $isActive ? ' is-active' : ''; ?>" type="button" data-theme-option="<?= e($theme); ?>" aria-pressed="<?= $isActive ? 'true' : 'false'; ?>">
+                        <span class="theme-option-icon icon <?= e($icon); ?>" aria-hidden="true"></span>
+                        <span class="theme-option-label"><?= e($themeLabel); ?></span>
+                    </button>
+                <?php endforeach; ?>
+            </div>
             <a class="btn btn-primary" href="#pilots" data-scroll-to-pilots>
                 <span class="icon rocket" aria-hidden="true"></span><?= e($t->get('hero.primary_cta')); ?>
             </a>
