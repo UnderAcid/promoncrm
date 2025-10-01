@@ -216,6 +216,9 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                     ];
                 }
             }
+            $integrationSplitIndex = (int) ceil(count($integrationItems) / 2);
+            $integrationTop = array_slice($integrationItems, 0, $integrationSplitIndex);
+            $integrationBottom = array_slice($integrationItems, $integrationSplitIndex);
             ?>
             <div class="card stack-integrations">
                 <div class="stack-integrations-header">
@@ -229,22 +232,42 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                 </div>
                 <?php if ($integrationItems !== []): ?>
                     <div class="integration-map">
-                        <div class="integration-core" aria-hidden="true">
-                            <span class="integration-core-icon"><span class="icon shield"></span></span>
-                            <div class="integration-core-label"><?= e($stack['integrations_core'] ?? 'nERP'); ?></div>
-                        </div>
-                        <div class="integration-tiles">
-                            <?php foreach ($integrationItems as $item): ?>
-                                <div class="integration-tile">
-                                    <?php if ($item['status'] !== ''): ?>
-                                        <span class="integration-status"><?= e($item['status']); ?></span>
-                                    <?php endif; ?>
-                                    <span class="integration-name"><?= e($item['name']); ?></span>
-                                    <?php if ($item['tag'] !== ''): ?>
-                                        <span class="integration-tag"><?= e($item['tag']); ?></span>
-                                    <?php endif; ?>
+                        <div class="integration-network">
+                            <?php if ($integrationTop !== []): ?>
+                                <div class="integration-nodes integration-nodes-top">
+                                    <?php foreach ($integrationTop as $item): ?>
+                                        <div class="integration-node">
+                                            <?php if ($item['status'] !== ''): ?>
+                                                <span class="integration-status"><?= e($item['status']); ?></span>
+                                            <?php endif; ?>
+                                            <span class="integration-name"><?= e($item['name']); ?></span>
+                                            <?php if ($item['tag'] !== ''): ?>
+                                                <span class="integration-tag"><?= e($item['tag']); ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endforeach; ?>
                                 </div>
-                            <?php endforeach; ?>
+                            <?php endif; ?>
+                            <div class="integration-core" aria-hidden="true">
+                                <span class="integration-core-icon"><span class="icon shield"></span></span>
+                                <div class="integration-core-label"><?= e($stack['integrations_core'] ?? 'nERP'); ?></div>
+                                <p class="integration-core-desc"><?= e($stack['integrations_core_desc'] ?? $t->get('stack.integrations_core_desc')); ?></p>
+                            </div>
+                            <?php if ($integrationBottom !== []): ?>
+                                <div class="integration-nodes integration-nodes-bottom">
+                                    <?php foreach ($integrationBottom as $item): ?>
+                                        <div class="integration-node">
+                                            <?php if ($item['status'] !== ''): ?>
+                                                <span class="integration-status"><?= e($item['status']); ?></span>
+                                            <?php endif; ?>
+                                            <span class="integration-name"><?= e($item['name']); ?></span>
+                                            <?php if ($item['tag'] !== ''): ?>
+                                                <span class="integration-tag"><?= e($item['tag']); ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endif; ?>

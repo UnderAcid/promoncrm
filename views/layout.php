@@ -19,6 +19,8 @@ if ($host === 'nerp.app') {
 $uri = strtok($_SERVER['REQUEST_URI'] ?? '/', '?') ?: '/';
 $canonical = $scheme . '://' . $host . $uri;
 $localeCode = (string) $t->get('app.locale_code', [], $currentLocale);
+$ogImage = $scheme . '://' . $host . asset('assets/img/hero-illustration.svg');
+$ogImageAlt = (string) ($t->get('meta.og_image_alt') ?? $t->get('meta.og_title'));
 ?>
 <!DOCTYPE html>
 <html lang="<?= e($localeCode); ?>" data-theme="<?= e($currentTheme); ?>" class="no-js">
@@ -39,7 +41,14 @@ $localeCode = (string) $t->get('app.locale_code', [], $currentLocale);
     <meta property="og:url" content="<?= e($canonical); ?>">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="<?= e($localeCode); ?>">
+    <meta property="og:image" content="<?= e($ogImage); ?>">
+    <meta property="og:image:type" content="image/svg+xml">
+    <meta property="og:image:alt" content="<?= e($ogImageAlt); ?>">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?= e($t->get('meta.og_title')); ?>">
+    <meta name="twitter:description" content="<?= e($t->get('meta.og_description')); ?>">
+    <meta name="twitter:image" content="<?= e($ogImage); ?>">
+    <meta name="twitter:image:alt" content="<?= e($ogImageAlt); ?>">
     <meta name="theme-color" content="#0f172a">
 
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
