@@ -9,14 +9,23 @@ const themes = config.themes || ['light', 'dark'];
 const microFee = typeof config.microFee === 'number' ? config.microFee : 0.001;
 const fiatPerUsd = typeof config.fiatPerUsd === 'number' ? config.fiatPerUsd : 1;
 const tokenDecimals = Number.isInteger(config.tokenDecimals) ? config.tokenDecimals : 6;
-const defaultTokensPerUsd = (() => {
-  const value = Number.parseFloat(config.tokenPerUsd);
+const usdPerTokenOptions = Array.isArray(config.usdPerTokenOptions)
+  ? config.usdPerTokenOptions
+      .map((value) => Number.parseFloat(value))
+      .filter((value) => Number.isFinite(value) && value > 0)
+  : [];
+const defaultUsdPerToken = (() => {
+  const value = Number.parseFloat(config.usdPerTokenDefault);
   if (Number.isFinite(value) && value > 0) {
     return value;
   }
+  if (usdPerTokenOptions.length > 0) {
+    return usdPerTokenOptions[0];
+  }
   return 1;
 })();
-let tokensPerUsd = defaultTokensPerUsd;
+let usdPerToken = defaultUsdPerToken;
+let tokensPerUsd = usdPerToken > 0 ? 1 / usdPerToken : 1;
 
 if (!localStorage.getItem('prefersDarkSet')) {
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -29,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const audienceButtons = document.querySelectorAll('[data-audience]');
   const audiencePitchEl = document.querySelector('[data-audience-pitch]');
-  const languageSelect = document.querySelector('[data-language-select]');
+  const languageSwitchers = document.querySelectorAll('[data-language-switcher]');
   const themeToggle = document.querySelector('[data-theme-toggle]');
   const themeLabel = themeToggle?.querySelector('[data-theme-label]');
   const navToggle = document.querySelector('[data-nav-toggle]');
@@ -150,11 +159,102 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderAudience(defaultAudience);
 
-  if (languageSelect) {
-    languageSelect.addEventListener('change', () => {
-      const target = languageSelect.value;
-      if (typeof target === 'string' && target !== '') {
-        window.location.href = target;
+  if (languageSwitchers.length > 0) {
+    const switcherNodes = Array.from(languageSwitchers).filter((node) => node instanceof HTMLElement);
+
+    const closeAllLanguageMenus = (except = null) => {
+      switcherNodes.forEach((switcher) => {
+        if (switcher === except) return;
+        switcher.classList.remove('open');
+        const triggerEl = switcher.querySelector('[data-language-trigger]');
+        if (triggerEl instanceof HTMLElement) {
+          triggerEl.setAttribute('aria-expanded', 'false');
+        }
+      });
+    };
+
+    switcherNodes.forEach((switcher) => {
+      const trigger = switcher.querySelector('[data-language-trigger]');
+      const menu = switcher.querySelector('[data-language-menu]');
+      if (!(trigger instanceof HTMLElement) || !(menu instanceof HTMLElement)) {
+        return;
+      }
+
+      const options = menu.querySelectorAll('[data-language-option]');
+      if (options.length === 0) {
+        trigger.setAttribute('aria-disabled', 'true');
+        trigger.setAttribute('tabindex', '-1');
+        trigger.classList.add('is-disabled');
+        return;
+      }
+
+      const closeMenu = () => {
+        switcher.classList.remove('open');
+        trigger.setAttribute('aria-expanded', 'false');
+      };
+
+      const openMenu = ({ focusFirst = false } = {}) => {
+        closeAllLanguageMenus(switcher);
+        switcher.classList.add('open');
+        trigger.setAttribute('aria-expanded', 'true');
+        if (focusFirst) {
+          const firstOption = menu.querySelector('[data-language-option]');
+          if (firstOption instanceof HTMLElement) {
+            firstOption.focus();
+          }
+        }
+      };
+
+      const toggleMenu = () => {
+        if (switcher.classList.contains('open')) {
+          closeMenu();
+        } else {
+          openMenu({ focusFirst: true });
+        }
+      };
+
+      trigger.addEventListener('click', (event) => {
+        event.preventDefault();
+        toggleMenu();
+      });
+
+      trigger.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeMenu();
+          trigger.blur();
+        } else if (event.key === 'ArrowDown') {
+          event.preventDefault();
+          openMenu({ focusFirst: true });
+        }
+      });
+
+      menu.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          closeMenu();
+          trigger.focus();
+        }
+      });
+
+      options.forEach((option) => {
+        option.addEventListener('click', () => {
+          closeAllLanguageMenus();
+        });
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      const inside = switcherNodes.some((switcher) => switcher.contains(target));
+      if (!inside) {
+        closeAllLanguageMenus();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closeAllLanguageMenus();
       }
     });
   }
@@ -166,9 +266,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const opsMonthly = document.getElementById('opsMonthly');
   const nerpTotal = document.getElementById('nerpTotal');
   const fiatApprox = document.getElementById('fiatApprox');
-  const tokenInput = document.querySelector('[data-token-input]');
+  const tokenOptionButtons = document.querySelectorAll('[data-token-option]');
   const tokenPreviewValue = document.querySelector('[data-token-preview-value]');
   const operationFiatNodes = document.querySelectorAll('[data-operation-fiat]');
+
+  const initialActiveTokenButton = Array.from(tokenOptionButtons).find((btn) => btn.classList.contains('active'));
+  if (initialActiveTokenButton instanceof HTMLElement) {
+    const initialValue = Number.parseFloat(initialActiveTokenButton.dataset.tokenOption || '0');
+    if (Number.isFinite(initialValue) && initialValue > 0) {
+      usdPerToken = initialValue;
+      tokensPerUsd = 1 / usdPerToken;
+    }
+  }
+
+  function updateTokenButtons() {
+    tokenOptionButtons.forEach((button) => {
+      if (!(button instanceof HTMLElement)) return;
+      const value = Number.parseFloat(button.dataset.tokenOption || '0');
+      const isActive = Number.isFinite(value) && Math.abs(value - usdPerToken) < 0.00001;
+      button.classList.toggle('active', isActive);
+      button.setAttribute('aria-pressed', String(isActive));
+    });
+  }
 
   function estimate(peopleCount, actionsPerDay) {
     const monthlyActions = actionsPerDay * 30 * Math.max(peopleCount, 1);
@@ -178,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateTokenDerived() {
     if (tokenPreviewValue instanceof HTMLElement) {
-      const tokenValue = tokensPerUsd > 0 ? (fiatPerUsd / tokensPerUsd) : 0;
+      const tokenValue = tokensPerUsd > 0 ? fiatPerUsd / tokensPerUsd : 0;
       tokenPreviewValue.textContent = currencyFormatter.format(tokenValue);
     }
 
@@ -214,23 +333,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   people?.addEventListener('input', updateCalc);
   apd?.addEventListener('input', updateCalc);
-  if (tokenInput instanceof HTMLInputElement) {
-    const applyTokenInput = () => {
-      const next = Number.parseFloat(tokenInput.value);
-      if (!Number.isFinite(next) || next <= 0) {
+  tokenOptionButtons.forEach((button) => {
+    if (!(button instanceof HTMLElement)) return;
+    button.addEventListener('click', () => {
+      const value = Number.parseFloat(button.dataset.tokenOption || '0');
+      if (!Number.isFinite(value) || value <= 0) {
         return;
       }
-      tokensPerUsd = next;
-      tokenInput.value = next.toFixed(tokenDecimals);
+      usdPerToken = value;
+      tokensPerUsd = 1 / usdPerToken;
+      updateTokenButtons();
       updateCalc();
-    };
-    tokenInput.addEventListener('input', applyTokenInput);
-    tokenInput.addEventListener('change', applyTokenInput);
-    if (Number.isFinite(defaultTokensPerUsd)) {
-      tokenInput.value = defaultTokensPerUsd.toFixed(tokenDecimals);
-      tokensPerUsd = defaultTokensPerUsd;
-    }
-  }
+    });
+  });
+
+  updateTokenButtons();
   updateCalc();
 
   document.querySelectorAll('.faq-item').forEach((item) => {
@@ -240,23 +357,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     answer.style.height = '0px';
 
+    const openFaq = () => {
+      answer.style.height = 'auto';
+      const targetHeight = answer.scrollHeight;
+      answer.style.height = '0px';
+      requestAnimationFrame(() => {
+        item.classList.add('open');
+        answer.style.height = `${targetHeight}px`;
+      });
+    };
+
+    const closeFaq = () => {
+      const currentHeight = answer.scrollHeight;
+      answer.style.height = `${currentHeight}px`;
+      requestAnimationFrame(() => {
+        answer.style.height = '0px';
+        item.classList.remove('open');
+      });
+    };
+
     trigger.addEventListener('click', () => {
       const isOpen = item.classList.contains('open');
       if (isOpen) {
-        const currentHeight = answer.scrollHeight;
-        if (currentHeight) {
-          answer.style.height = `${currentHeight}px`;
-          requestAnimationFrame(() => {
-            answer.style.height = '0px';
-          });
-        } else {
-          answer.style.height = '0px';
-        }
-        item.classList.remove('open');
+        closeFaq();
       } else {
-        item.classList.add('open');
-        const targetHeight = answer.scrollHeight;
-        answer.style.height = `${targetHeight}px`;
+        openFaq();
       }
     });
 
