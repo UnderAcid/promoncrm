@@ -11,7 +11,6 @@ return [
             'toggle' => 'Toggle theme',
             'light' => 'Light',
             'dark' => 'Dark',
-            'mezen' => 'Mezen painting',
         ],
         'noscript' => 'JavaScript is disabled. Some functionality may be limited.',
     ],
@@ -25,6 +24,7 @@ return [
     'nav' => [
         'for' => 'Who it is for',
         'why' => 'Why nERP',
+        'impact' => 'Outcomes',
         'how' => 'How it works',
         'pilots' => 'Pilots',
         'pricing' => 'Pricing',
@@ -111,6 +111,27 @@ return [
                 'icon' => 'cpu',
                 'title' => 'Automated actions',
                 'desc' => 'Microservices react to events and eliminate manual work.',
+            ],
+        ],
+    ],
+    'impact' => [
+        'title' => 'Outcomes from pilot projects',
+        'subtitle' => 'What teams report after connecting nERP.',
+        'metrics' => [
+            [
+                'value' => '-63%',
+                'label' => 'Manual work time',
+                'desc' => 'Automation scenarios redistribute routine tasks and remove double data entry.',
+            ],
+            [
+                'value' => '×3',
+                'label' => 'Module launch speed',
+                'desc' => 'Ready-made CRM/HR/Inventory blocks and templates accelerate pilot rollouts.',
+            ],
+            [
+                'value' => '99.5%',
+                'label' => 'Node uptime',
+                'desc' => 'Replication and distributed nodes keep operations online without downtime.',
             ],
         ],
     ],

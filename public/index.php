@@ -17,24 +17,27 @@ $localeManager = new LocaleManager($languages, 'ru');
 $localeManager->bootstrap();
 $localeUrls = $localeManager->getLocalizedPaths();
 
-$themeManager = new ThemeManager(['light', 'dark', 'mezen'], 'light');
+$themes = ['light', 'dark'];
+$themeManager = new ThemeManager($themes, 'light');
 
 $translator = $localeManager->translator();
 
 $audiencePitches = $translator->get('audience.pitches');
 $defaultAudience = is_array($audiencePitches) ? array_key_first($audiencePitches) : 'business';
 
+$availableThemes = $themeManager->getAvailableThemes();
+$themeLabels = [];
+foreach ($availableThemes as $theme) {
+    $themeLabels[$theme] = $translator->get('app.theme.' . $theme);
+}
+
 $clientConfig = [
     'defaultAudience' => $defaultAudience,
     'audiencePitches' => $audiencePitches,
     'numberLocale' => $translator->get('pricing.locale', [], $translator->get('app.locale_code')),
     'currency' => $translator->get('pricing.currency', [], 'USD'),
-    'themes' => $themeManager->getAvailableThemes(),
-    'themeLabels' => [
-        'light' => $translator->get('app.theme.light'),
-        'dark' => $translator->get('app.theme.dark'),
-        'mezen' => $translator->get('app.theme.mezen'),
-    ],
+    'themes' => $availableThemes,
+    'themeLabels' => $themeLabels,
     'microFee' => 0.001,
     'usdRate' => 1,
 ];
@@ -51,6 +54,6 @@ echo View::render('layout', [
     'currentLocale' => $localeManager->getCurrentLocale(),
     'currentTheme' => $themeManager->getCurrentTheme(),
     'clientConfig' => $clientConfig,
-    'themes' => $themeManager->getAvailableThemes(),
+    'themes' => $availableThemes,
     'localeUrls' => $localeUrls,
 ]);

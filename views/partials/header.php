@@ -13,6 +13,7 @@
         <nav class="nav" aria-label="Main navigation">
             <a href="#for"><?= e($t->get('nav.for')); ?></a>
             <a href="#why"><?= e($t->get('nav.why')); ?></a>
+            <a href="#impact"><?= e($t->get('nav.impact')); ?></a>
             <a href="#how"><?= e($t->get('nav.how')); ?></a>
             <a href="#pilots"><?= e($t->get('nav.pilots')); ?></a>
             <a href="#pricing"><?= e($t->get('nav.pricing')); ?></a>

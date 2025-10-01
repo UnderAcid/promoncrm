@@ -8,6 +8,14 @@ $audienceOptions = $t->get('audience.options');
 $defaultAudience = array_key_first($audienceOptions) ?? 'business';
 $audiencePitch = $t->get('audience.pitches.' . $defaultAudience);
 $whyBlocks = $t->get('why.blocks');
+$impactData = $t->get('impact');
+$impactMetrics = [];
+if (is_array($impactData)) {
+    $impactMetrics = $impactData['metrics'] ?? [];
+    if (!is_array($impactMetrics)) {
+        $impactMetrics = [];
+    }
+}
 $howItems = $t->get('how.items');
 $partnerCards = $t->get('partners.cards');
 $logos = $t->get('logos.brands');
@@ -114,6 +122,28 @@ $pilotForm = $t->get('pilots.form');
             </div>
         <?php endforeach; ?>
     </div>
+</section>
+
+<div class="divider" role="presentation"></div>
+
+<section id="impact" class="container impact-section">
+    <div class="impact-header">
+        <h2 class="h2"><?= e($impactData['title'] ?? ''); ?></h2>
+        <?php if (!empty($impactData['subtitle'])): ?>
+            <p class="muted"><?= e($impactData['subtitle']); ?></p>
+        <?php endif; ?>
+    </div>
+    <?php if ($impactMetrics !== []): ?>
+        <div class="impact-grid">
+            <?php foreach ($impactMetrics as $metric): ?>
+                <div class="card impact-card">
+                    <div class="impact-value"><?= e($metric['value'] ?? ''); ?></div>
+                    <div class="impact-label"><?= e($metric['label'] ?? ''); ?></div>
+                    <p class="impact-desc"><?= e($metric['desc'] ?? ''); ?></p>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 </section>
 
 <div class="divider" role="presentation"></div>
