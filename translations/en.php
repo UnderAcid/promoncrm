@@ -11,7 +11,6 @@ return [
             'toggle' => 'Toggle theme',
             'light' => 'Light',
             'dark' => 'Dark',
-            'mezen' => 'Mezen painting',
         ],
         'noscript' => 'JavaScript is disabled. Some functionality may be limited.',
     ],
@@ -23,9 +22,12 @@ return [
         'og_description' => 'Launch CRM, HR, and inventory with encrypted nodes at nerp.app. Your data stays yours, payments track real usage.',
     ],
     'nav' => [
+        'menu' => 'Menu',
         'for' => 'Who it is for',
         'why' => 'Why nERP',
+        'modules' => 'Modules',
         'how' => 'How it works',
+        'tech' => 'Stack',
         'pilots' => 'Pilots',
         'pricing' => 'Pricing',
         'partners' => 'Partners',
@@ -114,6 +116,27 @@ return [
             ],
         ],
     ],
+    'modules' => [
+        'title' => 'What you can build with nERP',
+        'subtitle' => 'Cover sales, operations, and supply in one workspace. Mix ready-made blocks without code and tune them to your industry.',
+        'items' => [
+            [
+                'icon' => 'crm',
+                'title' => 'Web3 CRM',
+                'desc' => 'Pipelines, deals, and service desks run on distributed nodes with local key custody.',
+            ],
+            [
+                'icon' => 'automation',
+                'title' => 'Operations automation',
+                'desc' => 'Triggers, playbooks, and webhooks react to events and connect external systems.',
+            ],
+            [
+                'icon' => 'inventory',
+                'title' => 'Inventory & supply chain',
+                'desc' => 'Manage stock, serial numbers, and track & trace across the network.',
+            ],
+        ],
+    ],
     'how' => [
         'title' => 'How it works',
         'items' => [
@@ -128,6 +151,30 @@ return [
             [
                 'title' => 'Launch your workflows',
                 'desc' => 'Automation handles operations while you only pay for user actions.',
+            ],
+        ],
+    ],
+    'tech' => [
+        'title' => 'The nERP technology stack',
+        'subtitle' => 'Open protocols with full control over keys, compute, and data locality.',
+        'metrics_title' => 'Reliability metrics',
+        'points' => [
+            'Local AES-256 encryption plus BLS signatures for network nodes.',
+            'Decentralised event bus powered by NATS queues and IPFS storage.',
+            'Infrastructure-ready for Kubernetes/Helm or bare metal with a single deploy script.',
+        ],
+        'metrics' => [
+            [
+                'value' => '72 min',
+                'label' => 'average pilot launch',
+            ],
+            [
+                'value' => '99.95%',
+                'label' => 'core compute SLA',
+            ],
+            [
+                'value' => '12 regions',
+                'label' => 'available node locations',
             ],
         ],
     ],

@@ -8,7 +8,10 @@ $audienceOptions = $t->get('audience.options');
 $defaultAudience = array_key_first($audienceOptions) ?? 'business';
 $audiencePitch = $t->get('audience.pitches.' . $defaultAudience);
 $whyBlocks = $t->get('why.blocks');
+$moduleItems = $t->get('modules.items');
 $howItems = $t->get('how.items');
+$techPoints = $t->get('tech.points');
+$techMetrics = $t->get('tech.metrics');
 $partnerCards = $t->get('partners.cards');
 $logos = $t->get('logos.brands');
 $faqItems = $t->get('faq.items');
@@ -118,6 +121,28 @@ $pilotForm = $t->get('pilots.form');
 
 <div class="divider" role="presentation"></div>
 
+<section id="modules" class="container modules-section">
+    <h2 class="h2"><?= e($t->get('modules.title')); ?></h2>
+    <p class="muted"><?= e($t->get('modules.subtitle')); ?></p>
+    <?php if (is_array($moduleItems) && $moduleItems !== []): ?>
+        <div class="grid three module-grid">
+            <?php foreach ($moduleItems as $item): ?>
+                <div class="card module-card">
+                    <div class="card-row">
+                        <div class="icon-bubble"><span class="icon <?= e($item['icon']); ?>" aria-hidden="true"></span></div>
+                        <div>
+                            <div class="card-title"><?= e($item['title']); ?></div>
+                            <div class="card-desc"><?= e($item['desc']); ?></div>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+</section>
+
+<div class="divider" role="presentation"></div>
+
 <section id="how" class="container how-section">
     <h2 class="h2"><?= e($t->get('how.title')); ?></h2>
     <div class="grid three">
@@ -127,6 +152,37 @@ $pilotForm = $t->get('pilots.form');
                 <p class="card-desc"><?= e($item['desc']); ?></p>
             </div>
         <?php endforeach; ?>
+    </div>
+</section>
+
+<div class="divider" role="presentation"></div>
+
+<section id="tech" class="container tech-section">
+    <div class="grid two">
+        <div class="tech-copy">
+            <h2 class="h2"><?= e($t->get('tech.title')); ?></h2>
+            <p class="muted"><?= e($t->get('tech.subtitle')); ?></p>
+            <?php if (is_array($techPoints) && $techPoints !== []): ?>
+                <ul class="tech-points">
+                    <?php foreach ($techPoints as $point): ?>
+                        <li><?= e($point); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+        </div>
+        <div class="card tech-card">
+            <div class="card-title"><?= e($t->get('tech.metrics_title')); ?></div>
+            <?php if (is_array($techMetrics) && $techMetrics !== []): ?>
+                <div class="tech-metrics">
+                    <?php foreach ($techMetrics as $metric): ?>
+                        <div class="metric">
+                            <div class="metric-value"><?= e($metric['value']); ?></div>
+                            <div class="metric-label"><?= e($metric['label']); ?></div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
 </section>
 
