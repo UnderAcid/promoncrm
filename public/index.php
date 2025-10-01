@@ -17,7 +17,7 @@ $localeManager = new LocaleManager($languages, 'ru');
 $localeManager->bootstrap();
 $localeUrls = $localeManager->getLocalizedPaths();
 
-$themeManager = new ThemeManager(['light', 'dark', 'mezen'], 'light');
+$themeManager = new ThemeManager(['light', 'dark'], 'light');
 
 $translator = $localeManager->translator();
 
@@ -33,7 +33,6 @@ $clientConfig = [
     'themeLabels' => [
         'light' => $translator->get('app.theme.light'),
         'dark' => $translator->get('app.theme.dark'),
-        'mezen' => $translator->get('app.theme.mezen'),
     ],
     'microFee' => 0.001,
     'usdRate' => 1,

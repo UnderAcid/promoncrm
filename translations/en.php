@@ -11,7 +11,6 @@ return [
             'toggle' => 'Toggle theme',
             'light' => 'Light',
             'dark' => 'Dark',
-            'mezen' => 'Mezen painting',
         ],
         'noscript' => 'JavaScript is disabled. Some functionality may be limited.',
     ],
@@ -26,10 +25,12 @@ return [
         'for' => 'Who it is for',
         'why' => 'Why nERP',
         'how' => 'How it works',
+        'stack' => 'Architecture',
         'pilots' => 'Pilots',
         'pricing' => 'Pricing',
         'partners' => 'Partners',
         'faq' => 'FAQ',
+        'toggle' => 'Menu',
     ],
     'hero' => [
         'tags' => ['Web3.0', 'Encryption', 'nerp.app'],
@@ -130,6 +131,36 @@ return [
                 'desc' => 'Automation handles operations while you only pay for user actions.',
             ],
         ],
+    ],
+    'stack' => [
+        'title' => 'nERP architecture & security',
+        'subtitle' => 'Map the platform quickly so security, ops, and founders stay aligned during the pilot.',
+        'highlights' => [
+            [
+                'icon' => 'nodes',
+                'title' => 'Node in your infrastructure',
+                'desc' => 'Deploy on-prem or in the cloud. Data and keys remain inside your perimeter.',
+            ],
+            [
+                'icon' => 'ledger',
+                'title' => 'Encryption and audit trail',
+                'desc' => 'Keys stay with the owner, every access is logged and verified on smart contracts.',
+            ],
+            [
+                'icon' => 'workflow',
+                'title' => 'Automation without heavy code',
+                'desc' => 'Prebuilt playbooks connect CRM, HR, and inventory without lengthy integrations.',
+            ],
+            [
+                'icon' => 'api',
+                'title' => 'Open APIs',
+                'desc' => 'REST and webhooks to plug in your services and third-party modules.',
+            ],
+        ],
+        'integrations_title' => 'Default integrations',
+        'integrations_desc' => 'We hook into common tools during the pilot — no endless procurement cycles.',
+        'integrations' => ['Slack webhooks', '1C gateway', 'Google Sheets', 'Notion Sync', 'PostgreSQL'],
+        'footnote' => 'Need something else? Pilot teams can request new connectors.',
     ],
     'pricing' => [
         'title' => 'What nERP costs',
