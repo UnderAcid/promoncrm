@@ -75,7 +75,6 @@ a:hover {
     radial-gradient(900px 540px at 75% -120px, rgba(37, 99, 235, 0.18), transparent),
     radial-gradient(600px 420px at 20% 10%, rgba(56, 189, 248, 0.14), transparent),
     linear-gradient(180deg, rgba(241, 245, 249, 0.4), rgba(248, 250, 252, 0.9));
-  padding-bottom: 96px;
 }
 
 :root[data-theme='dark'] .bg-root {
@@ -314,12 +313,16 @@ html.no-js .nav-toggle {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .actions [data-theme-toggle] {
-  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.actions .lang-switcher {
+  flex: 0 0 auto;
 }
 
 @media (min-width: 860px) {
@@ -336,10 +339,7 @@ html.no-js .nav-toggle {
     margin-left: 0;
     justify-content: flex-start;
     align-items: stretch;
-  }
-
-  .actions .lang-switcher {
-    flex: 1 1 160px;
+    gap: 10px;
   }
 
   .actions [data-theme-toggle] {
@@ -351,25 +351,10 @@ html.no-js .nav-toggle {
     flex: 1 1 200px;
     width: 100%;
   }
-}
 
-.lang-switcher select {
-  appearance: none;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  background: var(--color-surface-strong);
-  padding: 8px 30px 8px 14px;
-  font-size: 14px;
-  font-family: inherit;
-  color: var(--color-text);
-  box-shadow: var(--shadow-sm);
-  cursor: pointer;
-  position: relative;
-}
-
-@media (max-width: 859px) {
-  .lang-switcher select {
-    width: 100%;
+  .lang-menu {
+    left: 0;
+    right: auto;
   }
 }
 
@@ -377,15 +362,86 @@ html.no-js .nav-toggle {
   position: relative;
 }
 
-.lang-switcher::after {
-  content: '⌄';
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-strong);
+  padding: 10px 14px;
+  min-height: 44px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+}
+
+.lang-toggle:focus-visible {
+  outline: 2px solid var(--color-primary-soft);
+  outline-offset: 2px;
+}
+
+.lang-toggle .icon {
+  margin-right: 2px;
+}
+
+.lang-current {
   font-size: 12px;
-  color: var(--color-muted);
-  pointer-events: none;
+  letter-spacing: 0.14em;
+}
+
+.lang-switcher.open .lang-toggle {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.lang-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 8px;
+  margin: 0;
+  display: grid;
+  gap: 4px;
+  min-width: 160px;
+  z-index: 20;
+}
+
+.lang-menu li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lang-menu a {
+  display: block;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  letter-spacing: 0.02em;
+}
+
+.lang-menu a:hover,
+.lang-menu a:focus-visible {
+  background: var(--color-primary-soft);
+  text-decoration: none;
+}
+
+.lang-menu a[aria-current='true'] {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  cursor: default;
 }
 
 .lang-switcher-links {
@@ -434,6 +490,12 @@ html.no-js .nav-toggle {
 .btn-primary:hover,
 .btn-primary:focus-visible {
   background: var(--color-primary-hover);
+}
+
+.btn-icon {
+  width: 44px;
+  height: 44px;
+  padding: 10px;
 }
 
 .btn-ghost {
@@ -607,6 +669,7 @@ html.no-js .nav-toggle {
 .icon.percent::before { content: '%'; font-weight: 700; }
 .icon.chevron::before { content: '⌄'; }
 .icon.theme::before { content: '🌓'; }
+.icon.globe::before { content: '🌐'; }
 .icon.nodes::before { content: '🕸️'; }
 .icon.ledger::before { content: '📒'; }
 .icon.workflow::before { content: '⚙️'; }
@@ -1199,6 +1262,20 @@ input[type='range'] {
 .why-section .grid,
 .how-section .grid {
   margin-top: 28px;
+}
+
+.feature-cards-wide {
+  margin-top: 36px;
+}
+
+.feature-cards-wide .feature-cards {
+  gap: 18px;
+}
+
+@media (max-width: 719px) {
+  .feature-cards-wide {
+    margin-top: 28px;
+  }
 }
 
 .pricing-section .pricing-grid {

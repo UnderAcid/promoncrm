@@ -7,16 +7,19 @@ const currencyCode = config.currency || 'USD';
 const themeLabels = config.themeLabels || {};
 const themes = config.themes || ['light', 'dark'];
 const microFee = typeof config.microFee === 'number' ? config.microFee : 0.001;
-const fiatPerUsd = typeof config.fiatPerUsd === 'number' ? config.fiatPerUsd : 1;
+const fiatPerUsd = typeof config.fiatPerUsd === 'number' && config.fiatPerUsd > 0 ? config.fiatPerUsd : 1;
 const tokenDecimals = Number.isInteger(config.tokenDecimals) ? config.tokenDecimals : 6;
-const defaultTokensPerUsd = (() => {
-  const value = Number.parseFloat(config.tokenPerUsd);
+const fiatDecimals = Number.isInteger(config.fiatDecimals) ? config.fiatDecimals : 2;
+const baseCurrency = typeof config.baseCurrency === 'string' ? config.baseCurrency : 'USD';
+const baseCurrencyLocale = typeof config.baseCurrencyLocale === 'string' ? config.baseCurrencyLocale : 'en-US';
+const defaultUsdPerToken = (() => {
+  const value = Number.parseFloat(config.usdPerToken);
   if (Number.isFinite(value) && value > 0) {
     return value;
   }
   return 1;
 })();
-let tokensPerUsd = defaultTokensPerUsd;
+let usdPerToken = defaultUsdPerToken;
 
 if (!localStorage.getItem('prefersDarkSet')) {
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -29,7 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const audienceButtons = document.querySelectorAll('[data-audience]');
   const audiencePitchEl = document.querySelector('[data-audience-pitch]');
-  const languageSelect = document.querySelector('[data-language-select]');
+  const languageSwitcher = document.querySelector('[data-language-switcher]');
+  const languageToggle = languageSwitcher?.querySelector('[data-language-toggle]');
+  const languageMenu = languageSwitcher?.querySelector('[data-language-menu]');
+  const languageOptions = languageMenu ? Array.from(languageMenu.querySelectorAll('[data-language-option]')) : [];
   const themeToggle = document.querySelector('[data-theme-toggle]');
   const themeLabel = themeToggle?.querySelector('[data-theme-label]');
   const navToggle = document.querySelector('[data-nav-toggle]');
@@ -43,12 +49,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const currencyFormatter = new Intl.NumberFormat(numberLocale, {
     style: 'currency',
     currency: currencyCode,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: Math.min(2, Math.max(fiatDecimals, 0)),
+    maximumFractionDigits: Math.max(fiatDecimals, 0),
   });
   const tokenFormatter = new Intl.NumberFormat(numberLocale, {
     minimumFractionDigits: tokenDecimals,
     maximumFractionDigits: tokenDecimals,
   });
+  const baseCurrencyFormatter = new Intl.NumberFormat(baseCurrencyLocale, {
+    style: 'currency',
+    currency: baseCurrency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  const safeFiatPerUsd = fiatPerUsd > 0 ? fiatPerUsd : 1;
+
+  function getFiatPerToken() {
+    return usdPerToken * safeFiatPerUsd;
+  }
 
   function updateThemeLabel(theme) {
     if (themeLabel) {
@@ -150,11 +169,79 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderAudience(defaultAudience);
 
-  if (languageSelect) {
-    languageSelect.addEventListener('change', () => {
-      const target = languageSelect.value;
-      if (typeof target === 'string' && target !== '') {
-        window.location.href = target;
+  if (languageToggle && languageMenu) {
+    const closeMenu = () => {
+      languageMenu.hidden = true;
+      languageSwitcher?.classList.remove('open');
+      languageToggle.setAttribute('aria-expanded', 'false');
+    };
+
+    const openMenu = () => {
+      languageMenu.hidden = false;
+      languageSwitcher?.classList.add('open');
+      languageToggle.setAttribute('aria-expanded', 'true');
+    };
+
+    const toggleMenu = () => {
+      if (languageMenu.hidden) {
+        openMenu();
+        const focusTarget = languageOptions.find((option) => !option.hasAttribute('aria-current')) || languageOptions[0];
+        focusTarget?.focus();
+      } else {
+        closeMenu();
+      }
+    };
+
+    languageToggle.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleMenu();
+    });
+
+    languageOptions.forEach((option) => {
+      if (option.getAttribute('aria-current') === 'true') {
+        option.addEventListener('click', (event) => {
+          event.preventDefault();
+          closeMenu();
+          languageToggle.focus();
+        });
+        return;
+      }
+
+      option.addEventListener('click', (event) => {
+        event.preventDefault();
+        const target = option.getAttribute('href');
+        if (typeof target === 'string' && target !== '') {
+          closeMenu();
+          window.location.href = target;
+        }
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!languageSwitcher?.contains(event.target)) {
+        closeMenu();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        if (!languageMenu.hidden) {
+          closeMenu();
+          languageToggle.focus();
+        }
+      }
+      if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && !languageMenu.hidden) {
+        if (languageOptions.length === 0) {
+          return;
+        }
+        event.preventDefault();
+        const currentIndex = languageOptions.indexOf(document.activeElement);
+        const direction = event.key === 'ArrowDown' ? 1 : -1;
+        let nextIndex = currentIndex + direction;
+        if (nextIndex < 0) nextIndex = languageOptions.length - 1;
+        if (nextIndex >= languageOptions.length) nextIndex = 0;
+        languageOptions[nextIndex]?.focus();
       }
     });
   }
@@ -177,20 +264,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateTokenDerived() {
+    const fiatPerToken = getFiatPerToken();
+
     if (tokenPreviewValue instanceof HTMLElement) {
-      const tokenValue = tokensPerUsd > 0 ? (fiatPerUsd / tokensPerUsd) : 0;
-      tokenPreviewValue.textContent = currencyFormatter.format(tokenValue);
+      tokenPreviewValue.textContent = baseCurrencyFormatter.format(usdPerToken);
     }
 
     operationFiatNodes.forEach((node) => {
       if (!(node instanceof HTMLElement)) return;
       const prefix = node.dataset.prefix || '≈';
       const cost = Number.parseFloat(node.dataset.operationFiat || '0');
-      if (!Number.isFinite(cost) || cost <= 0 || tokensPerUsd <= 0) {
+      if (!Number.isFinite(cost) || cost <= 0) {
         node.textContent = `${prefix} —`;
         return;
       }
-      const fiatValue = (cost / tokensPerUsd) * fiatPerUsd;
+      const fiatValue = cost * fiatPerToken;
       node.textContent = `${prefix} ${currencyFormatter.format(fiatValue)}`;
     });
   }
@@ -207,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const result = estimate(p, a);
     opsMonthly.textContent = numberFormatter.format(result.monthlyActions);
     nerpTotal.textContent = tokenFormatter.format(result.nerpSpend);
-    const fiatValue = tokensPerUsd > 0 ? (result.nerpSpend / tokensPerUsd) * fiatPerUsd : 0;
+    const fiatValue = result.nerpSpend * getFiatPerToken();
     fiatApprox.textContent = currencyFormatter.format(fiatValue);
     updateTokenDerived();
   }
@@ -215,21 +303,41 @@ document.addEventListener('DOMContentLoaded', () => {
   people?.addEventListener('input', updateCalc);
   apd?.addEventListener('input', updateCalc);
   if (tokenInput instanceof HTMLInputElement) {
-    const applyTokenInput = () => {
-      const next = Number.parseFloat(tokenInput.value);
+    const parseFiatValue = () => {
+      const raw = tokenInput.value.replace(',', '.');
+      const next = Number.parseFloat(raw);
       if (!Number.isFinite(next) || next <= 0) {
+        return null;
+      }
+      return next;
+    };
+
+    const applyFiatValue = (value) => {
+      if (!Number.isFinite(value) || value <= 0) {
         return;
       }
-      tokensPerUsd = next;
-      tokenInput.value = next.toFixed(tokenDecimals);
+      usdPerToken = value / safeFiatPerUsd;
       updateCalc();
     };
-    tokenInput.addEventListener('input', applyTokenInput);
-    tokenInput.addEventListener('change', applyTokenInput);
-    if (Number.isFinite(defaultTokensPerUsd)) {
-      tokenInput.value = defaultTokensPerUsd.toFixed(tokenDecimals);
-      tokensPerUsd = defaultTokensPerUsd;
-    }
+
+    tokenInput.addEventListener('input', () => {
+      const next = parseFiatValue();
+      if (next !== null) {
+        applyFiatValue(next);
+      }
+    });
+
+    tokenInput.addEventListener('change', () => {
+      const next = parseFiatValue();
+      if (next !== null) {
+        applyFiatValue(next);
+        tokenInput.value = next.toFixed(fiatDecimals);
+      } else {
+        tokenInput.value = getFiatPerToken().toFixed(fiatDecimals);
+      }
+    });
+
+    tokenInput.value = getFiatPerToken().toFixed(fiatDecimals);
   }
   updateCalc();
 
@@ -246,12 +354,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentHeight = answer.scrollHeight;
         if (currentHeight) {
           answer.style.height = `${currentHeight}px`;
-          requestAnimationFrame(() => {
-            answer.style.height = '0px';
-          });
-        } else {
-          answer.style.height = '0px';
+          void answer.offsetHeight;
         }
+        answer.style.height = '0px';
         item.classList.remove('open');
       } else {
         item.classList.add('open');
