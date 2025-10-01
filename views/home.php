@@ -228,12 +228,12 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                     </div>
                 </div>
                 <?php if ($integrationItems !== []): ?>
-                    <div class="integration-map">
-                        <div class="integration-core" aria-hidden="true">
-                            <span class="integration-core-icon"><span class="icon shield"></span></span>
+                    <div class="integration-grid">
+                        <div class="integration-core">
+                            <span class="integration-core-icon" aria-hidden="true"><span class="icon shield"></span></span>
                             <div class="integration-core-label"><?= e($stack['integrations_core'] ?? 'nERP'); ?></div>
                         </div>
-                        <div class="integration-tiles">
+                        <div class="integration-lanes">
                             <?php foreach ($integrationItems as $item): ?>
                                 <div class="integration-tile">
                                     <?php if ($item['status'] !== ''): ?>
