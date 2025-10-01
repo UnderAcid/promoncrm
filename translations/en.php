@@ -21,6 +21,7 @@ return [
         'keywords' => 'nerp.app, Web3 ERP, CRM builder, HR automation, decentralized inventory, encrypted data, micropayments',
         'og_title' => 'nERP — Web3 ERP Builder | nerp.app',
         'og_description' => 'Launch CRM, HR, and inventory with encrypted nodes at nerp.app. Your data stays yours, payments track real usage.',
+        'og_image_alt' => 'nERP hero illustration showing the workspace and connected nodes.',
     ],
     'nav' => [
         'for' => 'Who it is for',
@@ -157,6 +158,7 @@ return [
         'integrations_title' => 'Default integrations',
         'integrations_desc' => 'In the first sprint we connect messaging, accounting, and data stores — no drawn-out procurement or integrators.',
         'integrations_core' => 'nERP node',
+        'integrations_core_desc' => 'Data routing core with built-in access policies.',
         'integrations' => [
             ['name' => 'Slack webhooks', 'tag' => 'Comms', 'status' => 'Live'],
             ['name' => '1C gateway', 'tag' => 'Accounting', 'status' => 'Pilot'],
@@ -261,14 +263,6 @@ return [
                 'quote' => 'Usage-based billing went live without new code. Finance dashboards refresh every five minutes.',
                 'role' => 'CFO',
                 'metric' => '5 min refresh',
-            ],
-            [
-                'id' => 'helix-manufacturing',
-                'label' => 'Helix Manufacturing',
-                'company' => 'Helix Industries',
-                'quote' => 'Mapped production routes and QA. Shift leads get push alerts whenever a line slows down.',
-                'role' => 'Production director',
-                'metric' => '−27% downtime',
             ],
         ],
     ],

@@ -216,6 +216,7 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                     ];
                 }
             }
+            $integrationCoreDesc = (string) ($stack['integrations_core_desc'] ?? '');
             ?>
             <div class="card stack-integrations">
                 <div class="stack-integrations-header">
@@ -228,20 +229,23 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                     </div>
                 </div>
                 <?php if ($integrationItems !== []): ?>
-                    <div class="integration-map">
-                        <div class="integration-core" aria-hidden="true">
-                            <span class="integration-core-icon"><span class="icon shield"></span></span>
+                    <div class="integration-showcase">
+                        <div class="integration-core">
+                            <span class="integration-core-icon" aria-hidden="true"><span class="icon shield"></span></span>
                             <div class="integration-core-label"><?= e($stack['integrations_core'] ?? 'nERP'); ?></div>
+                            <?php if ($integrationCoreDesc !== ''): ?>
+                                <p class="integration-core-desc"><?= e($integrationCoreDesc); ?></p>
+                            <?php endif; ?>
                         </div>
-                        <div class="integration-tiles">
+                        <div class="integration-grid" role="list">
                             <?php foreach ($integrationItems as $item): ?>
-                                <div class="integration-tile">
+                                <div class="integration-card" role="listitem">
                                     <?php if ($item['status'] !== ''): ?>
-                                        <span class="integration-status"><?= e($item['status']); ?></span>
+                                        <span class="integration-card-status"><?= e($item['status']); ?></span>
                                     <?php endif; ?>
-                                    <span class="integration-name"><?= e($item['name']); ?></span>
+                                    <div class="integration-card-name"><?= e($item['name']); ?></div>
                                     <?php if ($item['tag'] !== ''): ?>
-                                        <span class="integration-tag"><?= e($item['tag']); ?></span>
+                                        <span class="integration-card-tag"><?= e($item['tag']); ?></span>
                                     <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
