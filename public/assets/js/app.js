@@ -7,7 +7,16 @@ const currencyCode = config.currency || 'USD';
 const themeLabels = config.themeLabels || {};
 const themes = config.themes || ['light', 'dark'];
 const microFee = typeof config.microFee === 'number' ? config.microFee : 0.001;
-const usdRate = typeof config.usdRate === 'number' ? config.usdRate : 1;
+const fiatPerUsd = typeof config.fiatPerUsd === 'number' ? config.fiatPerUsd : 1;
+const tokenDecimals = Number.isInteger(config.tokenDecimals) ? config.tokenDecimals : 6;
+const defaultTokensPerUsd = (() => {
+  const value = Number.parseFloat(config.tokenPerUsd);
+  if (Number.isFinite(value) && value > 0) {
+    return value;
+  }
+  return 1;
+})();
+let tokensPerUsd = defaultTokensPerUsd;
 
 if (!localStorage.getItem('prefersDarkSet')) {
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -35,6 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
     style: 'currency',
     currency: currencyCode,
     maximumFractionDigits: 2,
+  });
+  const tokenFormatter = new Intl.NumberFormat(numberLocale, {
+    minimumFractionDigits: tokenDecimals,
+    maximumFractionDigits: tokenDecimals,
   });
 
   function updateThemeLabel(theme) {
@@ -152,17 +165,38 @@ document.addEventListener('DOMContentLoaded', () => {
   const apdVal = document.getElementById('apdVal');
   const opsMonthly = document.getElementById('opsMonthly');
   const nerpTotal = document.getElementById('nerpTotal');
-  const usdApprox = document.getElementById('usdApprox');
+  const fiatApprox = document.getElementById('fiatApprox');
+  const tokenInput = document.querySelector('[data-token-input]');
+  const tokenPreviewValue = document.querySelector('[data-token-preview-value]');
+  const operationFiatNodes = document.querySelectorAll('[data-operation-fiat]');
 
   function estimate(peopleCount, actionsPerDay) {
     const monthlyActions = actionsPerDay * 30 * Math.max(peopleCount, 1);
     const nerpSpend = monthlyActions * microFee;
-    const usd = nerpSpend * usdRate;
-    return { monthlyActions, nerpSpend, usd };
+    return { monthlyActions, nerpSpend };
+  }
+
+  function updateTokenDerived() {
+    if (tokenPreviewValue instanceof HTMLElement) {
+      const tokenValue = tokensPerUsd > 0 ? (fiatPerUsd / tokensPerUsd) : 0;
+      tokenPreviewValue.textContent = currencyFormatter.format(tokenValue);
+    }
+
+    operationFiatNodes.forEach((node) => {
+      if (!(node instanceof HTMLElement)) return;
+      const prefix = node.dataset.prefix || '≈';
+      const cost = Number.parseFloat(node.dataset.operationFiat || '0');
+      if (!Number.isFinite(cost) || cost <= 0 || tokensPerUsd <= 0) {
+        node.textContent = `${prefix} —`;
+        return;
+      }
+      const fiatValue = (cost / tokensPerUsd) * fiatPerUsd;
+      node.textContent = `${prefix} ${currencyFormatter.format(fiatValue)}`;
+    });
   }
 
   function updateCalc() {
-    if (!(people && apd && peopleVal && apdVal && opsMonthly && nerpTotal && usdApprox)) {
+    if (!(people && apd && peopleVal && apdVal && opsMonthly && nerpTotal && fiatApprox)) {
       return;
     }
 
@@ -172,19 +206,67 @@ document.addEventListener('DOMContentLoaded', () => {
     apdVal.textContent = a.toString();
     const result = estimate(p, a);
     opsMonthly.textContent = numberFormatter.format(result.monthlyActions);
-    nerpTotal.textContent = numberFormatter.format(result.nerpSpend);
-    usdApprox.textContent = currencyFormatter.format(result.usd);
+    nerpTotal.textContent = tokenFormatter.format(result.nerpSpend);
+    const fiatValue = tokensPerUsd > 0 ? (result.nerpSpend / tokensPerUsd) * fiatPerUsd : 0;
+    fiatApprox.textContent = currencyFormatter.format(fiatValue);
+    updateTokenDerived();
   }
 
   people?.addEventListener('input', updateCalc);
   apd?.addEventListener('input', updateCalc);
+  if (tokenInput instanceof HTMLInputElement) {
+    const applyTokenInput = () => {
+      const next = Number.parseFloat(tokenInput.value);
+      if (!Number.isFinite(next) || next <= 0) {
+        return;
+      }
+      tokensPerUsd = next;
+      tokenInput.value = next.toFixed(tokenDecimals);
+      updateCalc();
+    };
+    tokenInput.addEventListener('input', applyTokenInput);
+    tokenInput.addEventListener('change', applyTokenInput);
+    if (Number.isFinite(defaultTokensPerUsd)) {
+      tokenInput.value = defaultTokensPerUsd.toFixed(tokenDecimals);
+      tokensPerUsd = defaultTokensPerUsd;
+    }
+  }
   updateCalc();
 
   document.querySelectorAll('.faq-item').forEach((item) => {
     const trigger = item.querySelector('.faq-q');
-    if (!trigger) return;
+    const answer = item.querySelector('.faq-a');
+    if (!(trigger instanceof HTMLElement) || !(answer instanceof HTMLElement)) return;
+
+    answer.style.height = '0px';
+
     trigger.addEventListener('click', () => {
-      item.classList.toggle('open');
+      const isOpen = item.classList.contains('open');
+      if (isOpen) {
+        const currentHeight = answer.scrollHeight;
+        if (currentHeight) {
+          answer.style.height = `${currentHeight}px`;
+          requestAnimationFrame(() => {
+            answer.style.height = '0px';
+          });
+        } else {
+          answer.style.height = '0px';
+        }
+        item.classList.remove('open');
+      } else {
+        item.classList.add('open');
+        const targetHeight = answer.scrollHeight;
+        answer.style.height = `${targetHeight}px`;
+      }
+    });
+
+    answer.addEventListener('transitionend', (event) => {
+      if (event.propertyName !== 'height') return;
+      if (item.classList.contains('open')) {
+        answer.style.height = 'auto';
+      } else {
+        answer.style.height = '0px';
+      }
     });
   });
 

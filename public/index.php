@@ -35,7 +35,9 @@ $clientConfig = [
         'dark' => $translator->get('app.theme.dark'),
     ],
     'microFee' => 0.001,
-    'usdRate' => 1,
+    'tokenPerUsd' => (float) $translator->get('pricing.token_per_usd', [], 1.0),
+    'tokenDecimals' => (int) $translator->get('pricing.token_decimals', [], 6),
+    'fiatPerUsd' => (float) $translator->get('pricing.fiat_per_usd', [], 1.0),
 ];
 
 $content = View::render('home', [
