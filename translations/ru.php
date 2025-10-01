@@ -9,6 +9,7 @@ return [
         'language_label' => 'Язык',
         'theme' => [
             'toggle' => 'Переключить тему',
+            'label' => 'Тема',
             'light' => 'Светлая',
             'dark' => 'Тёмная',
         ],
@@ -174,6 +175,8 @@ return [
         'token_price_label' => 'Стоимость токена',
         'token_price_prefix' => '1 nERP =',
         'token_price_suffix' => '₽',
+        'token_price_presets_label' => 'Быстрый выбор цены',
+        'token_price_presets_currency' => '$',
         'token_price_hint' => 'Базово 1 токен = $1. Значение пересчитывается по текущему курсу.',
         'token_price_preview_prefix' => '1 nERP ≈',
         'token_price_usd' => 1.0,
