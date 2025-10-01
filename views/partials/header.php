@@ -3,6 +3,7 @@
 /** @var array<string, string> $languages */
 /** @var string $currentLocale */
 /** @var string[] $themes */
+/** @var array<string, string> $localeUrls */
 ?>
 <header class="header" data-header>
     <div class="container header-inner">
@@ -23,7 +24,8 @@
                 <label for="language" class="sr-only"><?= e($t->get('language_switcher.label')); ?></label>
                 <select id="language" name="lang">
                     <?php foreach ($languages as $code => $label): ?>
-                        <option value="<?= e($code); ?>" <?= $code === $currentLocale ? 'selected' : ''; ?>><?= e($label); ?></option>
+                        <?php $targetUrl = $localeUrls[$code] ?? ('/' . $code . '/'); ?>
+                        <option value="<?= e($code); ?>" data-url="<?= e($targetUrl); ?>" <?= $code === $currentLocale ? 'selected' : ''; ?>><?= e($label); ?></option>
                     <?php endforeach; ?>
                 </select>
             </form>
@@ -31,7 +33,7 @@
                 <span class="icon theme" aria-hidden="true"></span>
                 <span data-theme-label><?= e($t->get('app.theme.' . ($currentTheme ?? 'light'))); ?></span>
             </button>
-            <a class="btn btn-primary" href="#pricing">
+            <a class="btn btn-primary" href="#pilots">
                 <span class="icon rocket" aria-hidden="true"></span><?= e($t->get('hero.primary_cta')); ?>
             </a>
         </div>

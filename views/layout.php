@@ -6,9 +6,10 @@
 /** @var string $currentTheme */
 /** @var array<string, mixed> $clientConfig */
 /** @var string[] $themes */
+/** @var array<string, string> $localeUrls */
 
 $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$host = $_SERVER['HTTP_HOST'] ?? 'nerp.app';
 $uri = strtok($_SERVER['REQUEST_URI'] ?? '/', '?') ?: '/';
 $canonical = $scheme . '://' . $host . $uri;
 $localeCode = (string) $t->get('app.locale_code', [], $currentLocale);
@@ -30,6 +31,10 @@ $localeCode = (string) $t->get('app.locale_code', [], $currentLocale);
     <meta property="og:locale" content="<?= e($localeCode); ?>">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="theme-color" content="#0f172a">
+    <?php foreach ($localeUrls as $code => $path): ?>
+        <link rel="alternate" href="<?= e($scheme . '://' . $host . $path); ?>" hreflang="<?= e($code); ?>">
+    <?php endforeach; ?>
+    <link rel="alternate" href="<?= e($scheme . '://' . $host . '/'); ?>" hreflang="x-default">
 
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,9 +57,9 @@ $localeCode = (string) $t->get('app.locale_code', [], $currentLocale);
         <?php require BASE_PATH . '/views/partials/footer.php'; ?>
     </div>
     <div class="floating-cta">
-        <button class="btn btn-primary" data-floating-cta>
+        <a class="btn btn-primary" href="#pilots" data-floating-cta>
             <span class="icon rocket" aria-hidden="true"></span><?= e($t->get('floating_cta')); ?>
-        </button>
+        </a>
     </div>
     <noscript>
         <div class="noscript-banner">

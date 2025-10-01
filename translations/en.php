@@ -11,15 +11,16 @@ return [
             'toggle' => 'Toggle theme',
             'light' => 'Light',
             'dark' => 'Dark',
+            'mezen' => 'Mezen',
         ],
         'noscript' => 'JavaScript is disabled. Some functionality may be limited.',
     ],
     'meta' => [
-        'title' => 'nERP — Web3 ERP Builder',
-        'description' => 'Assemble CRM, HR, and inventory workflows in a single day. The nERP Web3 ERP builder keeps data encrypted locally, scales via nodes, and charges only for real actions.',
-        'keywords' => 'Web3 ERP, CRM builder, HR automation, decentralized inventory, encrypted data, micro payments',
-        'og_title' => 'nERP — Web3 ERP Builder',
-        'og_description' => 'Build CRM, HR, and inventory in one day. Your data stays with you, payments only for activity.',
+        'title' => 'nERP — Web3 ERP Builder | nerp.app',
+        'description' => 'Assemble CRM, HR, and inventory workflows in a single day. nERP on nerp.app keeps data encrypted locally, scales through nodes, and charges only for real actions.',
+        'keywords' => 'Web3 ERP, CRM builder, HR automation, decentralized inventory, encrypted data, micro payments, nerp.app',
+        'og_title' => 'nERP — Web3 ERP Builder at nerp.app',
+        'og_description' => 'Build CRM, HR, and inventory in one day. Your data stays with you, payments only for activity on nerp.app.',
     ],
     'nav' => [
         'for' => 'Who it is for',
@@ -31,10 +32,10 @@ return [
     ],
     'hero' => [
         'tags' => ['Web3.0', 'Encryption', 'No tiers'],
-        'title' => 'Web3.0 ERP builder',
-        'lead' => 'Build CRM, HR, and inventory in one day. Data is encrypted locally and stays with you. Scale the node network and only pay for the actions performed.',
-        'primary_cta' => 'Get started',
-        'secondary_cta' => 'Watch demo',
+        'title' => 'Web3.0 ERP builder nERP',
+        'lead' => 'Build CRM, HR, and inventory in one day on nerp.app. Data is encrypted locally and stays with you. Scale the node network and only pay for actions performed.',
+        'primary_cta' => 'Join the pilot',
+        'secondary_cta' => 'Watch overview',
         'feature_cards' => [
             [
                 'icon' => 'zap',
@@ -90,7 +91,7 @@ return [
                 'desc' => 'Publish features and get paid automatically based on usage.',
             ],
         ],
-        'cta' => 'Request a tailored quote',
+        'cta' => 'Request pilot access',
     ],
     'why' => [
         'title' => 'Why teams choose nERP',
@@ -141,7 +142,7 @@ return [
         'locale' => 'en-US',
         'currency' => 'USD',
         'micro_fee' => 'Pay only for actions performed.',
-        'primary_cta' => 'Talk to sales',
+        'primary_cta' => 'Discuss the pilot',
     ],
     'partners' => [
         'title' => 'For partners and module authors',
@@ -163,6 +164,43 @@ return [
             ],
         ],
     ],
+    'pilots' => [
+        'title' => 'Join the nERP pilots',
+        'subtitle' => 'We are onboarding limited pilots on nerp.app: get the product team on your side, migrate data safely, and validate micropayment economics.',
+        'points' => [
+            [
+                'icon' => 'rocket',
+                'title' => 'Launch in two weeks',
+                'desc' => 'We assemble CRM/HR/Inventory modules, map workflows, and sign the pilot SLA.',
+            ],
+            [
+                'icon' => 'shield',
+                'title' => 'Secure migration',
+                'desc' => 'Local encryption, rollback planning, and staging snapshots before going live.',
+            ],
+            [
+                'icon' => 'sparkles',
+                'title' => 'Direct product team',
+                'desc' => 'Gain direct access to the nERP team and the nerp.app roadmap.',
+            ],
+        ],
+        'form' => [
+            'title' => 'Apply for access',
+            'name' => 'Your name',
+            'email' => 'Work email',
+            'company' => 'Company or project',
+            'message' => 'Which processes do you want to run in the pilot?',
+            'submit' => 'Submit request',
+            'success' => 'Thank you! The nERP team will reach out within 24 hours.',
+            'error' => 'Please check the form — required fields are missing.',
+            'errors' => [
+                'name' => 'Enter your name.',
+                'email' => 'Add a valid work email.',
+                'company' => 'Tell us about your company or project.',
+                'message' => 'Describe the workflows for the pilot.',
+            ],
+        ],
+    ],
     'logos' => [
         'eyebrow' => 'Pilots and integrations',
         'brands' => ['Astra', 'Orion', 'Mercury', 'Helix', 'Nord', 'Sigma'],
@@ -170,10 +208,10 @@ return [
         'quote_author' => 'Acme LLC',
     ],
     'cta' => [
-        'title' => 'Ready to try it?',
-        'subtitle' => 'Spin up an ERP in minutes and run your first workflow today.',
-        'primary_cta' => 'Get started',
-        'secondary_cta' => 'Watch demo',
+        'title' => 'Ready to launch on nerp.app?',
+        'subtitle' => 'A pilot proves Web3 ERP security and micropayment economics for your workflows.',
+        'primary_cta' => 'Become an nERP pilot',
+        'secondary_cta' => 'Explore the architecture',
     ],
     'faq' => [
         'title' => 'Frequently asked questions',
@@ -195,13 +233,13 @@ return [
     'footer' => [
         'copyright' => '© :year nERP. All rights reserved.',
         'links' => [
-            ['label' => 'Privacy', 'href' => '#'],
-            ['label' => 'Docs', 'href' => '#'],
-            ['label' => 'Contact', 'href' => '#'],
+            ['label' => 'Privacy', 'href' => 'https://nerp.app/legal'],
+            ['label' => 'Docs', 'href' => 'https://nerp.app/docs'],
+            ['label' => 'Contact', 'href' => 'mailto:team@nerp.app'],
         ],
     ],
     'language_switcher' => [
         'label' => 'Interface language',
     ],
-    'floating_cta' => 'Try for free',
+    'floating_cta' => 'Apply for the pilot',
 ];

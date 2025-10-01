@@ -35,6 +35,22 @@
   --shadow-lg: 0 24px 48px rgba(2, 6, 23, 0.65);
 }
 
+:root[data-theme='mezen'] {
+  color-scheme: light;
+  --color-bg: #fdf4eb;
+  --color-surface: rgba(255, 243, 230, 0.82);
+  --color-surface-strong: rgba(255, 240, 224, 0.94);
+  --color-border: rgba(208, 120, 78, 0.32);
+  --color-border-strong: rgba(208, 120, 78, 0.52);
+  --color-text: #3b1d0b;
+  --color-muted: #7c3a2d;
+  --color-primary: #d9480f;
+  --color-primary-hover: #b43709;
+  --color-primary-soft: rgba(217, 72, 15, 0.18);
+  --shadow-sm: 0 12px 32px rgba(124, 58, 18, 0.14);
+  --shadow-lg: 0 24px 48px rgba(124, 58, 18, 0.18);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -79,6 +95,14 @@ a:hover {
     radial-gradient(900px 540px at 75% -120px, rgba(96, 165, 250, 0.25), transparent),
     radial-gradient(600px 420px at 25% 10%, rgba(14, 165, 233, 0.2), transparent),
     linear-gradient(180deg, rgba(2, 6, 23, 0.95), rgba(2, 6, 23, 0.98));
+}
+
+:root[data-theme='mezen'] .bg-root {
+  background:
+    linear-gradient(180deg, rgba(253, 244, 235, 0.96), rgba(253, 244, 235, 0.99)),
+    repeating-linear-gradient(135deg, rgba(217, 72, 15, 0.12) 0 14px, transparent 14px 28px),
+    radial-gradient(540px 380px at 22% 8%, rgba(217, 72, 15, 0.18), transparent),
+    radial-gradient(480px 340px at 78% -12%, rgba(59, 29, 11, 0.16), transparent);
 }
 
 .container {
@@ -400,6 +424,8 @@ a:hover {
 .icon.percent::before { content: '%'; font-weight: 700; }
 .icon.chevron::before { content: '⌄'; }
 .icon.theme::before { content: '🌓'; }
+.icon.check::before { content: '✔️'; }
+.icon.alert::before { content: '⚠️'; }
 
 .illustration {
   position: relative;
@@ -569,6 +595,133 @@ input[type='range'] {
   border: 1px solid var(--color-border);
 }
 
+.pilots-section .pilot-points {
+  margin-top: 24px;
+}
+
+.pilot-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pilot-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pilot-form .btn {
+  align-self: flex-start;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-field label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.form-field input,
+.form-field textarea {
+  font: inherit;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface-strong);
+  color: var(--color-text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+  color: var(--color-muted);
+  opacity: 0.7;
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+.form-field textarea {
+  min-height: 132px;
+  resize: vertical;
+}
+
+.form-field.has-error input,
+.form-field.has-error textarea {
+  border-color: #e11d48;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.18);
+}
+
+.form-error {
+  color: #e11d48;
+  font-size: 12px;
+  margin: 0;
+}
+
+.form-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.form-message.success {
+  background: rgba(34, 197, 94, 0.12);
+  color: #166534;
+}
+
+.form-message.error {
+  background: rgba(244, 63, 94, 0.12);
+  color: #be123c;
+}
+
+:root[data-theme='dark'] .form-field input,
+:root[data-theme='dark'] .form-field textarea {
+  background: rgba(15, 23, 42, 0.9);
+}
+
+:root[data-theme='dark'] .form-field input:focus,
+:root[data-theme='dark'] .form-field textarea:focus {
+  background: rgba(15, 23, 42, 1);
+}
+
+:root[data-theme='dark'] .form-message.success {
+  background: rgba(34, 197, 94, 0.18);
+  color: #bbf7d0;
+}
+
+:root[data-theme='dark'] .form-message.error {
+  background: rgba(244, 63, 94, 0.18);
+  color: #fecdd3;
+}
+
+:root[data-theme='mezen'] .pilot-card {
+  border-color: rgba(217, 72, 15, 0.28);
+}
+
+:root[data-theme='mezen'] .form-field.has-error input,
+:root[data-theme='mezen'] .form-field.has-error textarea {
+  border-color: #b43709;
+  box-shadow: 0 0 0 3px rgba(217, 72, 15, 0.22);
+}
+
+:root[data-theme='mezen'] .form-message.error {
+  background: rgba(217, 72, 15, 0.16);
+  color: #7c2d12;
+}
+
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -655,6 +808,13 @@ input[type='range'] {
 .footer a {
   color: inherit;
   font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .pilot-form .btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 @media (min-width: 720px) {

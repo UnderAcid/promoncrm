@@ -15,6 +15,10 @@ final class LocaleManager
 
     private Translator $translator;
 
+    private ?string $pathLocale = null;
+
+    private string $pathWithoutLocale = '/';
+
     /**
      * @param array<string, string> $available
      */
@@ -30,18 +34,60 @@ final class LocaleManager
     public function bootstrap(): void
     {
         $requested = $_GET['lang'] ?? null;
-        if (is_string($requested) && $requested !== '') {
-            if ($this->isSupported($requested)) {
-                $_SESSION['locale'] = $requested;
-                setcookie('locale', $requested, time() + 60 * 60 * 24 * 30, '/');
+
+        $path = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+        if ($path === '') {
+            $path = '/';
+        }
+
+        $segments = array_values(array_filter(
+            explode('/', $path),
+            static fn (string $segment): bool => $segment !== ''
+        ));
+
+        $this->pathLocale = null;
+
+        if ($segments !== []) {
+            $candidate = $segments[0];
+            if ($this->isSupported($candidate)) {
+                $this->pathLocale = $candidate;
+                array_shift($segments);
+            }
+        }
+
+        $endsWithSlash = str_ends_with($path, '/');
+        if ($segments === []) {
+            $this->pathWithoutLocale = $endsWithSlash ? '/' : '/';
+        } else {
+            $joined = implode('/', $segments);
+            $this->pathWithoutLocale = '/' . $joined;
+            if ($endsWithSlash) {
+                $this->pathWithoutLocale .= '/';
+            }
+        }
+
+        if ($requested !== null) {
+            $requestedLocale = is_string($requested) ? $requested : '';
+            $redirectLocale = $this->isSupported($requestedLocale) ? $requestedLocale : $this->default;
+
+            if ($this->isSupported($redirectLocale)) {
+                $_SESSION['locale'] = $redirectLocale;
+                setcookie('locale', $redirectLocale, time() + 60 * 60 * 24 * 30, '/');
             }
 
-            $redirectTo = strtok($_SERVER['REQUEST_URI'] ?? '/', '?') ?: '/';
-            header('Location: ' . $redirectTo);
+            $query = $_GET;
+            unset($query['lang']);
+
+            $redirectPath = $this->buildLocalizedPath($redirectLocale, $this->pathWithoutLocale);
+            if ($query !== []) {
+                $redirectPath .= '?' . http_build_query($query);
+            }
+
+            header('Location: ' . $redirectPath);
             exit;
         }
 
-        $stored = $_SESSION['locale'] ?? ($_COOKIE['locale'] ?? $this->default);
+        $stored = $this->pathLocale ?? ($_SESSION['locale'] ?? ($_COOKIE['locale'] ?? $this->default));
         $locale = is_string($stored) ? $stored : $this->default;
 
         if (!$this->isSupported($locale)) {
@@ -68,6 +114,34 @@ final class LocaleManager
     public function translator(): Translator
     {
         return $this->translator;
+    }
+
+    public function getPathWithoutLocale(): string
+    {
+        return $this->pathWithoutLocale;
+    }
+
+    public function buildLocalizedPath(string $locale, string $suffix = '/'): string
+    {
+        $locale = trim($locale, '/');
+        if ($locale === '' || !$this->isSupported($locale)) {
+            $locale = $this->default;
+        }
+
+        $suffix = $suffix === '' ? '/' : $suffix;
+        $normalizedSuffix = '/' . ltrim($suffix, '/');
+        if ($normalizedSuffix !== '/' && str_ends_with($normalizedSuffix, '/')) {
+            $normalizedSuffix = rtrim($normalizedSuffix, '/');
+        }
+
+        $path = '/' . $locale;
+        if ($normalizedSuffix === '/') {
+            $path .= '/';
+        } else {
+            $path .= $normalizedSuffix;
+        }
+
+        return $path;
     }
 
     private function isSupported(string $locale): bool

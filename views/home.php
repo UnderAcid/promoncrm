@@ -1,5 +1,7 @@
 <?php
 /** @var App\Localization\Translator $t */
+/** @var array<string, mixed>|null $pilotStatus */
+/** @var array<string, string> $pilotFormData */
 
 $heroTags = $t->get('hero.tags');
 $heroCards = $t->get('hero.feature_cards');
@@ -9,8 +11,24 @@ $audiencePitch = $t->get('audience.pitches.' . $defaultAudience);
 $whyBlocks = $t->get('why.blocks');
 $howItems = $t->get('how.items');
 $partnerCards = $t->get('partners.cards');
+$pilotPoints = $t->get('pilots.points');
 $logos = $t->get('logos.brands');
 $faqItems = $t->get('faq.items');
+
+$pilotPoints = is_array($pilotPoints) ? $pilotPoints : [];
+$pilotFormData = [
+    'name' => $pilotFormData['name'] ?? '',
+    'email' => $pilotFormData['email'] ?? '',
+    'company' => $pilotFormData['company'] ?? '',
+    'message' => $pilotFormData['message'] ?? '',
+];
+
+$pilotErrorFields = [];
+$pilotStatusValue = is_array($pilotStatus) ? ($pilotStatus['status'] ?? null) : null;
+if (is_array($pilotStatus) && ($pilotStatus['status'] ?? null) === 'error' && isset($pilotStatus['fields']) && is_array($pilotStatus['fields'])) {
+    $pilotErrorFields = $pilotStatus['fields'];
+}
+$isPilotSuccess = $pilotStatusValue === 'success';
 ?>
 <section class="container section-hero" id="hero">
     <div class="grid two">
@@ -23,7 +41,7 @@ $faqItems = $t->get('faq.items');
             <h1 class="h1"><?= e($t->get('hero.title')); ?></h1>
             <p class="lead"><?= e($t->get('hero.lead')); ?></p>
             <div class="cta-row">
-                <a class="btn btn-primary" href="#pricing">
+                <a class="btn btn-primary" href="#pilots">
                     <span class="icon rocket" aria-hidden="true"></span><?= e($t->get('hero.primary_cta')); ?>
                 </a>
                 <a class="btn btn-ghost" href="#how">
@@ -90,7 +108,7 @@ $faqItems = $t->get('faq.items');
         </div>
     </div>
     <div class="cta-row">
-        <a class="btn btn-primary" href="#pricing"><span class="icon sparkles" aria-hidden="true"></span><?= e($t->get('audience.cta')); ?></a>
+        <a class="btn btn-primary" href="#pilots"><span class="icon sparkles" aria-hidden="true"></span><?= e($t->get('audience.cta')); ?></a>
     </div>
 </section>
 
@@ -160,7 +178,7 @@ $faqItems = $t->get('faq.items');
                 <strong id="usdApprox">$0</strong>
             </div>
             <p class="muted small"><?= e($t->get('pricing.micro_fee')); ?></p>
-            <a class="btn btn-primary" href="#contact">
+            <a class="btn btn-primary" href="#pilots">
                 <span class="icon chat" aria-hidden="true"></span><?= e($t->get('pricing.primary_cta')); ?>
             </a>
         </div>
@@ -207,11 +225,81 @@ $faqItems = $t->get('faq.items');
 
 <div class="divider" role="presentation"></div>
 
+<section id="pilots" class="container pilots-section">
+    <div class="grid two-66">
+        <div>
+            <h2 class="h2"><?= e($t->get('pilots.title')); ?></h2>
+            <p class="muted"><?= e($t->get('pilots.subtitle')); ?></p>
+            <div class="grid three pilot-points">
+                <?php foreach ($pilotPoints as $point): ?>
+                    <div class="card">
+                        <div class="card-row">
+                            <div class="icon-bubble"><span class="icon <?= e($point['icon']); ?>" aria-hidden="true"></span></div>
+                            <div>
+                                <div class="card-title"><?= e($point['title']); ?></div>
+                                <p class="card-desc"><?= e($point['desc']); ?></p>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <div class="card pilot-card">
+            <h3 class="card-title"><?= e($t->get('pilots.form.title')); ?></h3>
+            <?php if ($isPilotSuccess): ?>
+                <div class="form-message success">
+                    <span class="icon check" aria-hidden="true"></span><?= e($t->get('pilots.form.success')); ?>
+                </div>
+            <?php elseif ($pilotStatusValue === 'error'): ?>
+                <div class="form-message error">
+                    <span class="icon alert" aria-hidden="true"></span><?= e($t->get('pilots.form.error')); ?>
+                </div>
+            <?php endif; ?>
+            <form method="post" class="pilot-form" novalidate>
+                <input type="hidden" name="pilot_form" value="1">
+                <div class="form-field<?= in_array('name', $pilotErrorFields, true) ? ' has-error' : ''; ?>">
+                    <label for="pilotName"><?= e($t->get('pilots.form.name')); ?></label>
+                    <input type="text" id="pilotName" name="pilot_name" value="<?= e($pilotFormData['name']); ?>" autocomplete="name" required>
+                    <?php if (in_array('name', $pilotErrorFields, true)): ?>
+                        <p class="form-error"><?= e($t->get('pilots.form.errors.name')); ?></p>
+                    <?php endif; ?>
+                </div>
+                <div class="form-field<?= in_array('email', $pilotErrorFields, true) ? ' has-error' : ''; ?>">
+                    <label for="pilotEmail"><?= e($t->get('pilots.form.email')); ?></label>
+                    <input type="email" id="pilotEmail" name="pilot_email" value="<?= e($pilotFormData['email']); ?>" autocomplete="email" required>
+                    <?php if (in_array('email', $pilotErrorFields, true)): ?>
+                        <p class="form-error"><?= e($t->get('pilots.form.errors.email')); ?></p>
+                    <?php endif; ?>
+                </div>
+                <div class="form-field<?= in_array('company', $pilotErrorFields, true) ? ' has-error' : ''; ?>">
+                    <label for="pilotCompany"><?= e($t->get('pilots.form.company')); ?></label>
+                    <input type="text" id="pilotCompany" name="pilot_company" value="<?= e($pilotFormData['company']); ?>" autocomplete="organization" required>
+                    <?php if (in_array('company', $pilotErrorFields, true)): ?>
+                        <p class="form-error"><?= e($t->get('pilots.form.errors.company')); ?></p>
+                    <?php endif; ?>
+                </div>
+                <div class="form-field<?= in_array('message', $pilotErrorFields, true) ? ' has-error' : ''; ?>">
+                    <label for="pilotMessage"><?= e($t->get('pilots.form.message')); ?></label>
+                    <textarea id="pilotMessage" name="pilot_message" rows="4" required><?= e($pilotFormData['message']); ?></textarea>
+                    <?php if (in_array('message', $pilotErrorFields, true)): ?>
+                        <p class="form-error"><?= e($t->get('pilots.form.errors.message')); ?></p>
+                    <?php endif; ?>
+                </div>
+                <button class="btn btn-primary" type="submit">
+                    <span class="icon rocket" aria-hidden="true"></span><?= e($t->get('pilots.form.submit')); ?>
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<div class="divider" role="presentation"></div>
+
 <section class="container center">
     <h2 class="h2"><?= e($t->get('cta.title')); ?></h2>
     <p class="muted"><?= e($t->get('cta.subtitle')); ?></p>
     <div class="cta-row">
-        <a class="btn btn-primary" href="#pricing"><span class="icon rocket" aria-hidden="true"></span><?= e($t->get('cta.primary_cta')); ?></a>
+        <a class="btn btn-primary" href="#pilots"><span class="icon rocket" aria-hidden="true"></span><?= e($t->get('cta.primary_cta')); ?></a>
         <a class="btn btn-ghost" href="#how"><span class="icon play" aria-hidden="true"></span><?= e($t->get('cta.secondary_cta')); ?></a>
     </div>
 </section>

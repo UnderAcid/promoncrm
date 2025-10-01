@@ -91,9 +91,18 @@ document.addEventListener('DOMContentLoaded', () => {
   renderAudience(defaultAudience);
 
   if (languageForm) {
-    languageForm.addEventListener('change', () => {
-      languageForm.submit();
-    });
+    const languageSelect = languageForm.querySelector('select');
+    if (languageSelect) {
+      languageSelect.addEventListener('change', () => {
+        const selectedOption = languageSelect.selectedOptions?.[0];
+        const targetUrl = selectedOption?.dataset?.url;
+        if (targetUrl) {
+          window.location.href = targetUrl;
+        } else {
+          languageForm.submit();
+        }
+      });
+    }
   }
 
   const people = document.getElementById('people');
