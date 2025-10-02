@@ -158,6 +158,7 @@ return [
         'integrations_title' => 'Default integrations',
         'integrations_desc' => 'In the first sprint we connect messaging, accounting, and data stores — no drawn-out procurement or integrators.',
         'integrations_core' => 'nERP node',
+        'integrations_more' => '+ :count more integrations on demand',
         'integrations' => [
             ['name' => 'Slack webhooks', 'tag' => 'Comms', 'status' => 'Live'],
             ['name' => '1C gateway', 'tag' => 'Accounting', 'status' => 'Pilot'],
@@ -190,7 +191,7 @@ return [
         'token_price_hint' => 'We start with $1 per nERP. Tweak the value to reflect your own assumptions.',
         'token_price_preview_prefix' => '1 nERP ≈',
         'token_price_usd' => 1.0,
-        'token_price_min_usd' => 1.0,
+        'token_price_min_usd' => 0.1,
         'token_price_step_usd' => 0.1,
         'token_price_decimals' => 2,
         'token_decimals' => 6,

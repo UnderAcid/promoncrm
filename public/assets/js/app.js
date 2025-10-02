@@ -247,6 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const nerpTotal = document.getElementById('nerpTotal');
   const fiatApprox = document.getElementById('fiatApprox');
   const tokenInput = document.querySelector('[data-token-input]');
+  const tokenSlider = document.querySelector('[data-token-slider]');
   const tokenPreviewValue = document.querySelector('[data-token-preview-value]');
   const operationFiatNodes = document.querySelectorAll('[data-operation-fiat]');
   const tokenPresetButtons = document.querySelectorAll('[data-token-preset]');
@@ -258,6 +259,73 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const getLocalTokenPrice = () => tokenPriceUsd * fiatPerUsd;
+
+  const sliderMinUsd = tokenSlider instanceof HTMLInputElement
+    ? Number.parseFloat(tokenSlider.dataset.sliderMinUsd || '0')
+    : Number.NaN;
+  const sliderMaxUsd = tokenSlider instanceof HTMLInputElement
+    ? Number.parseFloat(tokenSlider.dataset.sliderMaxUsd || '0')
+    : Number.NaN;
+  const sliderStepUsd = tokenSlider instanceof HTMLInputElement
+    ? Number.parseFloat(tokenSlider.dataset.sliderStepUsd || '0')
+    : Number.NaN;
+  const sliderMinLocal = tokenSlider instanceof HTMLInputElement
+    ? Number.parseFloat(tokenSlider.min || '0')
+    : Number.NaN;
+  const sliderMaxLocal = tokenSlider instanceof HTMLInputElement
+    ? Number.parseFloat(tokenSlider.max || '0')
+    : Number.NaN;
+
+  const sliderStepDecimals = (() => {
+    if (!Number.isFinite(sliderStepUsd) || sliderStepUsd <= 0) {
+      return priceDecimals;
+    }
+    const text = sliderStepUsd.toString();
+    if (text.includes('e')) {
+      return priceDecimals;
+    }
+    const [, decimals = ''] = text.split('.');
+    return decimals.length;
+  })();
+
+  const clampLocalSliderValue = (value) => {
+    let next = value;
+    if (Number.isFinite(sliderMinLocal)) {
+      next = Math.max(next, sliderMinLocal);
+    }
+    if (Number.isFinite(sliderMaxLocal) && sliderMaxLocal > 0) {
+      next = Math.min(next, sliderMaxLocal);
+    }
+    return next;
+  };
+
+  const normaliseTokenPriceUsd = (value) => {
+    if (!Number.isFinite(value) || value <= 0) {
+      return defaultTokenPriceUsd;
+    }
+    let next = value;
+    if (Number.isFinite(sliderMinUsd) && sliderMinUsd > 0) {
+      next = Math.max(next, sliderMinUsd);
+    }
+    if (Number.isFinite(sliderMaxUsd) && sliderMaxUsd > 0) {
+      next = Math.min(next, sliderMaxUsd);
+    }
+    if (Number.isFinite(sliderStepUsd) && sliderStepUsd > 0) {
+      next = Math.round(next / sliderStepUsd) * sliderStepUsd;
+      if (sliderStepDecimals > 0) {
+        next = Number.parseFloat(next.toFixed(sliderStepDecimals));
+      }
+    }
+    return next;
+  };
+
+  const updateSliderValue = () => {
+    if (!(tokenSlider instanceof HTMLInputElement)) {
+      return;
+    }
+    const localValue = clampLocalSliderValue(getLocalTokenPrice());
+    tokenSlider.value = localValue.toFixed(priceDecimals);
+  };
 
   function estimate(peopleCount, actionsPerDay) {
     const monthlyActions = actionsPerDay * 30 * Math.max(peopleCount, 1);
@@ -315,10 +383,11 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const applyTokenPriceUsd = (value) => {
-    tokenPriceUsd = value;
+    tokenPriceUsd = normaliseTokenPriceUsd(value);
     if (tokenInput instanceof HTMLInputElement) {
       tokenInput.value = getLocalTokenPrice().toFixed(priceDecimals);
     }
+    updateSliderValue();
     updateCalc();
     updatePresetState();
   };
@@ -366,8 +435,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  if (tokenSlider instanceof HTMLInputElement) {
+    const handleSliderInput = () => {
+      const localValue = Number.parseFloat(tokenSlider.value);
+      if (!Number.isFinite(localValue) || localValue <= 0) {
+        return;
+      }
+      const usdValue = fiatPerUsd > 0 ? localValue / fiatPerUsd : localValue;
+      applyTokenPriceUsd(usdValue);
+    };
+
+    tokenSlider.addEventListener('input', handleSliderInput);
+    tokenSlider.addEventListener('change', handleSliderInput);
+  }
+
   updatePresetState();
   updateCalc();
+  updateSliderValue();
 
   const pilotButtons = Array.from(pilotTriggers).filter((trigger) => trigger instanceof HTMLElement);
 

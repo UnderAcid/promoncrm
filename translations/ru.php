@@ -158,6 +158,7 @@ return [
         'integrations_title' => 'Интеграции по умолчанию',
         'integrations_desc' => 'Уже в первом спринте подключаем мессенджеры, учёт и базы данных — без затяжных тендеров и интеграторов.',
         'integrations_core' => 'Узел nERP',
+        'integrations_more' => '+ ещё :count интеграций по запросу',
         'integrations' => [
             ['name' => 'Slack Webhooks', 'tag' => 'Коммуникации', 'status' => 'В продакшне'],
             ['name' => '1С:Предприятие', 'tag' => 'Учёт', 'status' => 'Пилот'],
@@ -190,7 +191,7 @@ return [
         'token_price_hint' => 'По умолчанию считаем 1 токен = $1. Измените курс, если планируете другой сценарий.',
         'token_price_preview_prefix' => '1 nERP ≈',
         'token_price_usd' => 1.0,
-        'token_price_min_usd' => 1.0,
+        'token_price_min_usd' => 0.1,
         'token_price_step_usd' => 0.1,
         'token_price_decimals' => 2,
         'token_decimals' => 6,
