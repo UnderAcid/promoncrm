@@ -247,6 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const nerpTotal = document.getElementById('nerpTotal');
   const fiatApprox = document.getElementById('fiatApprox');
   const tokenInput = document.querySelector('[data-token-input]');
+  const tokenSlider = document.querySelector('[data-token-range]');
   const tokenPreviewValue = document.querySelector('[data-token-preview-value]');
   const operationFiatNodes = document.querySelectorAll('[data-operation-fiat]');
   const tokenPresetButtons = document.querySelectorAll('[data-token-preset]');
@@ -258,6 +259,33 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const getLocalTokenPrice = () => tokenPriceUsd * fiatPerUsd;
+
+  const sliderStepDecimals = (() => {
+    if (!(tokenSlider instanceof HTMLInputElement)) return 2;
+    const stepString = tokenSlider.step && tokenSlider.step !== 'any' ? tokenSlider.step : '0.1';
+    const [, decimals = ''] = stepString.split('.');
+    return Math.min(Math.max(decimals.replace(/[^0-9]/g, '').length, 0), 6);
+  })();
+
+  const clampToSlider = (value) => {
+    if (!(tokenSlider instanceof HTMLInputElement)) return value;
+    let next = value;
+    const min = Number.parseFloat(tokenSlider.min || '0');
+    const max = Number.parseFloat(tokenSlider.max || '0');
+    if (Number.isFinite(min)) {
+      next = Math.max(next, min);
+    }
+    if (Number.isFinite(max) && max > 0) {
+      next = Math.min(next, max);
+    }
+    return next;
+  };
+
+  const updateSliderValue = (value) => {
+    if (!(tokenSlider instanceof HTMLInputElement)) return;
+    const next = clampToSlider(value);
+    tokenSlider.value = next.toFixed(sliderStepDecimals);
+  };
 
   function estimate(peopleCount, actionsPerDay) {
     const monthlyActions = actionsPerDay * 30 * Math.max(peopleCount, 1);
@@ -314,10 +342,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  const applyTokenPriceUsd = (value) => {
-    tokenPriceUsd = value;
+  const applyTokenPriceUsd = (value, { fromSlider = false } = {}) => {
+    const nextValue = value > 0 ? value : defaultTokenPriceUsd;
+    tokenPriceUsd = nextValue;
     if (tokenInput instanceof HTMLInputElement) {
       tokenInput.value = getLocalTokenPrice().toFixed(priceDecimals);
+    }
+    if (!fromSlider) {
+      updateSliderValue(tokenPriceUsd);
     }
     updateCalc();
     updatePresetState();
@@ -365,6 +397,17 @@ document.addEventListener('DOMContentLoaded', () => {
       applyTokenPriceUsd(preset);
     });
   });
+
+  if (tokenSlider instanceof HTMLInputElement) {
+    updateSliderValue(tokenPriceUsd);
+    tokenSlider.addEventListener('input', () => {
+      const raw = Number.parseFloat(tokenSlider.value);
+      if (!Number.isFinite(raw) || raw <= 0) {
+        return;
+      }
+      applyTokenPriceUsd(clampToSlider(raw), { fromSlider: true });
+    });
+  }
 
   updatePresetState();
   updateCalc();
