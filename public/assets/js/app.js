@@ -10,6 +10,27 @@ const microFee = typeof config.microFee === 'number' ? config.microFee : 0.001;
 const fiatPerUsd = typeof config.fiatPerUsd === 'number' ? config.fiatPerUsd : 1;
 const tokenDecimals = Number.isInteger(config.tokenDecimals) ? config.tokenDecimals : 6;
 const priceDecimals = Number.isInteger(config.tokenPriceDecimals) ? config.tokenPriceDecimals : 2;
+const minTokenPriceUsd = (() => {
+  const value = Number.parseFloat(config.tokenPriceMinUsd);
+  if (Number.isFinite(value) && value > 0) {
+    return value;
+  }
+  return 0.1;
+})();
+const maxTokenPriceUsd = (() => {
+  const value = Number.parseFloat(config.tokenPriceMaxUsd);
+  if (Number.isFinite(value) && value >= minTokenPriceUsd) {
+    return value;
+  }
+  return Math.max(minTokenPriceUsd, 5);
+})();
+const tokenPriceStepUsd = (() => {
+  const value = Number.parseFloat(config.tokenPriceStepUsd);
+  if (Number.isFinite(value) && value > 0) {
+    return value;
+  }
+  return 0.1;
+})();
 const defaultTokenPriceUsd = (() => {
   const value = Number.parseFloat(config.tokenPriceUsd);
   if (Number.isFinite(value) && value > 0) {
@@ -18,6 +39,12 @@ const defaultTokenPriceUsd = (() => {
   return 1;
 })();
 let tokenPriceUsd = defaultTokenPriceUsd;
+if (tokenPriceUsd < minTokenPriceUsd) {
+  tokenPriceUsd = minTokenPriceUsd;
+}
+if (tokenPriceUsd > maxTokenPriceUsd) {
+  tokenPriceUsd = maxTokenPriceUsd;
+}
 
 if (!localStorage.getItem('prefersDarkSet')) {
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -250,6 +277,40 @@ document.addEventListener('DOMContentLoaded', () => {
   const tokenPreviewValue = document.querySelector('[data-token-preview-value]');
   const operationFiatNodes = document.querySelectorAll('[data-operation-fiat]');
   const tokenPresetButtons = document.querySelectorAll('[data-token-preset]');
+  const tokenRange = document.querySelector('[data-token-range]');
+  const sliderPrecision = (() => {
+    if (!(tokenRange instanceof HTMLInputElement)) return Math.max(0, priceDecimals);
+    const stepString = tokenRange.step || '';
+    if (!stepString.includes('.')) return 0;
+    const [, decimals = ''] = stepString.split('.');
+    return decimals.replace(/0+$/, '').length || decimals.length;
+  })();
+  const sliderMin = tokenRange instanceof HTMLInputElement
+    ? Number.parseFloat(tokenRange.min || `${minTokenPriceUsd}`)
+    : minTokenPriceUsd;
+  const sliderMax = tokenRange instanceof HTMLInputElement
+    ? Number.parseFloat(tokenRange.max || `${maxTokenPriceUsd}`)
+    : maxTokenPriceUsd;
+  const sliderStep = tokenRange instanceof HTMLInputElement
+    ? Number.parseFloat(tokenRange.step || `${tokenPriceStepUsd}`)
+    : tokenPriceStepUsd;
+
+  const clampTokenPrice = (value) => {
+    let next = Number.isFinite(value) ? value : defaultTokenPriceUsd;
+    if (Number.isFinite(sliderMin) && sliderMin > 0) {
+      next = Math.max(next, sliderMin);
+    }
+    if (Number.isFinite(sliderMax) && sliderMax > 0) {
+      next = Math.min(next, sliderMax);
+    }
+    if (Number.isFinite(sliderStep) && sliderStep > 0) {
+      const offset = Number.isFinite(sliderMin) && sliderMin > 0 ? sliderMin : 0;
+      const steps = Math.round((next - offset) / sliderStep);
+      next = offset + steps * sliderStep;
+    }
+    const precision = Math.max(sliderPrecision, priceDecimals);
+    return Number.parseFloat(next.toFixed(precision));
+  };
 
   const parseLocaleNumber = (value) => {
     if (typeof value !== 'string') return Number.NaN;
@@ -304,6 +365,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   people?.addEventListener('input', updateCalc);
   apd?.addEventListener('input', updateCalc);
+  const sliderValuePrecision = Math.max(sliderPrecision, 0);
+  const setSliderValue = (value) => {
+    if (!(tokenRange instanceof HTMLInputElement)) return;
+    const precision = sliderValuePrecision;
+    const safeValue = Number.isFinite(value) ? value : tokenPriceUsd;
+    tokenRange.value = safeValue.toFixed(precision);
+  };
+
   const updatePresetState = () => {
     tokenPresetButtons.forEach((button) => {
       if (!(button instanceof HTMLElement)) return;
@@ -312,13 +381,15 @@ document.addEventListener('DOMContentLoaded', () => {
       button.classList.toggle('active', isActive);
       button.setAttribute('aria-pressed', String(isActive));
     });
+    setSliderValue(tokenPriceUsd);
   };
 
   const applyTokenPriceUsd = (value) => {
-    tokenPriceUsd = value;
+    tokenPriceUsd = clampTokenPrice(value);
     if (tokenInput instanceof HTMLInputElement) {
       tokenInput.value = getLocalTokenPrice().toFixed(priceDecimals);
     }
+    setSliderValue(tokenPriceUsd);
     updateCalc();
     updatePresetState();
   };
@@ -353,6 +424,17 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     tokenInput.value = getLocalTokenPrice().toFixed(priceDecimals);
+  }
+
+  if (tokenRange instanceof HTMLInputElement) {
+    setSliderValue(tokenPriceUsd);
+    tokenRange.addEventListener('input', () => {
+      const raw = Number.parseFloat(tokenRange.value);
+      if (!Number.isFinite(raw)) {
+        return;
+      }
+      applyTokenPriceUsd(raw);
+    });
   }
 
   tokenPresetButtons.forEach((button) => {

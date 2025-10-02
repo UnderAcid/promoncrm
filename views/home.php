@@ -51,15 +51,22 @@ $pricingOperations = is_array($pricingOperations) ? $pricingOperations : [];
 $tokenDecimals = (int) ($t->get('pricing.token_decimals') ?? 6);
 $tokenPriceUsdDefault = (float) ($t->get('pricing.token_price_usd') ?? 1.0);
 $tokenPriceMinUsd = max((float) ($t->get('pricing.token_price_min_usd') ?? 1.0), 0.01);
+$tokenPriceMaxUsd = max((float) ($t->get('pricing.token_price_max_usd') ?? ($tokenPriceUsdDefault * 3)), $tokenPriceMinUsd);
 $tokenPriceStepUsd = max((float) ($t->get('pricing.token_price_step_usd') ?? 1.0), 0.01);
 $tokenPriceDecimals = (int) ($t->get('pricing.token_price_decimals') ?? 2);
 $fiatPerUsd = (float) ($t->get('pricing.fiat_per_usd') ?? 1.0);
 $tokenPriceDefaultLocal = $tokenPriceUsdDefault * $fiatPerUsd;
 $tokenPriceMinLocal = $tokenPriceMinUsd * $fiatPerUsd;
+$tokenPriceMaxLocal = $tokenPriceMaxUsd * $fiatPerUsd;
 $tokenPriceStepLocal = $tokenPriceStepUsd * $fiatPerUsd;
 $tokenPriceDefaultFormatted = number_format($tokenPriceDefaultLocal, $tokenPriceDecimals, '.', '');
 $tokenPriceMinFormatted = number_format($tokenPriceMinLocal, $tokenPriceDecimals, '.', '');
+$tokenPriceMaxFormatted = number_format($tokenPriceMaxLocal, $tokenPriceDecimals, '.', '');
 $tokenPriceStepFormatted = number_format($tokenPriceStepLocal, $tokenPriceDecimals, '.', '');
+$tokenPriceDefaultUsdFormatted = number_format($tokenPriceUsdDefault, 2, '.', '');
+$tokenPriceMinUsdFormatted = number_format($tokenPriceMinUsd, 2, '.', '');
+$tokenPriceMaxUsdFormatted = number_format($tokenPriceMaxUsd, 2, '.', '');
+$tokenPriceStepUsdFormatted = number_format($tokenPriceStepUsd, 2, '.', '');
 $pricingLocale = (string) ($t->get('pricing.locale') ?? 'en-US');
 $decimalSeparator = str_contains($pricingLocale, 'ru') ? ',' : '.';
 $thousandsSeparator = str_contains($pricingLocale, 'ru') ? "\u{00a0}" : ',';
@@ -207,14 +214,19 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                         'name' => (string) ($integration['name'] ?? ''),
                         'tag' => (string) ($integration['tag'] ?? ''),
                         'status' => (string) ($integration['status'] ?? ''),
+                        'icon' => (string) ($integration['icon'] ?? ''),
                     ];
                 } else {
                     $integrationItems[] = [
                         'name' => (string) $integration,
                         'tag' => '',
                         'status' => '',
+                        'icon' => '',
                     ];
                 }
+            }
+            if (count($integrationItems) > 3) {
+                $integrationItems = array_slice($integrationItems, 0, 3);
             }
             ?>
             <div class="card stack-integrations">
@@ -235,13 +247,17 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                         </div>
                         <div class="integration-lanes">
                             <?php foreach ($integrationItems as $item): ?>
+                                <?php $iconClass = $item['icon'] !== '' ? $item['icon'] : 'nodes'; ?>
                                 <div class="integration-tile">
-                                    <?php if ($item['status'] !== ''): ?>
-                                        <span class="integration-status"><?= e($item['status']); ?></span>
-                                    <?php endif; ?>
-                                    <span class="integration-name"><?= e($item['name']); ?></span>
+                                    <div class="integration-tile-header">
+                                        <span class="integration-tile-icon" aria-hidden="true"><span class="icon <?= e($iconClass); ?>"></span></span>
+                                        <?php if ($item['status'] !== ''): ?>
+                                            <span class="integration-status"><?= e($item['status']); ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="integration-name"><?= e($item['name']); ?></div>
                                     <?php if ($item['tag'] !== ''): ?>
-                                        <span class="integration-tag"><?= e($item['tag']); ?></span>
+                                        <div class="integration-tag"><?= e($item['tag']); ?></div>
                                     <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
@@ -341,8 +357,23 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                 <label class="token-price-label" for="tokenPriceLocal"><?= e($t->get('pricing.token_price_label')); ?></label>
                 <div class="token-price-control">
                     <span class="token-price-prefix"><?= e($t->get('pricing.token_price_prefix')); ?></span>
-                    <input type="number" id="tokenPriceLocal" name="tokenPriceLocal" min="<?= e($tokenPriceMinFormatted); ?>" step="<?= e($tokenPriceStepFormatted); ?>" value="<?= e($tokenPriceDefaultFormatted); ?>" data-token-input inputmode="decimal">
+                    <input type="number" id="tokenPriceLocal" name="tokenPriceLocal" min="<?= e($tokenPriceMinFormatted); ?>" max="<?= e($tokenPriceMaxFormatted); ?>" step="<?= e($tokenPriceStepFormatted); ?>" value="<?= e($tokenPriceDefaultFormatted); ?>" data-token-input inputmode="decimal">
                     <span class="token-price-suffix"><?= e($t->get('pricing.token_price_suffix')); ?></span>
+                </div>
+                <div class="token-price-slider">
+                    <input
+                        type="range"
+                        min="<?= e($tokenPriceMinUsdFormatted); ?>"
+                        max="<?= e($tokenPriceMaxUsdFormatted); ?>"
+                        step="<?= e($tokenPriceStepUsdFormatted); ?>"
+                        value="<?= e($tokenPriceDefaultUsdFormatted); ?>"
+                        data-token-range
+                        aria-label="<?= e($t->get('pricing.token_price_label')); ?>"
+                    >
+                    <div class="token-price-slider-scale" aria-hidden="true">
+                        <span><?= e($tokenPriceMinUsdFormatted); ?><?= e($tokenPresetCurrency); ?></span>
+                        <span><?= e($tokenPriceMaxUsdFormatted); ?><?= e($tokenPresetCurrency); ?></span>
+                    </div>
                 </div>
                 <div class="token-price-presets" role="group" aria-label="<?= e($t->get('pricing.token_price_presets_label')); ?>">
                     <?php foreach ($tokenPricePresets as $preset): ?>
