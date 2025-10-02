@@ -10,14 +10,53 @@ const microFee = typeof config.microFee === 'number' ? config.microFee : 0.001;
 const fiatPerUsd = typeof config.fiatPerUsd === 'number' ? config.fiatPerUsd : 1;
 const tokenDecimals = Number.isInteger(config.tokenDecimals) ? config.tokenDecimals : 6;
 const priceDecimals = Number.isInteger(config.tokenPriceDecimals) ? config.tokenPriceDecimals : 2;
+const toNumberOr = (value, fallback) => {
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const tokenPriceMinUsd = (() => {
+  const value = toNumberOr(config.tokenPriceMinUsd, 0.1);
+  if (value > 0) {
+    return value;
+  }
+  return 0.1;
+})();
+
+const tokenPriceMaxUsd = (() => {
+  const value = toNumberOr(config.tokenPriceMaxUsd, 2);
+  if (value >= tokenPriceMinUsd) {
+    return value;
+  }
+  return Math.max(tokenPriceMinUsd, 2);
+})();
+
+const tokenPriceStepUsd = (() => {
+  const value = toNumberOr(config.tokenPriceStepUsd, 0.1);
+  if (value > 0) {
+    return value;
+  }
+  return 0.1;
+})();
+
 const defaultTokenPriceUsd = (() => {
-  const value = Number.parseFloat(config.tokenPriceUsd);
-  if (Number.isFinite(value) && value > 0) {
+  const value = toNumberOr(config.tokenPriceUsd, 1);
+  if (value > 0) {
     return value;
   }
   return 1;
 })();
-let tokenPriceUsd = defaultTokenPriceUsd;
+
+const clampTokenPrice = (value) => {
+  const safe = Number.isFinite(value) ? value : tokenPriceMinUsd;
+  const limited = Math.min(Math.max(safe, tokenPriceMinUsd), tokenPriceMaxUsd);
+  const step = tokenPriceStepUsd > 0 ? tokenPriceStepUsd : 0.1;
+  const stepsFromMin = Math.round((limited - tokenPriceMinUsd) / step);
+  const snapped = tokenPriceMinUsd + stepsFromMin * step;
+  return Number.parseFloat(snapped.toFixed(6));
+};
+
+let tokenPriceUsd = clampTokenPrice(defaultTokenPriceUsd);
 
 if (!localStorage.getItem('prefersDarkSet')) {
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -250,6 +289,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const tokenPreviewValue = document.querySelector('[data-token-preview-value]');
   const operationFiatNodes = document.querySelectorAll('[data-operation-fiat]');
   const tokenPresetButtons = document.querySelectorAll('[data-token-preset]');
+  const tokenSlider = document.querySelector('[data-token-slider]');
+  const tokenSliderMarks = document.querySelectorAll('[data-token-slider-mark]');
 
   const parseLocaleNumber = (value) => {
     if (typeof value !== 'string') return Number.NaN;
@@ -312,12 +353,22 @@ document.addEventListener('DOMContentLoaded', () => {
       button.classList.toggle('active', isActive);
       button.setAttribute('aria-pressed', String(isActive));
     });
+
+    tokenSliderMarks.forEach((mark) => {
+      if (!(mark instanceof HTMLElement)) return;
+      const preset = Number.parseFloat(mark.dataset.tokenSliderMark || '');
+      const isActive = Number.isFinite(preset) && Math.abs(preset - tokenPriceUsd) < 1e-6;
+      mark.classList.toggle('active', isActive);
+    });
   };
 
   const applyTokenPriceUsd = (value) => {
-    tokenPriceUsd = value;
+    tokenPriceUsd = clampTokenPrice(value);
     if (tokenInput instanceof HTMLInputElement) {
       tokenInput.value = getLocalTokenPrice().toFixed(priceDecimals);
+    }
+    if (tokenSlider instanceof HTMLInputElement) {
+      tokenSlider.value = tokenPriceUsd.toFixed(2);
     }
     updateCalc();
     updatePresetState();
@@ -365,6 +416,21 @@ document.addEventListener('DOMContentLoaded', () => {
       applyTokenPriceUsd(preset);
     });
   });
+
+  if (tokenSlider instanceof HTMLInputElement) {
+    const sliderMin = Number.parseFloat(tokenSlider.min);
+    if (Number.isFinite(sliderMin) && sliderMin > 0 && sliderMin > tokenPriceMinUsd) {
+      tokenPriceUsd = clampTokenPrice(sliderMin);
+    }
+    tokenSlider.value = tokenPriceUsd.toFixed(2);
+    tokenSlider.addEventListener('input', () => {
+      const raw = Number.parseFloat(tokenSlider.value);
+      if (!Number.isFinite(raw)) {
+        return;
+      }
+      applyTokenPriceUsd(raw);
+    });
+  }
 
   updatePresetState();
   updateCalc();

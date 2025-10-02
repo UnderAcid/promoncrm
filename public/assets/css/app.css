@@ -579,24 +579,31 @@ html.no-js .nav-toggle {
   border-radius: 16px;
   background: var(--color-text);
   color: var(--color-bg);
-  display: grid;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
 .icon {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
   width: 18px;
   height: 18px;
   font-style: normal;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .icon::before {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
   font-size: 16px;
 }
 
@@ -989,6 +996,113 @@ html.no-js .nav-toggle {
   background: var(--color-surface);
   padding: 12px 16px;
   box-shadow: var(--shadow-sm);
+}
+
+.token-price-slider {
+  display: grid;
+  gap: 8px;
+}
+
+.token-price-slider input[type='range'] {
+  width: 100%;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.32), rgba(14, 165, 233, 0.18));
+  position: relative;
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+.token-price-slider input[type='range']:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 4px;
+}
+
+:root[data-theme='dark'] .token-price-slider input[type='range'] {
+  background: linear-gradient(90deg, rgba(96, 165, 250, 0.35), rgba(56, 189, 248, 0.18));
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.35);
+}
+
+.token-price-slider input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  cursor: pointer;
+  transition: transform 0.18s ease;
+}
+
+:root[data-theme='dark'] .token-price-slider input[type='range']::-webkit-slider-thumb {
+  border-color: rgba(15, 23, 42, 0.85);
+}
+
+.token-price-slider input[type='range']::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  cursor: pointer;
+  transition: transform 0.18s ease;
+}
+
+:root[data-theme='dark'] .token-price-slider input[type='range']::-moz-range-thumb {
+  border-color: rgba(15, 23, 42, 0.85);
+}
+
+.token-price-slider input[type='range']::-webkit-slider-thumb:hover,
+.token-price-slider input[type='range']::-moz-range-thumb:hover {
+  transform: scale(1.08);
+}
+
+.token-price-slider input[type='range']::-webkit-slider-thumb:active,
+.token-price-slider input[type='range']::-moz-range-thumb:active {
+  transform: scale(1.12);
+}
+
+.token-slider-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--color-muted);
+  pointer-events: none;
+}
+
+.token-slider-mark {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-width: 40px;
+  position: relative;
+}
+
+.token-slider-mark::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.32);
+}
+
+:root[data-theme='dark'] .token-slider-mark::before {
+  background: rgba(96, 165, 250, 0.35);
+}
+
+.token-slider-mark-value {
+  font-weight: 600;
+}
+
+.token-slider-mark.active::before {
+  background: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18);
+}
+
+.token-slider-mark.active .token-slider-mark-value {
+  color: var(--color-primary);
 }
 
 .token-price-presets {
@@ -1509,12 +1623,13 @@ input[type='range'] {
   border-radius: var(--radius-lg);
   border: 1px solid rgba(37, 99, 235, 0.22);
   background: linear-gradient(160deg, rgba(255, 255, 255, 0.88), rgba(224, 231, 255, 0.68));
-  padding: 20px 22px;
+  padding: 22px 24px;
   display: grid;
-  gap: 8px;
+  grid-template-columns: auto 1fr;
+  gap: 16px 18px;
   min-height: 0;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4), var(--shadow-sm);
-  align-content: start;
+  align-items: start;
 }
 
 .integration-tile::before {
@@ -1537,22 +1652,79 @@ input[type='range'] {
   background: linear-gradient(120deg, rgba(96, 165, 250, 0.24), transparent 70%);
 }
 
-.integration-status {
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-muted);
+.integration-content {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.integration-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.integration-node {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(37, 99, 235, 0.38), rgba(37, 99, 235, 0.18)),
+    linear-gradient(160deg, rgba(59, 130, 246, 0.25), rgba(14, 165, 233, 0.18));
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.32), 0 14px 28px rgba(37, 99, 235, 0.18);
+  flex-shrink: 0;
+}
+
+.integration-node .icon {
+  width: 20px;
+  height: 20px;
 }
 
 .integration-name {
   font-weight: 600;
-  font-size: 15px;
+  font-size: 16px;
   word-break: break-word;
 }
 
+.integration-status {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  background: rgba(37, 99, 235, 0.14);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
 .integration-tag {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--color-muted);
+  background: rgba(15, 23, 42, 0.04);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+:root[data-theme='dark'] .integration-node {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(96, 165, 250, 0.45), rgba(59, 130, 246, 0.28)),
+    linear-gradient(160deg, rgba(30, 64, 175, 0.45), rgba(14, 116, 144, 0.24));
+  color: rgba(224, 242, 254, 0.92);
+  box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.45), 0 14px 28px rgba(15, 23, 42, 0.45);
+}
+
+:root[data-theme='dark'] .integration-status {
+  background: rgba(96, 165, 250, 0.28);
+  color: rgba(224, 242, 254, 0.92);
+}
+
+:root[data-theme='dark'] .integration-tag {
+  background: rgba(148, 163, 184, 0.14);
+  color: rgba(226, 232, 240, 0.88);
 }
 
 .stack-footnote {
