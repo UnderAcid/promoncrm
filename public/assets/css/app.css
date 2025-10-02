@@ -613,12 +613,18 @@ html.no-js .nav-toggle {
 .icon.rocket::before { content: '🚀'; }
 .icon.play::before { content: '▶'; font-size: 12px; }
 .icon.shield::before { content: '🛡️'; }
+.icon.shield-check::before { content: '✅'; }
 .icon.coins::before { content: '🪙'; }
 .icon.boxes::before { content: '📦'; }
 .icon.building::before { content: '🏢'; }
 .icon.plug::before { content: '🔌'; }
 .icon.code::before { content: '💻'; }
 .icon.sparkles::before { content: '✨'; }
+.icon.users::before { content: '👥'; }
+.icon.table::before { content: '📊'; }
+.icon.clipboard::before { content: '📋'; }
+.icon.target::before { content: '🎯'; }
+.icon.handshake::before { content: '🤝'; }
 .icon.layers::before { content: '🧱'; }
 .icon.cpu::before { content: '🤖'; }
 .icon.chat::before { content: '💬'; }
@@ -630,6 +636,8 @@ html.no-js .nav-toggle {
 .icon.ledger::before { content: '📒'; }
 .icon.workflow::before { content: '⚙️'; }
 .icon.api::before { content: '🔗'; }
+.icon.network::before { content: '🌐'; }
+.icon.roadmap::before { content: '🗺️'; }
 .icon.sun::before { content: '☀️'; }
 .icon.moon::before { content: '🌙'; }
 .icon.flag-ru::before { content: '🇷🇺'; }
