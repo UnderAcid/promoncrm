@@ -12,6 +12,9 @@ $howItems = $t->get('how.items');
 $stack = $t->get('stack');
 $stackHighlights = is_array($stack['highlights'] ?? null) ? $stack['highlights'] : [];
 $stackIntegrations = is_array($stack['integrations'] ?? null) ? $stack['integrations'] : [];
+$momentum = $t->get('momentum');
+$momentumMetrics = is_array($momentum['metrics'] ?? null) ? $momentum['metrics'] : [];
+$momentumBenefits = is_array($momentum['benefits'] ?? null) ? $momentum['benefits'] : [];
 $tokenPricePresets = [0.1, 0.5, 1.0, 2.0];
 $tokenPresetCurrency = (string) ($t->get('pricing.token_price_presets_currency') ?? '$');
 $partnerCards = $t->get('partners.cards');
@@ -241,6 +244,12 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
             if (count($integrationItems) > 3) {
                 $integrationItems = array_slice($integrationItems, 0, 3);
             }
+            $integrationsDesc = (string) ($stack['integrations_desc'] ?? '');
+            $integrationsCoreLabel = (string) ($stack['integrations_core'] ?? 'nERP');
+            $integrationsCoreDesc = (string) ($stack['integrations_core_desc'] ?? '');
+            if ($integrationsCoreDesc === '' && $integrationsDesc !== '') {
+                $integrationsCoreDesc = $integrationsDesc;
+            }
             ?>
             <div class="card stack-integrations">
                 <div class="stack-integrations-header">
@@ -249,38 +258,47 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                     </div>
                     <div>
                         <div class="card-title"><?= e($stack['integrations_title'] ?? ''); ?></div>
-                        <p class="card-desc"><?= e($stack['integrations_desc'] ?? ''); ?></p>
+                        <p class="card-desc"><?= e($integrationsDesc); ?></p>
                     </div>
                 </div>
                 <?php if ($integrationItems !== []): ?>
-                    <div class="integration-grid">
-                        <div class="integration-core">
-                            <span class="integration-core-icon" aria-hidden="true"><span class="icon shield"></span></span>
-                            <div class="integration-core-label"><?= e($stack['integrations_core'] ?? 'nERP'); ?></div>
-                        </div>
-                        <div class="integration-lanes">
-                            <?php foreach ($integrationItems as $item): ?>
-                                <div class="integration-tile">
-                                    <?php if ($item['status'] !== '' || $item['tag'] !== ''): ?>
-                                        <div class="integration-tile-header">
-                                            <?php if ($item['status'] !== ''): ?>
-                                                <span class="integration-pill integration-status"><?= e($item['status']); ?></span>
-                                            <?php endif; ?>
-                                            <?php if ($item['tag'] !== ''): ?>
-                                                <span class="integration-pill integration-tag"><?= e($item['tag']); ?></span>
-                                            <?php endif; ?>
-                                        </div>
+                    <ul class="stack-integrations-list">
+                        <li class="stack-integrations-core">
+                            <span class="core-icon" aria-hidden="true"><span class="icon shield"></span></span>
+                            <div class="core-content">
+                                <div class="core-label"><?= e($integrationsCoreLabel); ?></div>
+                                <?php if ($integrationsCoreDesc !== ''): ?>
+                                    <p class="core-desc"><?= e($integrationsCoreDesc); ?></p>
+                                <?php endif; ?>
+                            </div>
+                        </li>
+                        <?php foreach ($integrationItems as $item): ?>
+                            <li class="stack-integration-item">
+                                <div class="item-marker" aria-hidden="true">
+                                    <?php if ($item['icon'] !== ''): ?>
+                                        <span class="icon <?= e($item['icon']); ?>"></span>
+                                    <?php else: ?>
+                                        <span class="marker-dot"></span>
                                     <?php endif; ?>
-                                    <div class="integration-tile-main">
-                                        <?php if ($item['icon'] !== ''): ?>
-                                            <span class="integration-icon" aria-hidden="true"><span class="icon <?= e($item['icon']); ?>"></span></span>
+                                </div>
+                                <div class="item-body">
+                                    <div class="item-heading">
+                                        <span class="item-name"><?= e($item['name']); ?></span>
+                                        <?php if ($item['status'] !== '' || $item['tag'] !== ''): ?>
+                                            <span class="item-badges">
+                                                <?php if ($item['status'] !== ''): ?>
+                                                    <span class="integration-badge integration-status"><?= e($item['status']); ?></span>
+                                                <?php endif; ?>
+                                                <?php if ($item['tag'] !== ''): ?>
+                                                    <span class="integration-badge integration-tag"><?= e($item['tag']); ?></span>
+                                                <?php endif; ?>
+                                            </span>
                                         <?php endif; ?>
-                                        <div class="integration-name"><?= e($item['name']); ?></div>
                                     </div>
                                 </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
                 <?php endif; ?>
                 <?php if (!empty($stack['footnote'])): ?>
                     <p class="stack-footnote"><?= e($stack['footnote']); ?></p>
@@ -289,6 +307,69 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
         </div>
     </div>
 </section>
+
+<?php
+$hasMomentumContent = is_array($momentum)
+    && (
+        ($momentumMetrics !== [])
+        || ($momentumBenefits !== [])
+        || (string) ($momentum['title'] ?? '') !== ''
+    );
+?>
+
+<?php if ($hasMomentumContent): ?>
+    <section id="momentum" class="container momentum-section">
+        <div class="momentum-header">
+            <?php if (!empty($momentum['eyebrow'] ?? '')): ?>
+                <div class="eyebrow"><?= e($momentum['eyebrow']); ?></div>
+            <?php endif; ?>
+            <?php if (!empty($momentum['title'] ?? '')): ?>
+                <h2 class="h2"><?= e($momentum['title']); ?></h2>
+            <?php endif; ?>
+            <?php if (!empty($momentum['subtitle'] ?? '')): ?>
+                <p class="muted"><?= e($momentum['subtitle']); ?></p>
+            <?php endif; ?>
+        </div>
+        <?php if ($momentumMetrics !== []): ?>
+            <div class="momentum-metrics">
+                <?php foreach ($momentumMetrics as $metric): ?>
+                    <div class="card momentum-metric">
+                        <div class="metric-value"><?= e($metric['value'] ?? ''); ?></div>
+                        <div class="metric-label"><?= e($metric['label'] ?? ''); ?></div>
+                        <?php if (!empty($metric['desc'] ?? '')): ?>
+                            <p class="metric-desc"><?= e($metric['desc']); ?></p>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+        <?php if ($momentumBenefits !== []): ?>
+            <ul class="momentum-benefits">
+                <?php foreach ($momentumBenefits as $benefit): ?>
+                    <li>
+                        <span class="benefit-icon" aria-hidden="true"><span class="icon check"></span></span>
+                        <span><?= e($benefit); ?></span>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
+        <?php if (!empty($momentum['cta_label'] ?? '')): ?>
+            <div class="cta-row">
+                <a class="btn btn-primary" href="<?= e($momentum['cta_href'] ?? '#pilots'); ?>">
+                    <span class="icon sparkles" aria-hidden="true"></span><?= e($momentum['cta_label']); ?>
+                </a>
+                <?php if (!empty($momentum['cta_secondary_label'] ?? '')): ?>
+                    <a class="btn btn-ghost" href="<?= e($momentum['cta_secondary_href'] ?? '#pricing'); ?>">
+                        <span class="icon calendar" aria-hidden="true"></span><?= e($momentum['cta_secondary_label']); ?>
+                    </a>
+                <?php endif; ?>
+            </div>
+            <?php if (!empty($momentum['cta_note'] ?? '')): ?>
+                <p class="muted small momentum-note"><?= e($momentum['cta_note']); ?></p>
+            <?php endif; ?>
+        <?php endif; ?>
+    </section>
+<?php endif; ?>
 
 <div class="divider" role="presentation"></div>
 
@@ -330,6 +411,26 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                         <label for="pilotRole"><?= e($pilotForm['role'] ?? ''); ?></label>
                         <input type="text" id="pilotRole" name="role" placeholder="<?= e($pilotForm['role_placeholder'] ?? ''); ?>">
                     </div>
+                </div>
+                <div class="input-control input-token-rate">
+                    <label for="pilotTokenRate"><?= e($pilotForm['token_rate'] ?? ''); ?></label>
+                    <div class="input-with-addon">
+                        <input
+                            type="number"
+                            id="pilotTokenRate"
+                            name="token_rate"
+                            min="0"
+                            step="0.01"
+                            inputmode="decimal"
+                            placeholder="<?= e($pilotForm['token_rate_placeholder'] ?? ''); ?>"
+                        >
+                        <?php if (!empty($pilotForm['token_rate_suffix'] ?? '')): ?>
+                            <span class="input-addon"><?= e($pilotForm['token_rate_suffix']); ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <?php if (!empty($pilotForm['token_rate_hint'] ?? '')): ?>
+                        <p class="muted small input-hint"><?= e($pilotForm['token_rate_hint']); ?></p>
+                    <?php endif; ?>
                 </div>
                 <div class="input-control">
                     <label for="pilotMessage"><?= e($pilotForm['message'] ?? ''); ?></label>
