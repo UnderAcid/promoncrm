@@ -155,16 +155,32 @@ return [
                 'desc' => 'REST and webhooks to plug in your services and third-party modules.',
             ],
         ],
-        'integrations_title' => 'Default integrations',
-        'integrations_desc' => 'In the first sprint we connect messaging, accounting, and data stores — no drawn-out procurement or integrators.',
-        'integrations_core' => 'nERP node',
-        'integrations_core_desc' => 'Encrypted core ledger with roles, audit, and billing.',
+        'integrations_title' => 'What ships in the MVP',
+        'integrations_desc' => 'Core ledgers, access rules, and dashboards already run in production. Pilots extend the flows and connectors you need.',
         'integrations' => [
-            ['name' => 'Slack webhooks', 'tag' => 'Comms', 'status' => 'Live', 'icon' => 'chat'],
-            ['name' => '1C gateway', 'tag' => 'Accounting', 'status' => 'Pilot', 'icon' => 'ledger'],
-            ['name' => 'PostgreSQL', 'tag' => 'Database', 'status' => 'Live', 'icon' => 'database'],
+            [
+                'name' => 'Action ledger',
+                'tag' => 'MVP',
+                'status' => 'Live',
+                'icon' => 'check',
+                'desc' => 'Tracks every user event, bills usage automatically, and keeps audit trails.',
+            ],
+            [
+                'name' => 'Roles & permissions',
+                'tag' => 'MVP',
+                'status' => 'Live',
+                'icon' => 'shield',
+                'desc' => 'Granular access, secure key handover, and change history for compliance.',
+            ],
+            [
+                'name' => 'Dashboards & reports',
+                'tag' => 'MVP',
+                'status' => 'Live',
+                'icon' => 'bar-chart',
+                'desc' => 'Role-based views, daily digests, and SLA tracking out of the box.',
+            ],
         ],
-        'footnote' => 'Need something else? Pilot teams can request new connectors directly in the brief.',
+        'footnote' => 'Need another connector? We add it to the pilot roadmap and agree on the delivery window.',
     ],
     'outcomes' => [
         'title' => 'Pilot outcomes you can pitch internally',
@@ -253,6 +269,143 @@ return [
             ],
         ],
         'operation_fiat_prefix' => '≈',
+        'comparison' => [
+            'title' => 'Cost comparison with popular ERP/CRM suites',
+            'subtitle' => 'The calculator above models our pilot. Below is what typical competitors charge for the same team size.',
+            'our_label' => 'nERP',
+            'our_hint' => 'Based on the calculator settings above',
+            'their_label' => ':name plan',
+            'our_pros_label' => 'Where nERP wins',
+            'our_cons_label' => 'Trade-offs to consider',
+            'their_pros_label' => 'Where :name fits',
+            'their_cons_label' => 'Limitations of :name',
+            'cards' => [
+                [
+                    'name' => 'Google Sheets',
+                    'slug' => 'google-sheets',
+                    'price' => [
+                        'model' => 'per-user',
+                        'amount' => 12,
+                        'currency' => 'USD',
+                        'min_seats' => 1,
+                        'extra' => '≈ $12 per user',
+                        'note' => 'Google Workspace Business Standard',
+                    ],
+                    'our' => [
+                        'pros' => [
+                            'Usage-based billing with automatic metering.',
+                            'Roles, statuses, and alerts ship with the core.',
+                        ],
+                        'cons' => [
+                            'We still run a short pilot to map your workflow.',
+                        ],
+                    ],
+                    'their' => [
+                        'pros' => [
+                            'Anyone can start quickly with no onboarding.',
+                            'Low entry cost and a familiar interface.',
+                        ],
+                        'cons' => [
+                            'No granular access control or full audit trail.',
+                            'Heavy reliance on manual data entry.',
+                        ],
+                    ],
+                ],
+                [
+                    'name' => '1C:CRM',
+                    'slug' => '1c-crm',
+                    'price' => [
+                        'model' => 'per-user',
+                        'amount' => 2700,
+                        'currency' => 'RUB',
+                        'min_seats' => 5,
+                        'extra' => 'from ₽2,700 per user',
+                        'note' => '1C cloud subscription',
+                    ],
+                    'our' => [
+                        'pros' => [
+                            'You only pay for actions instead of idle licences.',
+                            'nERP engineers co-own the pilot and integrations.',
+                        ],
+                        'cons' => [
+                            'Industry templates aren’t prebuilt yet.',
+                        ],
+                    ],
+                    'their' => [
+                        'pros' => [
+                            'Large catalogue of industry modules and reports.',
+                            'Trusted brand for finance and accounting teams.',
+                        ],
+                        'cons' => [
+                            'Seat-based billing even with low utilisation.',
+                            'Custom work needs contractors and extra budget.',
+                        ],
+                    ],
+                ],
+                [
+                    'name' => 'amoCRM',
+                    'slug' => 'amocrm',
+                    'price' => [
+                        'model' => 'per-user',
+                        'amount' => 2490,
+                        'currency' => 'RUB',
+                        'min_seats' => 3,
+                        'extra' => '≈ ₽2,490 per user',
+                        'note' => '“Professional” plan',
+                    ],
+                    'our' => [
+                        'pros' => [
+                            'Covers operations beyond classic sales funnels.',
+                            'Flexible access model with roles, states, and SLAs.',
+                        ],
+                        'cons' => [
+                            'UI and pipelines are tailored during the pilot.',
+                        ],
+                    ],
+                    'their' => [
+                        'pros' => [
+                            'Rich toolkit for sales and marketing teams.',
+                            'Huge partner ecosystem with ready-made apps.',
+                        ],
+                        'cons' => [
+                            'Seat cost grows linearly with your operators.',
+                            'Non-sales workflows need separate tooling.',
+                        ],
+                    ],
+                ],
+                [
+                    'name' => 'Bitrix24',
+                    'slug' => 'bitrix24',
+                    'price' => [
+                        'model' => 'per-user',
+                        'amount' => 2990,
+                        'currency' => 'RUB',
+                        'min_seats' => 5,
+                        'extra' => '≈ ₽2,990 per user',
+                        'note' => '“Team” plan',
+                    ],
+                    'our' => [
+                        'pros' => [
+                            'Data stays in a hardened node with audit and encryption.',
+                            'Pilot scope is incremental — no big-bang migration.',
+                        ],
+                        'cons' => [
+                            'No out-of-the-box bundle for every department yet.',
+                        ],
+                    ],
+                    'their' => [
+                        'pros' => [
+                            'All-in-one modules for many departments.',
+                            'Familiar experience for large non-technical teams.',
+                        ],
+                        'cons' => [
+                            'Pay for seats even if the team is inactive.',
+                            'Harder to enforce strict access governance.',
+                        ],
+                    ],
+                ],
+            ],
+        ],
     ],
     'partners' => [
         'title' => 'For partners and module authors',

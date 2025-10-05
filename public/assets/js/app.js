@@ -4,6 +4,7 @@ const defaultAudience = config.defaultAudience || 'business';
 const audiencePitches = config.audiencePitches || {};
 const numberLocale = config.numberLocale || 'en-US';
 const currencyCode = config.currency || 'USD';
+const baseCurrencyCode = (currencyCode || 'USD').toUpperCase();
 const themes = config.themes || ['light', 'dark'];
 const themeLabels = config.themeLabels || {};
 const microFee = typeof config.microFee === 'number' ? config.microFee : 0.001;
@@ -57,6 +58,33 @@ document.addEventListener('DOMContentLoaded', () => {
     minimumFractionDigits: tokenDecimals,
     maximumFractionDigits: tokenDecimals,
   });
+
+  const convertToBaseCurrency = (value, fromCurrency) => {
+    if (!Number.isFinite(value)) return Number.NaN;
+    const source = (fromCurrency || '').toUpperCase();
+    if (!source || source === baseCurrencyCode) {
+      return value;
+    }
+    if (source === 'USD') {
+      if (baseCurrencyCode === 'USD') {
+        return value;
+      }
+      if (baseCurrencyCode === 'RUB') {
+        return value * fiatPerUsd;
+      }
+      return value;
+    }
+    if (source === 'RUB') {
+      if (baseCurrencyCode === 'RUB') {
+        return value;
+      }
+      if (baseCurrencyCode === 'USD') {
+        return fiatPerUsd > 0 ? value / fiatPerUsd : Number.NaN;
+      }
+      return value;
+    }
+    return value;
+  };
 
   function renderThemeState(theme) {
     if (themeIcon instanceof HTMLElement) {
@@ -251,6 +279,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const tokenPreviewValue = document.querySelector('[data-token-preview-value]');
   const operationFiatNodes = document.querySelectorAll('[data-operation-fiat]');
   const tokenPresetButtons = document.querySelectorAll('[data-token-preset]');
+  const comparisonCards = document.querySelectorAll('[data-comparison-card]');
+  const ourPriceTargets = document.querySelectorAll('[data-our-price]');
+  const ourTokenTargets = document.querySelectorAll('[data-our-tokens]');
 
   const parseLocaleNumber = (value) => {
     if (typeof value !== 'string') return Number.NaN;
@@ -313,6 +344,62 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function updateComparison(nerpSpend, fiatValue, teamSize) {
+    const formattedOurPrice = Number.isFinite(fiatValue) ? currencyFormatter.format(Math.max(fiatValue, 0)) : '—';
+    const formattedOurTokens = Number.isFinite(nerpSpend)
+      ? `${tokenFormatter.format(Math.max(nerpSpend, 0))} nERP`
+      : '—';
+
+    ourPriceTargets.forEach((node) => {
+      if (!(node instanceof HTMLElement)) return;
+      node.textContent = formattedOurPrice;
+    });
+
+    ourTokenTargets.forEach((node) => {
+      if (!(node instanceof HTMLElement)) return;
+      node.textContent = formattedOurTokens;
+    });
+
+    if (comparisonCards.length === 0) {
+      return;
+    }
+
+    const seats = Number.isFinite(teamSize) && teamSize > 0 ? Math.floor(teamSize) : 0;
+
+    comparisonCards.forEach((card) => {
+      if (!(card instanceof HTMLElement)) return;
+      const priceTarget = card.querySelector('[data-their-price]');
+      if (!(priceTarget instanceof HTMLElement)) {
+        return;
+      }
+
+      const model = (card.dataset.priceModel || 'fixed').toLowerCase();
+      const amount = Number.parseFloat(card.dataset.priceAmount || '0');
+      const currency = (card.dataset.priceCurrency || baseCurrencyCode).toUpperCase();
+      const minSeatsRaw = Number.parseInt(card.dataset.priceMinSeats || '0', 10);
+      const minSeats = Number.isFinite(minSeatsRaw) && minSeatsRaw > 0 ? minSeatsRaw : 0;
+      const effectiveSeats = minSeats > 0 ? Math.max(seats, minSeats) : seats;
+
+      let priceValue = amount;
+      if (model === 'per-user' || model === 'per_user') {
+        priceValue = amount * effectiveSeats;
+      }
+
+      if (!Number.isFinite(priceValue) || priceValue < 0) {
+        priceTarget.textContent = '—';
+        return;
+      }
+
+      const converted = convertToBaseCurrency(priceValue, currency);
+      if (!Number.isFinite(converted)) {
+        priceTarget.textContent = '—';
+        return;
+      }
+
+      priceTarget.textContent = currencyFormatter.format(Math.max(converted, 0));
+    });
+  }
+
   function updateCalc() {
     if (!(people && apd && peopleVal && apdVal && opsMonthly && nerpTotal && fiatApprox)) {
       return;
@@ -327,6 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
     nerpTotal.textContent = tokenFormatter.format(result.nerpSpend);
     const fiatValue = tokenPriceUsd > 0 ? result.nerpSpend * tokenPriceUsd * fiatPerUsd : 0;
     fiatApprox.textContent = currencyFormatter.format(fiatValue);
+    updateComparison(result.nerpSpend, fiatValue, p);
     updateTokenDerived();
   }
 
