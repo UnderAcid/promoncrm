@@ -7,6 +7,7 @@
 /** @var array<string, mixed> $clientConfig */
 /** @var string[] $themes */
 /** @var array<string, string> $localeUrls */
+/** @var string $homePath */
 
 $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'] ?? 'nerp.app';
@@ -22,6 +23,8 @@ $localeCode = (string) $t->get('app.locale_code', [], $currentLocale);
 $heroIllustration = asset('assets/img/hero-illustration.svg');
 $ogImageUrl = $scheme . '://' . $host . $heroIllustration;
 $ogImageAlt = (string) ($t->get('meta.og_image_alt') ?? '');
+$favicon = asset('favicon.svg');
+$brandLogo = asset('assets/img/nerp-logo.svg');
 ?>
 <!DOCTYPE html>
 <html lang="<?= e($localeCode); ?>" data-theme="<?= e($currentTheme); ?>" class="no-js">
@@ -53,6 +56,8 @@ $ogImageAlt = (string) ($t->get('meta.og_image_alt') ?? '');
     <?php endif; ?>
     <meta name="twitter:card" content="summary_large_image">
     <meta name="theme-color" content="#0f172a">
+    <link rel="icon" href="<?= e($favicon); ?>" type="image/svg+xml">
+    <link rel="alternate icon" href="<?= e($favicon); ?>" type="image/svg+xml">
 
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

@@ -3,6 +3,8 @@
 /** @var array<string, string> $languages */
 /** @var string $currentLocale */
 /** @var string[] $themes */
+/** @var string $homePath */
+/** @var string $brandLogo */
 ?>
 <?php
 $localeCycle = [];
@@ -27,9 +29,20 @@ $languageIconClass = in_array($languageIconCode, ['ru', 'en'], true) ? 'flag-' .
 ?>
 <header class="header" data-header>
     <div class="container header-inner">
-        <a class="brand" href="#main">
-            <span class="brand-mark" aria-hidden="true">n</span>
-            <span class="brand-name"><?= e($t->get('app.name')); ?></span>
+        <a class="brand" href="<?= e($homePath); ?>" aria-label="<?= e($t->get('app.name')); ?>">
+            <span class="brand-mark" aria-hidden="true">
+                <img
+                    src="<?= e($brandLogo); ?>"
+                    alt=""
+                    width="40"
+                    height="40"
+                    decoding="async"
+                >
+            </span>
+            <span class="brand-text">
+                <span class="brand-name"><?= e($t->get('app.name')); ?></span>
+                <span class="brand-tagline"><?= e($t->get('app.tagline')); ?></span>
+            </span>
         </a>
         <button class="nav-toggle" type="button" data-nav-toggle aria-controls="mainNav" aria-expanded="false">
             <span class="nav-toggle-box" aria-hidden="true">

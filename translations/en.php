@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'app' => [
         'name' => 'nERP',
+        'tagline' => 'Web3 ERP builder',
         'locale_code' => 'en-US',
         'language_label' => 'Language',
         'theme' => [
@@ -460,10 +461,49 @@ return [
     'footer' => [
         'copyright' => '© :year nERP. All rights reserved.',
         'links' => [
-            ['label' => 'Privacy', 'href' => 'https://nerp.app/privacy'],
+            ['label' => 'Privacy', 'href' => '/en/policy/'],
             ['label' => 'Docs', 'href' => 'https://nerp.app/docs'],
             ['label' => 'Contact', 'href' => 'mailto:pilot@nerp.app'],
         ],
+    ],
+    'policy' => [
+        'eyebrow' => 'nERP policy',
+        'title' => 'Data usage & privacy policy',
+        'intro' => 'We only collect the details needed to launch and support your nERP pilot. Below is a concise overview of what we gather, why, and how we protect it.',
+        'sections' => [
+            [
+                'title' => 'What we collect',
+                'items' => [
+                    'Contact details submitted through forms: name, work email, company, and your role.',
+                    'Pilot context you describe in open fields — this helps tailor the implementation plan.',
+                    'Technical metadata (IP address, browser language, user agent) used for spam prevention and diagnostics.',
+                ],
+            ],
+            [
+                'title' => 'How we use the data',
+                'items' => [
+                    'Responding to pilot requests, clarifying goals, and assigning the right delivery team.',
+                    'Preparing demo environments and pricing models aligned with your inputs.',
+                    'Sending operational updates about the pilot status and relevant onboarding resources.',
+                ],
+            ],
+            [
+                'title' => 'Protection & storage',
+                'items' => [
+                    'We store records on encrypted infrastructure with access limited on a need-to-know basis.',
+                    'Access rights are reviewed regularly and every action is logged in an audit trail.',
+                    'Contact data is removed on request or after 18 months of inactivity.',
+                ],
+            ],
+            [
+                'title' => 'Your controls',
+                'items' => [
+                    'You can request a copy of your data, update it, or ask for full deletion at any time.',
+                    'Reach us at pilot@nerp.app or on Telegram @nerp_ops — we reply within one business day.',
+                ],
+            ],
+        ],
+        'footer' => 'This policy has been effective since 15 May 2024. We will announce updates on the site and in the pilot newsletter.',
     ],
     'language_switcher' => [
         'label' => 'Interface language',

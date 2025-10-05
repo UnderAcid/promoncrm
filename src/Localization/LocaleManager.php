@@ -94,6 +94,19 @@ final class LocaleManager
         return $this->current;
     }
 
+    public function getDefaultLocale(): string
+    {
+        return $this->default;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getBaseSegments(): array
+    {
+        return $this->baseSegments;
+    }
+
     public function translator(): Translator
     {
         return $this->translator;

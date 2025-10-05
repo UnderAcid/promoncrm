@@ -20,6 +20,15 @@ $localeUrls = $localeManager->getLocalizedPaths();
 $themeManager = new ThemeManager(['light', 'dark'], 'light');
 
 $translator = $localeManager->translator();
+$baseSegments = $localeManager->getBaseSegments();
+$currentLocale = $localeManager->getCurrentLocale();
+$defaultLocale = $localeManager->getDefaultLocale();
+$pageSlug = $baseSegments[0] ?? '';
+
+$homePath = '/';
+if ($currentLocale !== $defaultLocale) {
+    $homePath = '/' . $currentLocale . '/';
+}
 
 $audiencePitches = $translator->get('audience.pitches');
 $defaultAudience = is_array($audiencePitches) ? array_key_first($audiencePitches) : 'business';
@@ -41,18 +50,29 @@ $clientConfig = [
     'fiatPerUsd' => (float) $translator->get('pricing.fiat_per_usd', [], 1.0),
 ];
 
-$content = View::render('home', [
-    't' => $translator,
-    'currentLocale' => $localeManager->getCurrentLocale(),
-]);
+switch ($pageSlug) {
+    case 'policy':
+        $content = View::render('policy', [
+            't' => $translator,
+            'currentLocale' => $currentLocale,
+        ]);
+        break;
+    default:
+        $content = View::render('home', [
+            't' => $translator,
+            'currentLocale' => $currentLocale,
+        ]);
+        break;
+}
 
 echo View::render('layout', [
     't' => $translator,
     'content' => $content,
     'languages' => $languages,
-    'currentLocale' => $localeManager->getCurrentLocale(),
+    'currentLocale' => $currentLocale,
     'currentTheme' => $themeManager->getCurrentTheme(),
     'clientConfig' => $clientConfig,
     'themes' => $themeManager->getAvailableThemes(),
     'localeUrls' => $localeUrls,
+    'homePath' => $homePath,
 ]);
