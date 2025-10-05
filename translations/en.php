@@ -160,9 +160,27 @@ return [
         'integrations_core' => 'nERP node',
         'integrations_core_desc' => 'Encrypted core ledger with roles, audit, and billing.',
         'integrations' => [
-            ['name' => 'Slack webhooks', 'tag' => 'Comms', 'status' => 'Live', 'icon' => 'chat'],
-            ['name' => '1C gateway', 'tag' => 'Accounting', 'status' => 'Pilot', 'icon' => 'ledger'],
-            ['name' => 'PostgreSQL', 'tag' => 'Database', 'status' => 'Live', 'icon' => 'database'],
+            [
+                'name' => 'Slack webhooks',
+                'tag' => 'Comms',
+                'status' => 'Live',
+                'icon' => 'chat',
+                'desc' => 'Alerts with full context of every action to ops channels.',
+            ],
+            [
+                'name' => '1C gateway',
+                'tag' => 'Accounting',
+                'status' => 'Pilot',
+                'icon' => 'ledger',
+                'desc' => 'Sync ledgers and invoices between nERP and 1C automatically.',
+            ],
+            [
+                'name' => 'PostgreSQL',
+                'tag' => 'Database',
+                'status' => 'Live',
+                'icon' => 'database',
+                'desc' => 'Operational datastore for analytics snapshots and BI.',
+            ],
         ],
         'footnote' => 'Need something else? Pilot teams can request new connectors directly in the brief.',
     ],
@@ -253,6 +271,106 @@ return [
             ],
         ],
         'operation_fiat_prefix' => '≈',
+    ],
+    'comparison' => [
+        'title' => 'Cost comparison with popular ERP/CRM platforms',
+        'subtitle' => 'Benchmark nERP against familiar tools by looking at total cost and where each option shines.',
+        'our_price_label' => 'nERP price',
+        'their_price_label' => 'Tool price',
+        'our_label' => 'nERP',
+        'their_label' => 'Alternative',
+        'pros_label' => 'Pros',
+        'cons_label' => 'Cons',
+        'cards' => [
+            [
+                'name' => 'Google Sheets',
+                'tag' => 'Self-service',
+                'nerp_price' => '≈ 1 nERP per confirmed action (pilot estimate)',
+                'competitor_price' => 'from $6/user in Google Workspace',
+                'nerp_pros' => [
+                    'Automated action log with access control out of the box.',
+                    'Unified roles and audit trail for the entire operations team.',
+                ],
+                'nerp_cons' => [
+                    'Requires a pilot to map processes and integrations.',
+                    'Final token price is agreed individually.',
+                ],
+                'competitor_pros' => [
+                    'Familiar UI and quick rollout with no implementation.',
+                    'Good for validating ideas and building simple dashboards.',
+                ],
+                'competitor_cons' => [
+                    'Manual updates with high risk of formula errors.',
+                    'No built-in role management or centralised audit trail.',
+                ],
+            ],
+            [
+                'name' => '1C',
+                'tag' => 'Enterprise',
+                'nerp_price' => '≈ 1 nERP per action without subscription fees',
+                'competitor_price' => 'from ₽36,000 per license plus implementation',
+                'nerp_pros' => [
+                    'Transparent billing tied to actual operations.',
+                    'Fast module customisation without typical configuration limits.',
+                ],
+                'nerp_cons' => [
+                    'Needs connectors with existing 1C accounting contours.',
+                    'Industry-specific features are finalised during the pilot.',
+                ],
+                'competitor_pros' => [
+                    'Deep accounting and statutory reporting out of the box.',
+                    'Large partner ecosystem with prebuilt configurations.',
+                ],
+                'competitor_cons' => [
+                    'High upfront and ongoing maintenance costs.',
+                    'Slow release cycle for new scenarios and custom logic.',
+                ],
+            ],
+            [
+                'name' => 'amoCRM',
+                'tag' => 'CRM',
+                'nerp_price' => '≈ 1 nERP per action with one back-office platform',
+                'competitor_price' => 'from ₽1,499/user monthly (Base plan)',
+                'nerp_pros' => [
+                    'Extends beyond sales funnels to ops and back-office processes.',
+                    'Detailed action audit and APIs for bespoke automations.',
+                ],
+                'nerp_cons' => [
+                    'Interface is denser than classic CRM tools.',
+                    'Team onboarding to nERP workspaces is required.',
+                ],
+                'competitor_pros' => [
+                    'Visual pipeline builder that is easy to understand.',
+                    'Extensive marketplace with ready-made integrations.',
+                ],
+                'competitor_cons' => [
+                    'Pricing scales with every additional user and add-on.',
+                    'No pay-per-action billing — you pay for bundles and extras.',
+                ],
+            ],
+            [
+                'name' => 'Bitrix24',
+                'tag' => 'Suite',
+                'nerp_price' => '≈ 1 nERP per action with no per-seat markups',
+                'competitor_price' => 'from ₽2,990/month for the Team plan',
+                'nerp_pros' => [
+                    'Unlimited roles and automation scenarios across teams.',
+                    'nERP core engineers stay on-call 24/7 throughout the pilot.',
+                ],
+                'nerp_cons' => [
+                    'No off-the-shelf portal — assembled for your specific process.',
+                    'We rely on pilot feedback to finalise additional modules.',
+                ],
+                'competitor_pros' => [
+                    'All-in-one suite with tasks, comms, and CRM modules.',
+                    'Plenty of ready integrations tailored for SMB teams.',
+                ],
+                'competitor_cons' => [
+                    'Heavy interface and complex customisation path.',
+                    'Total cost increases quickly as the team grows.',
+                ],
+            ],
+        ],
     ],
     'partners' => [
         'title' => 'For partners and module authors',
