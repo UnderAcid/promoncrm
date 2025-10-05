@@ -47,6 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const pilotMetric = pilotDisplay?.querySelector('[data-pilot-metric]') ?? null;
   const pilotTriggers = document.querySelectorAll('[data-pilot-trigger]');
 
+  if (!pilotForm && floatingCta instanceof HTMLElement) {
+    floatingCta.remove();
+  }
+
   const numberFormatter = new Intl.NumberFormat(numberLocale);
   const currencyFormatter = new Intl.NumberFormat(numberLocale, {
     style: 'currency',
