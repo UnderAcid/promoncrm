@@ -251,6 +251,8 @@ return [
             'cons_label' => 'Минусы',
             'nerp_tokens_suffix' => 'токенов в месяц',
             'team_caption' => 'за {count} человек',
+            'nav_prev' => 'Назад',
+            'nav_next' => 'Вперёд',
             'systems' => [
                 [
                     'id' => 'google-sheets',
@@ -282,7 +284,7 @@ return [
                     'id' => '1c',
                     'name' => '1C',
                     'price_per_user' => 1800,
-                    'price_period' => 'в месяц за пользователя (SaaS)',
+                    'price_period' => 'в месяц за пользователя (1С:CRM.Облако)',
                     'nerp' => [
                         'pros' => [
                             'Сложные процессы без долгой кастомной разработки.',
@@ -307,8 +309,8 @@ return [
                 [
                     'id' => 'amocrm',
                     'name' => 'amoCRM',
-                    'price_per_user' => 2400,
-                    'price_period' => 'в месяц за пользователя (Advanced)',
+                    'price_per_user' => 2490,
+                    'price_period' => 'в месяц за пользователя (Профи, помесячно)',
                     'nerp' => [
                         'pros' => [
                             'Учитываем процессы за пределами отдела продаж.',
@@ -334,7 +336,7 @@ return [
                     'id' => 'bitrix24',
                     'name' => 'Bitrix24',
                     'price_per_user' => 1990,
-                    'price_period' => 'в месяц за пользователя (Команда)',
+                    'price_period' => 'в месяц за пользователя (Команда, помесячно)',
                     'nerp' => [
                         'pros' => [
                             'Фокус на межфункциональные операционные процессы.',

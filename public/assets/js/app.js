@@ -255,6 +255,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const comparisonNerpFiatNodes = document.querySelectorAll('[data-comparison-nerp-fiat]');
   const comparisonNerpTokenNodes = document.querySelectorAll('[data-comparison-nerp-tokens]');
   const comparisonTeamNodes = document.querySelectorAll('[data-comparison-team]');
+  const comparisonSlider = document.querySelector('[data-comparison-slider]');
+  const comparisonTrack = comparisonSlider?.querySelector('[data-comparison-track]') ?? null;
+  const comparisonPrev = comparisonSlider?.querySelector('[data-slider-prev]') ?? null;
+  const comparisonNext = comparisonSlider?.querySelector('[data-slider-next]') ?? null;
 
   const parseLocaleNumber = (value) => {
     if (typeof value !== 'string') return Number.NaN;
@@ -263,6 +267,79 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const getLocalTokenPrice = () => tokenPriceUsd * fiatPerUsd;
+
+  const syncComparisonSliderNav = () => {
+    if (!(comparisonSlider instanceof HTMLElement) || !(comparisonTrack instanceof HTMLElement)) {
+      return;
+    }
+
+    const maxScrollLeft = Math.max(0, comparisonTrack.scrollWidth - comparisonTrack.clientWidth);
+    const hasOverflow = maxScrollLeft > 1;
+    comparisonSlider.classList.toggle('is-scrollable', hasOverflow);
+
+    if (comparisonPrev instanceof HTMLButtonElement) {
+      comparisonPrev.disabled = !hasOverflow || comparisonTrack.scrollLeft <= 1;
+    }
+
+    if (comparisonNext instanceof HTMLButtonElement) {
+      comparisonNext.disabled = !hasOverflow || comparisonTrack.scrollLeft >= maxScrollLeft - 1;
+    }
+  };
+
+  const requestComparisonNavSync = () => {
+    window.requestAnimationFrame(syncComparisonSliderNav);
+  };
+
+  const scrollComparisonSlider = (direction) => {
+    if (!(comparisonTrack instanceof HTMLElement)) {
+      return;
+    }
+
+    const multiplier = direction > 0 ? 1 : -1;
+    const styles = window.getComputedStyle(comparisonTrack);
+    const rawGap = styles.columnGap && styles.columnGap !== 'normal' ? styles.columnGap : styles.gap;
+    const gap = Number.parseFloat(rawGap) || 0;
+    const firstSlide = comparisonTrack.querySelector('[data-comparison-slide]');
+    const slideWidth = firstSlide instanceof HTMLElement ? firstSlide.offsetWidth : 0;
+    const slideStep = slideWidth > 0 ? slideWidth + gap : 0;
+    const slidesCount = comparisonTrack.querySelectorAll('[data-comparison-slide]').length;
+    let perView = 1;
+
+    if (slideStep > 0) {
+      const theoretical = (comparisonTrack.clientWidth + gap) / slideStep;
+      perView = Math.max(1, Math.round(theoretical));
+      if (slidesCount > 0) {
+        perView = Math.min(perView, slidesCount);
+      }
+    }
+
+    const amount = slideStep > 0 ? slideStep * perView : comparisonTrack.clientWidth || comparisonSlider?.clientWidth || 320;
+
+    comparisonTrack.scrollBy({
+      left: amount * multiplier,
+      behavior: 'smooth',
+    });
+    requestComparisonNavSync();
+  };
+
+  if (comparisonPrev instanceof HTMLButtonElement) {
+    comparisonPrev.addEventListener('click', () => {
+      scrollComparisonSlider(-1);
+    });
+  }
+
+  if (comparisonNext instanceof HTMLButtonElement) {
+    comparisonNext.addEventListener('click', () => {
+      scrollComparisonSlider(1);
+    });
+  }
+
+  if (comparisonTrack instanceof HTMLElement) {
+    comparisonTrack.addEventListener('scroll', requestComparisonNavSync, { passive: true });
+  }
+
+  window.addEventListener('resize', requestComparisonNavSync);
+  requestComparisonNavSync();
 
   const sliderStepDecimals = (() => {
     if (!(tokenSlider instanceof HTMLInputElement)) return 2;

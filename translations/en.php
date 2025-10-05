@@ -261,6 +261,8 @@ return [
             'cons_label' => 'Cons',
             'nerp_tokens_suffix' => 'tokens / month',
             'team_caption' => 'for {count} people',
+            'nav_prev' => 'Previous',
+            'nav_next' => 'Next',
             'systems' => [
                 [
                     'id' => 'google-sheets',
@@ -291,8 +293,8 @@ return [
                 [
                     'id' => '1c',
                     'name' => '1C',
-                    'price_per_user' => 35,
-                    'price_period' => 'per user / month (cloud)',
+                    'price_per_user' => 20,
+                    'price_period' => 'per user / month (1C:CRM Cloud)',
                     'nerp' => [
                         'pros' => [
                             'Handles complex workflows without custom code.',
@@ -317,8 +319,8 @@ return [
                 [
                     'id' => 'amocrm',
                     'name' => 'amoCRM',
-                    'price_per_user' => 25,
-                    'price_period' => 'per user / month (Advanced)',
+                    'price_per_user' => 28,
+                    'price_period' => 'per user / month (Pro, monthly billing)',
                     'nerp' => [
                         'pros' => [
                             'Covers finance, warehouse, and logistics beyond sales.',
@@ -343,8 +345,8 @@ return [
                 [
                     'id' => 'bitrix24',
                     'name' => 'Bitrix24',
-                    'price_per_user' => 24,
-                    'price_period' => 'per user / month (Teams plan)',
+                    'price_per_user' => 22,
+                    'price_period' => 'per user / month (Team, monthly billing)',
                     'nerp' => [
                         'pros' => [
                             'Designed for cross-team operational workflows.',
