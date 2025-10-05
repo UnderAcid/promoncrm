@@ -334,6 +334,9 @@ return [
             'company_placeholder' => 'Acme Inc.',
             'role' => 'Role / focus',
             'role_placeholder' => 'Operations lead',
+            'token_rate' => 'Comfortable price per token',
+            'token_rate_placeholder' => 'e.g. $0.80 or €0.75',
+            'token_rate_hint' => 'Share your target range so we can lock pricing before kickoff.',
             'message' => 'What do you plan to automate first?',
             'message_placeholder' => 'Share current tools, pain points, integrations…',
             'consent' => 'By submitting you agree to personal data processing and to receive onboarding updates from nerp.app.',
@@ -341,5 +344,41 @@ return [
             'success' => 'Thanks! We will contact you within 24 hours.',
             'error' => 'Unable to send. Please write to pilot@nerp.app.',
         ],
+    ],
+    'value' => [
+        'title' => 'What you get in the first 4 weeks',
+        'subtitle' => 'Tangible deliverables for leadership and the team — no fluff, only measurable assets.',
+        'items' => [
+            [
+                'icon' => 'calendar',
+                'title' => 'Pilot roadmap',
+                'desc' => 'Week-by-week plan with owners, integrations, and the outcomes we measure.',
+                'metric' => '4-week plan',
+            ],
+            [
+                'icon' => 'target',
+                'title' => 'KPI delta report',
+                'desc' => 'Baseline vs pilot metrics, cost model, and the impact summary for finance.',
+                'metric' => 'ROI snapshot',
+            ],
+            [
+                'icon' => 'support',
+                'title' => 'Enablement kit',
+                'desc' => 'Playbooks, access checklists, and stakeholder decks ready to circulate.',
+                'metric' => 'Access + decks',
+            ],
+        ],
+        'cta' => 'Reserve my pilot slot',
+    ],
+    'momentum' => [
+        'title' => 'Why teams reserve a slot now',
+        'subtitle' => 'The January cohort is almost full — founding terms stay for early teams.',
+        'highlight' => '3 spots left for January',
+        'points' => [
+            'Founding discount on custom development lasts until the pilot wrap-up.',
+            'We prepare the internal deck and KPI sheet for your stakeholders.',
+            'Integration engineers are reserved for your kickoff dates.',
+        ],
+        'cta' => 'Join the January cohort',
     ],
 ];
