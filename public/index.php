@@ -21,6 +21,9 @@ $themeManager = new ThemeManager(['light', 'dark'], 'light');
 
 $translator = $localeManager->translator();
 
+$pathSegments = $localeManager->getBaseSegments();
+$pageKey = $pathSegments[0] ?? '';
+
 $audiencePitches = $translator->get('audience.pitches');
 $defaultAudience = is_array($audiencePitches) ? array_key_first($audiencePitches) : 'business';
 
@@ -41,10 +44,38 @@ $clientConfig = [
     'fiatPerUsd' => (float) $translator->get('pricing.fiat_per_usd', [], 1.0),
 ];
 
-$content = View::render('home', [
+$defaultMeta = $translator->get('meta');
+$pageMeta = is_array($defaultMeta) ? $defaultMeta : [];
+
+$baseViewData = [
     't' => $translator,
     'currentLocale' => $localeManager->getCurrentLocale(),
-]);
+];
+
+switch ($pageKey) {
+    case 'policy':
+        $policyData = $translator->get('policy');
+        if (!is_array($policyData)) {
+            $policyData = [];
+        }
+
+        $policyMeta = $policyData['meta'] ?? [];
+        if (is_array($policyMeta)) {
+            $pageMeta = array_merge($pageMeta, $policyMeta);
+        }
+
+        $content = View::render('policy', $baseViewData + [
+            'policy' => $policyData,
+        ]);
+        break;
+    case '':
+        $content = View::render('home', $baseViewData);
+        break;
+    default:
+        http_response_code(404);
+        $content = View::render('home', $baseViewData);
+        break;
+}
 
 echo View::render('layout', [
     't' => $translator,
@@ -55,4 +86,6 @@ echo View::render('layout', [
     'clientConfig' => $clientConfig,
     'themes' => $themeManager->getAvailableThemes(),
     'localeUrls' => $localeUrls,
+    'pageMeta' => $pageMeta,
+    'homeUrl' => $localeManager->getHomePath(),
 ]);

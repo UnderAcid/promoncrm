@@ -7,6 +7,8 @@
 /** @var array<string, mixed> $clientConfig */
 /** @var string[] $themes */
 /** @var array<string, string> $localeUrls */
+/** @var array<string, mixed> $pageMeta */
+/** @var string $homeUrl */
 
 $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'] ?? 'nerp.app';
@@ -21,7 +23,15 @@ $canonical = $scheme . '://' . $host . $uri;
 $localeCode = (string) $t->get('app.locale_code', [], $currentLocale);
 $heroIllustration = asset('assets/img/hero-illustration.svg');
 $ogImageUrl = $scheme . '://' . $host . $heroIllustration;
-$ogImageAlt = (string) ($t->get('meta.og_image_alt') ?? '');
+$favicon = asset('assets/img/favicon.svg');
+$ogImageAltDefault = (string) ($t->get('meta.og_image_alt') ?? '');
+$pageMeta = is_array($pageMeta ?? null) ? $pageMeta : [];
+$metaTitle = (string) ($pageMeta['title'] ?? $t->get('meta.title'));
+$metaDescription = (string) ($pageMeta['description'] ?? $t->get('meta.description'));
+$metaKeywords = (string) ($pageMeta['keywords'] ?? $t->get('meta.keywords'));
+$metaOgTitle = (string) ($pageMeta['og_title'] ?? $t->get('meta.og_title'));
+$metaOgDescription = (string) ($pageMeta['og_description'] ?? $t->get('meta.og_description'));
+$metaOgImageAlt = (string) ($pageMeta['og_image_alt'] ?? $ogImageAltDefault);
 ?>
 <!DOCTYPE html>
 <html lang="<?= e($localeCode); ?>" data-theme="<?= e($currentTheme); ?>" class="no-js">
@@ -29,27 +39,27 @@ $ogImageAlt = (string) ($t->get('meta.og_image_alt') ?? '');
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title><?= e($t->get('meta.title')); ?></title>
-    <meta name="description" content="<?= e($t->get('meta.description')); ?>">
-    <meta name="keywords" content="<?= e($t->get('meta.keywords')); ?>">
+    <title><?= e($metaTitle); ?></title>
+    <meta name="description" content="<?= e($metaDescription); ?>">
+    <meta name="keywords" content="<?= e($metaKeywords); ?>">
     <link rel="canonical" href="<?= e($canonical); ?>">
     <?php foreach ($localeUrls as $code => $path): ?>
         <link rel="alternate" hreflang="<?= e($code); ?>" href="<?= e($scheme . '://' . $host . $path); ?>">
     <?php endforeach; ?>
     <link rel="alternate" hreflang="x-default" href="<?= e($scheme . '://' . $host . '/'); ?>">
-    <meta property="og:title" content="<?= e($t->get('meta.og_title')); ?>">
-    <meta property="og:description" content="<?= e($t->get('meta.og_description')); ?>">
+    <meta property="og:title" content="<?= e($metaOgTitle); ?>">
+    <meta property="og:description" content="<?= e($metaOgDescription); ?>">
     <meta property="og:url" content="<?= e($canonical); ?>">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="<?= e($localeCode); ?>">
     <meta property="og:image" content="<?= e($ogImageUrl); ?>">
     <meta property="og:image:type" content="image/svg+xml">
-    <?php if ($ogImageAlt !== ''): ?>
-        <meta property="og:image:alt" content="<?= e($ogImageAlt); ?>">
+    <?php if ($metaOgImageAlt !== ''): ?>
+        <meta property="og:image:alt" content="<?= e($metaOgImageAlt); ?>">
     <?php endif; ?>
     <meta name="twitter:image" content="<?= e($ogImageUrl); ?>">
-    <?php if ($ogImageAlt !== ''): ?>
-        <meta name="twitter:image:alt" content="<?= e($ogImageAlt); ?>">
+    <?php if ($metaOgImageAlt !== ''): ?>
+        <meta name="twitter:image:alt" content="<?= e($metaOgImageAlt); ?>">
     <?php endif; ?>
     <meta name="twitter:card" content="summary_large_image">
     <meta name="theme-color" content="#0f172a">
@@ -57,6 +67,7 @@ $ogImageAlt = (string) ($t->get('meta.og_image_alt') ?? '');
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="<?= e($favicon); ?>">
     <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')); ?>">
     <script>
         document.documentElement.classList.remove('no-js');

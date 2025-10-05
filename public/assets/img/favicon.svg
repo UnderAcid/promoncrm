@@ -1,0 +1,21 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="fav-bg" x1="10" y1="8" x2="54" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1f3a8a"/>
+      <stop offset="0.45" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#020617"/>
+    </linearGradient>
+    <linearGradient id="fav-core" x1="18" y1="18" x2="48" y2="46" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="fav-flare" x1="40" y1="16" x2="50" y2="26" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f97316"/>
+      <stop offset="1" stop-color="#fb7185"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="52" height="52" rx="18" fill="url(#fav-bg)"/>
+  <path d="M20 44V24c0-3 2.4-5.4 5.4-5.4 2.3 0 4.2 1.2 5.3 3.1l7.2 11.9V26c0-2.8 2.2-5 5-5s5 2.2 5 5v18c0 3-2.4 5.4-5.4 5.4-2.3 0-4.2-1.2-5.3-3.1l-7.2-11.9v7.6c0 2.8-2.2 5-5 5s-5-2.2-5-5z" fill="url(#fav-core)"/>
+  <path d="M39.6 17.4c2.3-2.3 6-2.3 8.3 0s2.3 6 0 8.3l-4.2 4.2-5.7-5.7 4.2-4.2z" fill="url(#fav-flare)"/>
+  <circle cx="18.8" cy="46.2" r="2.6" fill="#38bdf8" opacity="0.85"/>
+</svg>

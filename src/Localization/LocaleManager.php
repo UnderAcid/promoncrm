@@ -94,6 +94,25 @@ final class LocaleManager
         return $this->current;
     }
 
+    /**
+     * @return string[]
+     */
+    public function getBaseSegments(): array
+    {
+        return $this->baseSegments;
+    }
+
+    public function getHomePath(?string $locale = null): string
+    {
+        $locale ??= $this->current;
+
+        if ($locale === $this->default) {
+            return '/';
+        }
+
+        return '/' . $locale . '/';
+    }
+
     public function translator(): Translator
     {
         return $this->translator;

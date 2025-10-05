@@ -3,6 +3,7 @@
 /** @var array<string, string> $languages */
 /** @var string $currentLocale */
 /** @var string[] $themes */
+/** @var string $homeUrl */
 ?>
 <?php
 $localeCycle = [];
@@ -24,12 +25,21 @@ if ($languageIconCode === '') {
     $languageIconCode = 'globe';
 }
 $languageIconClass = in_array($languageIconCode, ['ru', 'en'], true) ? 'flag-' . $languageIconCode : 'globe';
+$logoPath = asset('assets/img/logo-nerp.svg');
 ?>
 <header class="header" data-header>
     <div class="container header-inner">
-        <a class="brand" href="#main">
-            <span class="brand-mark" aria-hidden="true">n</span>
-            <span class="brand-name"><?= e($t->get('app.name')); ?></span>
+        <a class="brand" href="<?= e($homeUrl); ?>">
+            <span class="brand-logo" aria-hidden="true">
+                <img src="<?= e($logoPath); ?>" alt="nERP logo">
+            </span>
+            <span class="brand-wordmark">
+                <span class="brand-name"><?= e($t->get('app.name')); ?></span>
+                <?php $tagline = (string) ($t->get('app.tagline') ?? ''); ?>
+                <?php if ($tagline !== ''): ?>
+                    <span class="brand-tagline"><?= e($tagline); ?></span>
+                <?php endif; ?>
+            </span>
         </a>
         <button class="nav-toggle" type="button" data-nav-toggle aria-controls="mainNav" aria-expanded="false">
             <span class="nav-toggle-box" aria-hidden="true">
@@ -40,10 +50,10 @@ $languageIconClass = in_array($languageIconCode, ['ru', 'en'], true) ? 'flag-' .
             <span class="sr-only"><?= e($t->get('nav.toggle')); ?></span>
         </button>
         <nav class="nav" id="mainNav" aria-label="Main navigation" data-nav>
-            <a href="#for"><?= e($t->get('nav.for')); ?></a>
-            <a href="#why"><?= e($t->get('nav.why')); ?></a>
-            <a href="#pricing"><?= e($t->get('nav.pricing')); ?></a>
-            <a href="#pilots"><?= e($t->get('nav.pilots')); ?></a>
+            <a href="<?= e($homeUrl); ?>#for"><?= e($t->get('nav.for')); ?></a>
+            <a href="<?= e($homeUrl); ?>#why"><?= e($t->get('nav.why')); ?></a>
+            <a href="<?= e($homeUrl); ?>#pricing"><?= e($t->get('nav.pricing')); ?></a>
+            <a href="<?= e($homeUrl); ?>#pilots"><?= e($t->get('nav.pilots')); ?></a>
         </nav>
         <div class="actions">
             <div class="icon-switchers">
@@ -74,7 +84,7 @@ $languageIconClass = in_array($languageIconCode, ['ru', 'en'], true) ? 'flag-' .
                     <span class="sr-only"><?= e($t->get('app.theme.toggle')); ?></span>
                 </button>
             </div>
-            <a class="btn btn-primary" href="#pilots" data-scroll-to-pilots>
+            <a class="btn btn-primary" href="<?= e($homeUrl); ?>#pilots" data-scroll-to-pilots>
                 <span class="icon rocket" aria-hidden="true"></span><?= e($t->get('hero.primary_cta')); ?>
             </a>
         </div>

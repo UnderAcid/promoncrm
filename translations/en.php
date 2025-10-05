@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'app' => [
         'name' => 'nERP',
+        'tagline' => 'Web3 ERP Builder',
         'locale_code' => 'en-US',
         'language_label' => 'Language',
         'theme' => [
@@ -460,7 +461,7 @@ return [
     'footer' => [
         'copyright' => '© :year nERP. All rights reserved.',
         'links' => [
-            ['label' => 'Privacy', 'href' => 'https://nerp.app/privacy'],
+            ['label' => 'Privacy', 'href' => '/en/policy/'],
             ['label' => 'Docs', 'href' => 'https://nerp.app/docs'],
             ['label' => 'Contact', 'href' => 'mailto:pilot@nerp.app'],
         ],
@@ -501,6 +502,82 @@ return [
             'submit' => 'Send application',
             'success' => 'Thanks! We will contact you within 24 hours.',
             'error' => 'Unable to send. Please write to pilot@nerp.app.',
+        ],
+    ],
+    'policy' => [
+        'meta' => [
+            'title' => 'nERP Privacy Policy | nerp.app',
+            'description' => 'How we collect, use, and protect personal data during nERP pilots and demos.',
+            'keywords' => 'nERP privacy policy, data processing, personal data nERP',
+            'og_title' => 'nERP Data Processing Policy',
+            'og_description' => 'A transparent overview of what data we need for pilots and how we keep it safe.',
+            'og_image_alt' => 'nERP privacy — secure vault and checklist',
+        ],
+        'eyebrow' => 'Transparency',
+        'title' => 'nERP Personal Data Processing Policy',
+        'intro' => 'We rely on data solely to launch and improve pilot projects. This page explains what we collect, how we protect the information, and which rights you can exercise.',
+        'updated' => 'Updated: May 2025',
+        'contact_title' => 'Talk to us',
+        'contact' => 'Drop us a line at pilot@nerp.app or ping @nerp_team on Telegram — we reply within one business day.',
+        'sections' => [
+            [
+                'title' => '1. Who we are',
+                'paragraphs' => [
+                    'nERP is a Web3 ERP builder that helps teams launch secure operational workflows on our managed nodes and smart contracts.',
+                    'Data controller: Daniil Papirny (sole proprietor) operating under the nERP brand.',
+                ],
+            ],
+            [
+                'title' => '2. Data we process',
+                'paragraphs' => [
+                    'We only request the details needed to scope a pilot and keep you informed about progress.',
+                ],
+                'bullets' => [
+                    'Contact details: name, work email, role, company.',
+                    'Process description: current tools, pain points, pilot goals, target KPIs.',
+                    'Technical telemetry: anonymised demo activity, IP addresses for spam protection.',
+                    'Commercial preferences: comfortable token price and desired currency.',
+                ],
+            ],
+            [
+                'title' => '3. Why we use the data',
+                'paragraphs' => [
+                    'We rely on the collected data to size the pilot, configure access, and stay aligned with your team.',
+                ],
+                'bullets' => [
+                    'Provisioning access to nERP nodes and dashboards.',
+                    'Preparing a pilot roadmap and commercial proposal.',
+                    'Aggregated analytics about pilot efficiency.',
+                    'Product updates and marketing emails — only if you opt in.',
+                ],
+            ],
+            [
+                'title' => '4. Storage and security',
+                'paragraphs' => [
+                    'Operational data is encrypted on the client side before it reaches any nERP infrastructure.',
+                    'Pilot requests are accessible only to the core team members running your project. We log every access and use multi-factor authentication.',
+                    'Raw pilot data is retained for no longer than 18 months after the collaboration unless the law requires otherwise.',
+                ],
+            ],
+            [
+                'title' => '5. Your rights',
+                'paragraphs' => [
+                    'You are in control of your data at all times — just reach out and we will help.',
+                ],
+                'bullets' => [
+                    'Request a copy or transfer of your data.',
+                    'Correct or update any information.',
+                    'Erase the data when it is no longer needed for the pilot.',
+                    'Withdraw consent for communications and marketing updates.',
+                ],
+            ],
+            [
+                'title' => '6. Sharing with third parties',
+                'paragraphs' => [
+                    'We do not sell or share personal data without your permission.',
+                    'We may rely on vetted processors (cloud infrastructure, email providers). They act under contract and follow our instructions only.',
+                ],
+            ],
         ],
     ],
 ];
