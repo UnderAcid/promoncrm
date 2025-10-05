@@ -254,6 +254,96 @@ return [
         ],
         'operation_fiat_prefix' => '≈',
     ],
+    'comparison' => [
+        'title' => 'Cost comparison with popular ERP/CRM platforms',
+        'subtitle' => 'A quick look at the economics of an nERP pilot versus the tools teams usually pick.',
+        'our_label' => 'nERP (reference)',
+        'their_label' => 'Alternative',
+        'our_advantages_label' => 'nERP advantages',
+        'our_disadvantages_label' => 'Where we are honest',
+        'their_advantages_label' => 'Alternative advantages',
+        'their_disadvantages_label' => 'Alternative drawbacks',
+        'items' => [
+            [
+                'name' => 'Google Sheets',
+                'our_price' => '≈$1 per nERP token (≈₽93)',
+                'their_price' => '$0 for the tool, team time required',
+                'our_pros' => [
+                    'Automated audit and roles instead of manual filters',
+                    'Usage-based billing instead of per-seat licenses',
+                ],
+                'our_cons' => [
+                    'Needs a mapped process before launch',
+                ],
+                'their_pros' => [
+                    'Familiar interface and instant start',
+                ],
+                'their_cons' => [
+                    'Manual input errors and no access control',
+                    'No automated alerts or operations billing',
+                ],
+            ],
+            [
+                'name' => '1C',
+                'our_price' => '≈$1 per nERP token (pay-per-operation)',
+                'their_price' => 'From ₽1,000 per user + customisation',
+                'our_pros' => [
+                    'We host the nodes and onboard without your infra',
+                    'Joint roadmap shaped by the pilot goals',
+                ],
+                'our_cons' => [
+                    'Fewer out-of-the-box industry modules yet',
+                ],
+                'their_pros' => [
+                    'Large catalogue of ready-made modules',
+                    'Plenty of integrations on the market',
+                ],
+                'their_cons' => [
+                    'High upfront cost and long implementation',
+                    'Custom changes need extra contractors',
+                ],
+            ],
+            [
+                'name' => 'amoCRM',
+                'our_price' => '≈$1 per nERP token (not tied to seats)',
+                'their_price' => 'From ₽1,499 per user monthly',
+                'our_pros' => [
+                    'Flexible roles and audit for complex flows',
+                    'Functionality can expand during the pilot',
+                ],
+                'our_cons' => [
+                    'MVP UI is less marketing-focused',
+                ],
+                'their_pros' => [
+                    'Ready sales pipelines and templates',
+                    'Rich marketplace of apps',
+                ],
+                'their_cons' => [
+                    'Cost scales with the number of users',
+                    'Limited workflows beyond sales',
+                ],
+            ],
+            [
+                'name' => 'Bitrix24',
+                'our_price' => '≈$1 per nERP token (audit & roles included)',
+                'their_price' => 'From ₽4,490 per company monthly',
+                'our_pros' => [
+                    'Unified data model with encrypted blocks',
+                    'Transparent tracking of actions and spend',
+                ],
+                'our_cons' => [
+                    'Requires a pilot with the core team',
+                ],
+                'their_pros' => [
+                    'Broad module set for multiple departments',
+                ],
+                'their_cons' => [
+                    'You pay for the plan, not delivered value',
+                    'Complex setup and internal support burden',
+                ],
+            ],
+        ],
+    ],
     'partners' => [
         'title' => 'For partners and module authors',
         'cards' => [
