@@ -31,7 +31,7 @@ $logoPath = asset('assets/img/logo-nerp.svg');
     <div class="container header-inner">
         <a class="brand" href="<?= e($homeUrl); ?>">
             <span class="brand-logo" aria-hidden="true">
-                <img src="<?= e($logoPath); ?>" alt="nERP logo">
+                <img src="<?= e($logoPath); ?>" alt="nERP logo" width="44" height="44" loading="lazy" decoding="async">
             </span>
             <span class="brand-wordmark">
                 <span class="brand-name"><?= e($t->get('app.name')); ?></span>
@@ -49,7 +49,7 @@ $logoPath = asset('assets/img/logo-nerp.svg');
             </span>
             <span class="sr-only"><?= e($t->get('nav.toggle')); ?></span>
         </button>
-        <nav class="nav" id="mainNav" aria-label="Main navigation" data-nav>
+        <nav class="nav" id="mainNav" aria-label="Main navigation" role="navigation" data-nav>
             <a href="<?= e($homeUrl); ?>#for"><?= e($t->get('nav.for')); ?></a>
             <a href="<?= e($homeUrl); ?>#why"><?= e($t->get('nav.why')); ?></a>
             <a href="<?= e($homeUrl); ?>#pricing"><?= e($t->get('nav.pricing')); ?></a>
@@ -84,7 +84,15 @@ $logoPath = asset('assets/img/logo-nerp.svg');
                     <span class="sr-only"><?= e($t->get('app.theme.toggle')); ?></span>
                 </button>
             </div>
-            <a class="btn btn-primary" href="<?= e($homeUrl); ?>#pilots" data-scroll-to-pilots>
+            <a
+                class="btn btn-primary"
+                href="<?= e($homeUrl); ?>#pilots"
+                data-scroll-to-pilots
+                data-track-event="cta_click"
+                data-track-label="header_primary_cta"
+                data-track-location="header"
+                data-append-utm="true"
+            >
                 <span class="icon rocket" aria-hidden="true"></span><?= e($t->get('hero.primary_cta')); ?>
             </a>
         </div>

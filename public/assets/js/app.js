@@ -1,5 +1,18 @@
 const config = window.__APP_CONFIG__ || {};
 const docEl = document.documentElement;
+// Helper: forward structured events into the lightweight dataLayer
+const trackEvent = (eventName, payload) => {
+  if (typeof window.track !== 'function' || !eventName) {
+    return;
+  }
+  const data = {};
+  if (payload && typeof payload === 'object') {
+    Object.keys(payload).forEach((key) => {
+      data[key] = payload[key];
+    });
+  }
+  window.track(eventName, data);
+};
 const defaultAudience = config.defaultAudience || 'business';
 const audiencePitches = config.audiencePitches || {};
 const numberLocale = config.numberLocale || 'en-US';
@@ -28,6 +41,25 @@ if (!localStorage.getItem('prefersDarkSet')) {
 document.addEventListener('DOMContentLoaded', () => {
   docEl.classList.remove('no-js');
 
+  const lang = document.documentElement.lang || '';
+  const utmData = window.__utm && typeof window.__utm === 'object' ? window.__utm : {};
+  // Utility: merge current UTM params into tracking payloads
+  const enrichWithUtm = (payload) => {
+    const result = {};
+    if (payload && typeof payload === 'object') {
+      Object.keys(payload).forEach((key) => {
+        result[key] = payload[key];
+      });
+    }
+    Object.keys(utmData).forEach((key) => {
+      if (utmData[key]) {
+        result[key] = utmData[key];
+      }
+    });
+    return result;
+  };
+  const hasUtm = Object.keys(utmData).some((key) => utmData[key]);
+
   const audienceButtons = document.querySelectorAll('[data-audience]');
   const audiencePitchEl = document.querySelector('[data-audience-pitch]');
   const languageButton = document.querySelector('[data-language-button]');
@@ -46,6 +78,162 @@ document.addEventListener('DOMContentLoaded', () => {
   const pilotRole = pilotDisplay?.querySelector('[data-pilot-role]') ?? null;
   const pilotMetric = pilotDisplay?.querySelector('[data-pilot-metric]') ?? null;
   const pilotTriggers = document.querySelectorAll('[data-pilot-trigger]');
+
+  // Append captured UTM parameters to CTA links and forms
+  if (hasUtm) {
+    document.querySelectorAll('[data-append-utm="true"]').forEach((node) => {
+      if (!(node instanceof HTMLAnchorElement) || node.dataset.utmApplied === 'true') {
+        return;
+      }
+      const rawHref = node.getAttribute('href') || '';
+      node.dataset.utmApplied = 'true';
+      if (rawHref.startsWith('#')) {
+        const query = Object.keys(utmData)
+          .filter((key) => utmData[key])
+          .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(utmData[key])}`)
+          .join('&');
+        node.dataset.originalHref = rawHref;
+        if (query) {
+          node.dataset.utmQuery = `?${query}`;
+        }
+        return;
+      }
+      try {
+        const url = new URL(rawHref, window.location.origin);
+        Object.keys(utmData).forEach((key) => {
+          if (utmData[key]) {
+            url.searchParams.set(key, utmData[key]);
+          }
+        });
+        node.setAttribute('href', url.toString());
+      } catch (error) {
+        // ignore invalid URLs
+      }
+    });
+
+    document.querySelectorAll('form[data-include-utm="true"]').forEach((form) => {
+      if (!(form instanceof HTMLFormElement)) {
+        return;
+      }
+      Object.keys(utmData).forEach((key) => {
+        const value = utmData[key];
+        if (!value || form.querySelector(`[name="${key}"]`)) {
+          return;
+        }
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+      });
+    });
+  }
+
+  // Track CTA interactions defined via data attributes
+  document.querySelectorAll('[data-track-event]').forEach((node) => {
+    if (!(node instanceof HTMLElement) || node.dataset.trackBound === 'true') {
+      return;
+    }
+    node.dataset.trackBound = 'true';
+    node.addEventListener('click', () => {
+      const eventName = node.dataset.trackEvent || 'interaction';
+      const payload = {
+        label: node.dataset.trackLabel || '',
+        location: node.dataset.trackLocation || '',
+        lang,
+      };
+      if (node instanceof HTMLAnchorElement) {
+        const rawHref = node.getAttribute('href') || '';
+        const originalAnchor = node.dataset.originalHref || '';
+        const utmQuery = node.dataset.utmQuery || '';
+        if (utmQuery && (originalAnchor || rawHref.startsWith('#'))) {
+          const targetHash = originalAnchor || rawHref;
+          try {
+            window.history.replaceState(null, '', `${utmQuery}${targetHash}`);
+          } catch (error) {
+            // ignore history update issues
+          }
+          payload.href = `${utmQuery}${targetHash}`;
+        } else if (rawHref) {
+          payload.href = rawHref;
+        }
+      }
+      trackEvent(eventName, enrichWithUtm(payload));
+    });
+  });
+
+  // Observe key sections to fire section_view events once per visit
+  const observedSections = new Set();
+  if ('IntersectionObserver' in window) {
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const target = entry.target;
+        if (!(target instanceof HTMLElement)) {
+          return;
+        }
+        const sectionName = target.dataset.trackSection || target.id || '';
+        if (!sectionName || observedSections.has(sectionName)) {
+          return;
+        }
+        const requiredRatio = Number.parseFloat(target.dataset.trackThreshold || '0.35');
+        if (entry.intersectionRatio >= requiredRatio) {
+          observedSections.add(sectionName);
+          trackEvent('section_view', enrichWithUtm({ section: sectionName, lang }));
+        }
+      });
+    }, { threshold: [0.25, 0.4, 0.6] });
+
+    document.querySelectorAll('[data-track-section]').forEach((section) => {
+      if (section instanceof HTMLElement) {
+        sectionObserver.observe(section);
+      }
+    });
+  } else {
+    document.querySelectorAll('[data-track-section]').forEach((section) => {
+      if (!(section instanceof HTMLElement)) {
+        return;
+      }
+      const sectionName = section.dataset.trackSection || section.id || '';
+      if (!sectionName || observedSections.has(sectionName)) {
+        return;
+      }
+      observedSections.add(sectionName);
+      trackEvent('section_view', enrichWithUtm({ section: sectionName, lang }));
+    });
+  }
+
+  // Track contact link clicks and copy events for attribution
+  const contactNodes = Array.from(document.querySelectorAll('[data-copy-value]'));
+  if (contactNodes.length) {
+    let lastCopiedValue = '';
+    document.addEventListener('copy', () => {
+      const selection = window.getSelection();
+      const text = selection ? selection.toString().trim() : '';
+      if (!text) {
+        lastCopiedValue = '';
+        return;
+      }
+      contactNodes.forEach((node) => {
+        const value = node.getAttribute('data-copy-value') || '';
+        if (!value || text.indexOf(value) === -1 || lastCopiedValue === value) {
+          return;
+        }
+        lastCopiedValue = value;
+        const contactType = node.getAttribute('data-contact-type') || 'contact';
+        trackEvent('copy_contact', enrichWithUtm({ value, contact_type: contactType, lang }));
+      });
+    });
+
+    contactNodes.forEach((node) => {
+      if (!(node instanceof HTMLElement)) {
+        return;
+      }
+      node.addEventListener('click', () => {
+        const contactType = node.getAttribute('data-contact-type') || 'contact';
+        trackEvent('cta_click', enrichWithUtm({ label: `contact_${contactType}`, location: 'footer', lang }));
+      });
+    });
+  }
 
   if (!pilotForm && floatingCta instanceof HTMLElement) {
     floatingCta.remove();
@@ -684,6 +872,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       event.preventDefault();
+      trackEvent('form_submit', enrichWithUtm({ form: 'pilot', status: 'requested', lang }));
 
       if (successMessage) successMessage.hidden = true;
       if (errorMessage) errorMessage.hidden = true;
@@ -702,6 +891,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!action || action === '#') {
           pilotForm.reset();
           if (successMessage) successMessage.hidden = false;
+          trackEvent('form_submit', enrichWithUtm({ form: 'pilot', status: 'success_local', lang }));
           return;
         }
 
@@ -721,15 +911,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         pilotForm.reset();
         if (successMessage) successMessage.hidden = false;
+        trackEvent('form_submit', enrichWithUtm({ form: 'pilot', status: 'success', lang }));
       } catch (error) {
         if (action && action !== '#') {
           fallbackSubmission = true;
           if (submitButton) submitButton.disabled = false;
+          trackEvent('form_submit', enrichWithUtm({ form: 'pilot', status: 'fallback_submit', lang }));
           pilotForm.submit();
           return;
         }
 
         if (errorMessage) errorMessage.hidden = false;
+        trackEvent('form_submit', enrichWithUtm({ form: 'pilot', status: 'error', lang }));
       } finally {
         if (submitButton) submitButton.disabled = false;
       }
