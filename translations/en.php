@@ -155,16 +155,16 @@ return [
                 'desc' => 'REST and webhooks to plug in your services and third-party modules.',
             ],
         ],
-        'integrations_title' => 'Default integrations',
-        'integrations_desc' => 'In the first sprint we connect messaging, accounting, and data stores — no drawn-out procurement or integrators.',
-        'integrations_core' => 'nERP node',
-        'integrations_core_desc' => 'Encrypted core ledger with roles, audit, and billing.',
+        'integrations_title' => 'What’s ready in the MVP',
+        'integrations_desc' => 'The MVP already covers the core workflows so we can plug into your pilot fast.',
+        'integrations_core' => 'Core modules',
+        'integrations_core_desc' => 'Activity ledger, role-based access, reporting, and usage-based billing ship out of the box.',
         'integrations' => [
-            ['name' => 'Slack webhooks', 'tag' => 'Comms', 'status' => 'Live', 'icon' => 'chat'],
-            ['name' => '1C gateway', 'tag' => 'Accounting', 'status' => 'Pilot', 'icon' => 'ledger'],
-            ['name' => 'PostgreSQL', 'tag' => 'Database', 'status' => 'Live', 'icon' => 'database'],
+            ['name' => 'Activity ledger', 'tag' => 'MVP', 'status' => 'Live', 'icon' => 'check'],
+            ['name' => 'Role-based access', 'tag' => 'MVP', 'status' => 'Live', 'icon' => 'shield'],
+            ['name' => 'Ops reporting', 'tag' => 'MVP', 'status' => 'Live', 'icon' => 'bar-chart'],
         ],
-        'footnote' => 'Need something else? Pilot teams can request new connectors directly in the brief.',
+        'footnote' => 'Need more connectors? We scope them together during the pilot brief.',
     ],
     'outcomes' => [
         'title' => 'Pilot outcomes you can pitch internally',
@@ -253,6 +253,145 @@ return [
             ],
         ],
         'operation_fiat_prefix' => '≈',
+        'comparison' => [
+            'title' => 'Cost comparison with popular ERP/CRM tools',
+            'subtitle' => 'Tweak the calculator above — we’ll recalculate how much mainstream licences cost for the same workload.',
+            'nerp_label' => 'nERP',
+            'competitor_label' => 'Tool',
+            'our_price_label' => 'nERP',
+            'their_price_label' => 'Licences',
+            'nerp_pros_title' => 'Why teams pick nERP',
+            'nerp_cons_title' => 'Where we need alignment',
+            'competitor_pros_title' => 'Strengths of the tool',
+            'competitor_cons_title' => 'Trade-offs to keep in mind',
+            'note_label' => 'Assumptions',
+            'cards' => [
+                [
+                    'id' => 'google-sheets',
+                    'name' => 'Google Sheets',
+                    'description' => 'The default starting point when processes live in manual spreadsheets.',
+                    'pricing' => [
+                        'base' => 0,
+                        'per_user' => 12,
+                        'per_action' => 0,
+                        'badge' => 'Business Standard',
+                        'note' => 'Google Workspace Business Standard ≈ $12 per user/month.',
+                    ],
+                    'nerp' => [
+                        'pros' => [
+                            'Automated audit trail and granular roles.',
+                            'Usage-based billing — pay only for recorded actions.',
+                        ],
+                        'cons' => [
+                            'MVP launch requires a joint pilot with our team.',
+                        ],
+                    ],
+                    'competitor' => [
+                        'pros' => [
+                            'Almost zero entry cost.',
+                            'Flexible formulas and custom scripts.',
+                        ],
+                        'cons' => [
+                            'No role model or immutable history.',
+                            'Heavy manual upkeep to keep data fresh.',
+                        ],
+                    ],
+                ],
+                [
+                    'id' => '1c',
+                    'name' => '1C',
+                    'description' => 'A classic ERP stack that expects customisation and server infrastructure.',
+                    'pricing' => [
+                        'base' => 45,
+                        'per_user' => 19,
+                        'per_action' => 0,
+                        'badge' => 'Cloud subscription',
+                        'note' => 'Hosting + licence ≈ $19 per user/month on average.',
+                    ],
+                    'nerp' => [
+                        'pros' => [
+                            'Ready-made core — no servers to procure.',
+                            'Transparent audit and access management out of the box.',
+                        ],
+                        'cons' => [
+                            'Additional integrations are scoped together during the pilot.',
+                        ],
+                    ],
+                    'competitor' => [
+                        'pros' => [
+                            'Large ecosystem of modules and implementers.',
+                            'Familiar UI for finance and accounting teams.',
+                        ],
+                        'cons' => [
+                            'High total cost of ownership and maintenance.',
+                            'Flexible processes usually need an external integrator.',
+                        ],
+                    ],
+                ],
+                [
+                    'id' => 'amocrm',
+                    'name' => 'amoCRM',
+                    'description' => 'Sales-first CRM that needs tweaks for operational workflows.',
+                    'pricing' => [
+                        'base' => 0,
+                        'per_user' => 39,
+                        'per_action' => 0,
+                        'badge' => 'Professional plan',
+                        'note' => 'Professional tier ≈ $39 per user/month.',
+                    ],
+                    'nerp' => [
+                        'pros' => [
+                            'Action-based billing scales with real usage.',
+                            'Dashboards for ops — not only the sales funnel.',
+                        ],
+                        'cons' => [
+                            'We need a pilot brief to map the right scenarios.',
+                        ],
+                    ],
+                    'competitor' => [
+                        'pros' => [
+                            'Strong tooling for sales pipelines.',
+                            'Rich integration marketplace.',
+                        ],
+                        'cons' => [
+                            'Pay per seat regardless of activity.',
+                            'Operational records still require manual work.',
+                        ],
+                    ],
+                ],
+                [
+                    'id' => 'bitrix24',
+                    'name' => 'Bitrix24',
+                    'description' => 'An all-in-one suite for CRM, tasks, and automation — powerful but heavy to maintain.',
+                    'pricing' => [
+                        'base' => 0,
+                        'per_user' => 49,
+                        'per_action' => 0,
+                        'badge' => 'Enterprise plan',
+                        'note' => 'Enterprise plan ≈ $49 per user/month with module caps.',
+                    ],
+                    'nerp' => [
+                        'pros' => [
+                            'Encryption and audit baked into the core.',
+                            'See process economics thanks to action-linked billing.',
+                        ],
+                        'cons' => [
+                            'Limited set of prebuilt integrations in the MVP.',
+                        ],
+                    ],
+                    'competitor' => [
+                        'pros' => [
+                            'Many modules available out of the box.',
+                            'Large integrator community.',
+                        ],
+                        'cons' => [
+                            'Seat-based pricing regardless of usage.',
+                            'Setup and ongoing support take a lot of effort.',
+                        ],
+                    ],
+                ],
+            ],
+        ],
     ],
     'partners' => [
         'title' => 'For partners and module authors',

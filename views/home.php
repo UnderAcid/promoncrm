@@ -135,6 +135,70 @@ $decimalSeparator = str_contains($pricingLocale, 'ru') ? ',' : '.';
 $thousandsSeparator = str_contains($pricingLocale, 'ru') ? "\u{00a0}" : ',';
 $operationsSuffix = (string) ($t->get('pricing.operations_suffix') ?? 'nERP');
 $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? '≈');
+$pricingComparisonRaw = $t->get('pricing.comparison');
+$pricingComparison = is_array($pricingComparisonRaw) ? $pricingComparisonRaw : [];
+$pricingComparisonCardsRaw = is_array($pricingComparison['cards'] ?? null) ? $pricingComparison['cards'] : [];
+$normalizeList = static function ($input): array {
+    if (!is_array($input)) {
+        return [];
+    }
+
+    $result = [];
+    foreach ($input as $value) {
+        $text = trim((string) $value);
+        if ($text === '') {
+            continue;
+        }
+        $result[] = $text;
+    }
+
+    return $result;
+};
+$pricingComparisonCards = [];
+foreach ($pricingComparisonCardsRaw as $index => $card) {
+    if (!is_array($card)) {
+        continue;
+    }
+
+    $cardName = (string) ($card['name'] ?? '');
+    if ($cardName === '') {
+        continue;
+    }
+
+    $cardId = (string) ($card['id'] ?? '');
+    if ($cardId === '') {
+        $source = $cardName !== '' ? $cardName : ('comparison-' . $index);
+        $cardId = strtolower(preg_replace('/[^a-z0-9]+/', '-', $source));
+        if ($cardId === '') {
+            $cardId = 'comparison-' . $index;
+        }
+    }
+
+    $pricingData = is_array($card['pricing'] ?? null) ? $card['pricing'] : [];
+    $nerpData = is_array($card['nerp'] ?? null) ? $card['nerp'] : [];
+    $competitorData = is_array($card['competitor'] ?? null) ? $card['competitor'] : [];
+
+    $pricingComparisonCards[] = [
+        'id' => $cardId,
+        'name' => $cardName,
+        'description' => (string) ($card['description'] ?? ''),
+        'pricing' => [
+            'base' => (float) ($pricingData['base'] ?? 0),
+            'per_user' => (float) ($pricingData['per_user'] ?? 0),
+            'per_action' => (float) ($pricingData['per_action'] ?? 0),
+            'note' => (string) ($pricingData['note'] ?? ''),
+            'badge' => (string) ($pricingData['badge'] ?? ''),
+        ],
+        'nerp' => [
+            'pros' => $normalizeList($nerpData['pros'] ?? null),
+            'cons' => $normalizeList($nerpData['cons'] ?? null),
+        ],
+        'competitor' => [
+            'pros' => $normalizeList($competitorData['pros'] ?? null),
+            'cons' => $normalizeList($competitorData['cons'] ?? null),
+        ],
+    ];
+}
 ?>
 <section class="container section-hero" id="hero">
     <div class="grid two">
@@ -175,6 +239,98 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? '�
         <?php endforeach; ?>
     </div>
 </section>
+
+<?php if ($pricingComparisonCards !== []): ?>
+    <section class="container pricing-comparison">
+        <h3 class="h2"><?= e($pricingComparison['title'] ?? ''); ?></h3>
+        <?php if (!empty($pricingComparison['subtitle'])): ?>
+            <p class="muted"><?= e($pricingComparison['subtitle']); ?></p>
+        <?php endif; ?>
+        <div class="comparison-grid">
+            <?php foreach ($pricingComparisonCards as $card): ?>
+                <?php
+                $cardPricing = $card['pricing'];
+                $priceBaseAttr = number_format($cardPricing['base'], 2, '.', '');
+                $pricePerUserAttr = number_format($cardPricing['per_user'], 2, '.', '');
+                $pricePerActionAttr = number_format($cardPricing['per_action'], 6, '.', '');
+                $competitorColumnTitle = $card['name'] !== '' ? $card['name'] : (string) ($pricingComparison['competitor_label'] ?? '');
+                ?>
+                <article
+                    class="card comparison-card"
+                    data-comparison-card
+                    data-price-base="<?= e($priceBaseAttr); ?>"
+                    data-price-per-user="<?= e($pricePerUserAttr); ?>"
+                    data-price-per-action="<?= e($pricePerActionAttr); ?>"
+                >
+                    <div class="comparison-card-header">
+                        <div class="comparison-card-title">
+                            <div class="card-title"><?= e($card['name']); ?></div>
+                            <?php if ($cardPricing['badge'] !== ''): ?>
+                                <div class="comparison-badge"><?= e($cardPricing['badge']); ?></div>
+                            <?php endif; ?>
+                        </div>
+                        <?php if ($card['description'] !== ''): ?>
+                            <p class="card-desc"><?= e($card['description']); ?></p>
+                        <?php endif; ?>
+                    </div>
+                    <div class="comparison-pricing">
+                        <div class="comparison-price">
+                            <div class="comparison-price-label"><?= e($pricingComparison['our_price_label'] ?? 'nERP'); ?></div>
+                            <div class="comparison-price-value" data-comparison-our-price>—</div>
+                        </div>
+                        <div class="comparison-price">
+                            <div class="comparison-price-label"><?= e($pricingComparison['their_price_label'] ?? 'Licences'); ?></div>
+                            <div class="comparison-price-value" data-comparison-competitor-price>—</div>
+                        </div>
+                    </div>
+                    <?php if ($cardPricing['note'] !== ''): ?>
+                        <p class="comparison-note"><span><?= e($pricingComparison['note_label'] ?? 'Условия'); ?>:</span> <?= e($cardPricing['note']); ?></p>
+                    <?php endif; ?>
+                    <div class="comparison-columns">
+                        <div class="comparison-column">
+                            <div class="comparison-column-title"><?= e($pricingComparison['nerp_label'] ?? 'nERP'); ?></div>
+                            <?php if ($card['nerp']['pros'] !== []): ?>
+                                <div class="comparison-list-title"><?= e($pricingComparison['nerp_pros_title'] ?? 'Плюсы'); ?></div>
+                                <ul class="comparison-list comparison-list-positive">
+                                    <?php foreach ($card['nerp']['pros'] as $item): ?>
+                                        <li><?= e($item); ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                            <?php if ($card['nerp']['cons'] !== []): ?>
+                                <div class="comparison-list-title"><?= e($pricingComparison['nerp_cons_title'] ?? 'Минусы'); ?></div>
+                                <ul class="comparison-list comparison-list-negative">
+                                    <?php foreach ($card['nerp']['cons'] as $item): ?>
+                                        <li><?= e($item); ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                        </div>
+                        <div class="comparison-column">
+                            <div class="comparison-column-title"><?= e($competitorColumnTitle); ?></div>
+                            <?php if ($card['competitor']['pros'] !== []): ?>
+                                <div class="comparison-list-title"><?= e($pricingComparison['competitor_pros_title'] ?? 'Плюсы системы'); ?></div>
+                                <ul class="comparison-list comparison-list-positive">
+                                    <?php foreach ($card['competitor']['pros'] as $item): ?>
+                                        <li><?= e($item); ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                            <?php if ($card['competitor']['cons'] !== []): ?>
+                                <div class="comparison-list-title"><?= e($pricingComparison['competitor_cons_title'] ?? 'Ограничения системы'); ?></div>
+                                <ul class="comparison-list comparison-list-negative">
+                                    <?php foreach ($card['competitor']['cons'] as $item): ?>
+                                        <li><?= e($item); ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        </div>
+    </section>
+<?php endif; ?>
 
 <div class="divider" role="presentation"></div>
 
@@ -292,50 +448,49 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? '�
                 $integrationItems = array_slice($integrationItems, 0, 3);
             }
             ?>
-            <div class="card stack-integrations">
+            <div class="card stack-integrations stack-integrations-simple">
                 <div class="stack-integrations-header">
                     <div class="stack-integrations-icon" aria-hidden="true">
                         <span class="icon nodes"></span>
                     </div>
                     <div>
                         <div class="card-title"><?= e($stack['integrations_title'] ?? ''); ?></div>
-                        <p class="card-desc"><?= e($stack['integrations_desc'] ?? ''); ?></p>
+                        <?php if (!empty($stack['integrations_core'])): ?>
+                            <div class="integration-meta">
+                                <span class="integration-pill integration-status"><?= e($stack['integrations_core']); ?></span>
+                            </div>
+                        <?php endif; ?>
+                        <?php if (!empty($stack['integrations_desc'])): ?>
+                            <p class="card-desc"><?= e($stack['integrations_desc']); ?></p>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <?php if ($integrationItems !== []): ?>
-                    <div class="integration-showcase">
-                        <div class="integration-core">
-                            <span class="integration-core-icon" aria-hidden="true"><span class="icon shield"></span></span>
-                            <div class="integration-core-label"><?= e($stack['integrations_core'] ?? 'nERP'); ?></div>
-                            <?php if (!empty($stack['integrations_core_desc'])): ?>
-                                <p class="integration-core-desc"><?= e($stack['integrations_core_desc']); ?></p>
-                            <?php endif; ?>
-                        </div>
-                        <ul class="integration-partners">
-                            <?php foreach ($integrationItems as $item): ?>
-                                <li class="integration-partner">
-                                    <div class="integration-partner-body">
-                                        <?php if ($item['icon'] !== ''): ?>
-                                            <span class="integration-icon" aria-hidden="true"><span class="icon <?= e($item['icon']); ?>"></span></span>
-                                        <?php endif; ?>
-                                        <div>
-                                            <div class="integration-name"><?= e($item['name']); ?></div>
-                                            <?php if ($item['tag'] !== '' || $item['status'] !== ''): ?>
-                                                <div class="integration-meta">
-                                                    <?php if ($item['status'] !== ''): ?>
-                                                        <span class="integration-pill integration-status"><?= e($item['status']); ?></span>
-                                                    <?php endif; ?>
-                                                    <?php if ($item['tag'] !== ''): ?>
-                                                        <span class="integration-pill integration-tag"><?= e($item['tag']); ?></span>
-                                                    <?php endif; ?>
-                                                </div>
+                    <ul class="integration-simple-list">
+                        <?php foreach ($integrationItems as $item): ?>
+                            <li class="integration-simple-item">
+                                <?php if ($item['icon'] !== ''): ?>
+                                    <span class="integration-simple-icon" aria-hidden="true"><span class="icon <?= e($item['icon']); ?>"></span></span>
+                                <?php endif; ?>
+                                <div class="integration-simple-content">
+                                    <div class="integration-name"><?= e($item['name']); ?></div>
+                                    <?php if ($item['tag'] !== '' || $item['status'] !== ''): ?>
+                                        <div class="integration-meta">
+                                            <?php if ($item['status'] !== ''): ?>
+                                                <span class="integration-pill integration-status"><?= e($item['status']); ?></span>
+                                            <?php endif; ?>
+                                            <?php if ($item['tag'] !== ''): ?>
+                                                <span class="integration-pill integration-tag"><?= e($item['tag']); ?></span>
                                             <?php endif; ?>
                                         </div>
-                                    </div>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </div>
+                                    <?php endif; ?>
+                                </div>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+                <?php if (!empty($stack['integrations_core_desc'])): ?>
+                    <p class="integration-note"><?= e($stack['integrations_core_desc']); ?></p>
                 <?php endif; ?>
                 <?php if (!empty($stack['footnote'])): ?>
                     <p class="stack-footnote"><?= e($stack['footnote']); ?></p>

@@ -251,6 +251,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const tokenPreviewValue = document.querySelector('[data-token-preview-value]');
   const operationFiatNodes = document.querySelectorAll('[data-operation-fiat]');
   const tokenPresetButtons = document.querySelectorAll('[data-token-preset]');
+  const comparisonCards = document.querySelectorAll('[data-comparison-card]');
+  const comparisonOurPriceNodes = document.querySelectorAll('[data-comparison-our-price]');
 
   const parseLocaleNumber = (value) => {
     if (typeof value !== 'string') return Number.NaN;
@@ -323,10 +325,39 @@ document.addEventListener('DOMContentLoaded', () => {
     peopleVal.textContent = p.toString();
     apdVal.textContent = a.toString();
     const result = estimate(p, a);
-    opsMonthly.textContent = numberFormatter.format(result.monthlyActions);
+    const monthlyActions = result.monthlyActions;
+    opsMonthly.textContent = numberFormatter.format(monthlyActions);
     nerpTotal.textContent = tokenFormatter.format(result.nerpSpend);
     const fiatValue = tokenPriceUsd > 0 ? result.nerpSpend * tokenPriceUsd * fiatPerUsd : 0;
     fiatApprox.textContent = currencyFormatter.format(fiatValue);
+    comparisonOurPriceNodes.forEach((node) => {
+      if (!(node instanceof HTMLElement)) return;
+      node.textContent = currencyFormatter.format(fiatValue);
+    });
+    comparisonCards.forEach((card) => {
+      if (!(card instanceof HTMLElement)) return;
+      const competitorPriceEl = card.querySelector('[data-comparison-competitor-price]');
+      if (!(competitorPriceEl instanceof HTMLElement)) {
+        return;
+      }
+      const base = Number.parseFloat(card.dataset.priceBase || '0');
+      const perUser = Number.parseFloat(card.dataset.pricePerUser || '0');
+      const perAction = Number.parseFloat(card.dataset.pricePerAction || '0');
+      let competitorValue = 0;
+      if (Number.isFinite(base)) {
+        competitorValue += base;
+      }
+      if (Number.isFinite(perUser)) {
+        competitorValue += p * perUser;
+      }
+      if (Number.isFinite(perAction)) {
+        competitorValue += monthlyActions * perAction;
+      }
+      if (!Number.isFinite(competitorValue) || competitorValue < 0) {
+        competitorValue = 0;
+      }
+      competitorPriceEl.textContent = currencyFormatter.format(competitorValue);
+    });
     updateTokenDerived();
   }
 
