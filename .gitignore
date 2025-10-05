@@ -1,1 +1,7 @@
 logs/
+
+# logs
+logs/
+*.log
+promo.nerp.app-ssl-access.log
+promo.nerp.app-ssl-error.log
