@@ -158,12 +158,54 @@ return [
         'integrations_title' => 'Default integrations',
         'integrations_desc' => 'In the first sprint we connect messaging, accounting, and data stores — no drawn-out procurement or integrators.',
         'integrations_core' => 'nERP node',
+        'integrations_core_desc' => 'Encrypted core ledger with roles, audit, and billing.',
         'integrations' => [
             ['name' => 'Slack webhooks', 'tag' => 'Comms', 'status' => 'Live', 'icon' => 'chat'],
             ['name' => '1C gateway', 'tag' => 'Accounting', 'status' => 'Pilot', 'icon' => 'ledger'],
             ['name' => 'PostgreSQL', 'tag' => 'Database', 'status' => 'Live', 'icon' => 'database'],
         ],
         'footnote' => 'Need something else? Pilot teams can request new connectors directly in the brief.',
+    ],
+    'outcomes' => [
+        'title' => 'Pilot outcomes you can pitch internally',
+        'subtitle' => 'Every cohort finishes with tangible metrics so founders, ops, and finance teams see the ROI.',
+        'metrics' => [
+            [
+                'value' => '4 weeks',
+                'title' => 'To the first automated process',
+                'desc' => 'We map the workflow, configure access, and ship dashboards before week five.',
+            ],
+            [
+                'value' => '↓ 38%',
+                'title' => 'Manual steps removed',
+                'desc' => 'Operators cut routine actions thanks to scripted approvals and contract bots.',
+            ],
+            [
+                'value' => '24/7',
+                'title' => 'Support during the pilot',
+                'desc' => 'Core engineers stay in touch in chat, join syncs, and help escalate blockers fast.',
+            ],
+        ],
+        'footnote' => 'Numbers are based on the 2024 enterprise pilot cohort — we adapt targets to your industry.',
+    ],
+    'enablement' => [
+        'title' => 'Co-pilot enablement program',
+        'subtitle' => 'Marketing, ops, and IT get one playbook so the pilot doesn’t stall.',
+        'stages' => [
+            [
+                'title' => 'Kick-off brief',
+                'desc' => 'We outline use cases, access rules, and KPIs with your core team in one workshop.',
+            ],
+            [
+                'title' => 'Solution blueprint',
+                'desc' => 'Architects assemble integrations, dashboards, and alerts mapped to your stack.',
+            ],
+            [
+                'title' => 'Launch & coaching',
+                'desc' => 'Operators run the workflow with us on-call, iterate weekly, and capture success stories.',
+            ],
+        ],
+        'cta' => 'Book an enablement call',
     ],
     'pricing' => [
         'title' => 'What nERP costs',
@@ -334,6 +376,8 @@ return [
             'company_placeholder' => 'Acme Inc.',
             'role' => 'Role / focus',
             'role_placeholder' => 'Operations lead',
+            'rate' => 'Comfortable rate per token',
+            'rate_placeholder' => 'e.g. 0.70 $',
             'message' => 'What do you plan to automate first?',
             'message_placeholder' => 'Share current tools, pain points, integrations…',
             'consent' => 'By submitting you agree to personal data processing and to receive onboarding updates from nerp.app.',

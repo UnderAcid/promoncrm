@@ -12,6 +12,56 @@ $howItems = $t->get('how.items');
 $stack = $t->get('stack');
 $stackHighlights = is_array($stack['highlights'] ?? null) ? $stack['highlights'] : [];
 $stackIntegrations = is_array($stack['integrations'] ?? null) ? $stack['integrations'] : [];
+$outcomes = $t->get('outcomes');
+$outcomeMetrics = [];
+if (is_array($outcomes)) {
+    $metrics = $outcomes['metrics'] ?? [];
+    if (is_array($metrics)) {
+        foreach ($metrics as $metric) {
+            if (!is_array($metric)) {
+                continue;
+            }
+
+            $value = (string) ($metric['value'] ?? '');
+            $title = (string) ($metric['title'] ?? '');
+            $desc = (string) ($metric['desc'] ?? '');
+
+            if ($value === '' && $title === '' && $desc === '') {
+                continue;
+            }
+
+            $outcomeMetrics[] = [
+                'value' => $value,
+                'title' => $title,
+                'desc' => $desc,
+            ];
+        }
+    }
+}
+$enablement = $t->get('enablement');
+$enablementStages = [];
+if (is_array($enablement)) {
+    $stages = $enablement['stages'] ?? [];
+    if (is_array($stages)) {
+        foreach ($stages as $stage) {
+            if (!is_array($stage)) {
+                continue;
+            }
+
+            $stageTitle = (string) ($stage['title'] ?? '');
+            $stageDesc = (string) ($stage['desc'] ?? '');
+
+            if ($stageTitle === '' && $stageDesc === '') {
+                continue;
+            }
+
+            $enablementStages[] = [
+                'title' => $stageTitle,
+                'desc' => $stageDesc,
+            ];
+        }
+    }
+}
 $tokenPricePresets = [0.1, 0.5, 1.0, 2.0];
 $tokenPresetCurrency = (string) ($t->get('pricing.token_price_presets_currency') ?? '$');
 $partnerCards = $t->get('partners.cards');
@@ -253,33 +303,38 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                     </div>
                 </div>
                 <?php if ($integrationItems !== []): ?>
-                    <div class="integration-grid">
+                    <div class="integration-showcase">
                         <div class="integration-core">
                             <span class="integration-core-icon" aria-hidden="true"><span class="icon shield"></span></span>
                             <div class="integration-core-label"><?= e($stack['integrations_core'] ?? 'nERP'); ?></div>
+                            <?php if (!empty($stack['integrations_core_desc'])): ?>
+                                <p class="integration-core-desc"><?= e($stack['integrations_core_desc']); ?></p>
+                            <?php endif; ?>
                         </div>
-                        <div class="integration-lanes">
+                        <ul class="integration-partners">
                             <?php foreach ($integrationItems as $item): ?>
-                                <div class="integration-tile">
-                                    <?php if ($item['status'] !== '' || $item['tag'] !== ''): ?>
-                                        <div class="integration-tile-header">
-                                            <?php if ($item['status'] !== ''): ?>
-                                                <span class="integration-pill integration-status"><?= e($item['status']); ?></span>
-                                            <?php endif; ?>
-                                            <?php if ($item['tag'] !== ''): ?>
-                                                <span class="integration-pill integration-tag"><?= e($item['tag']); ?></span>
-                                            <?php endif; ?>
-                                        </div>
-                                    <?php endif; ?>
-                                    <div class="integration-tile-main">
+                                <li class="integration-partner">
+                                    <div class="integration-partner-body">
                                         <?php if ($item['icon'] !== ''): ?>
                                             <span class="integration-icon" aria-hidden="true"><span class="icon <?= e($item['icon']); ?>"></span></span>
                                         <?php endif; ?>
-                                        <div class="integration-name"><?= e($item['name']); ?></div>
+                                        <div>
+                                            <div class="integration-name"><?= e($item['name']); ?></div>
+                                            <?php if ($item['tag'] !== '' || $item['status'] !== ''): ?>
+                                                <div class="integration-meta">
+                                                    <?php if ($item['status'] !== ''): ?>
+                                                        <span class="integration-pill integration-status"><?= e($item['status']); ?></span>
+                                                    <?php endif; ?>
+                                                    <?php if ($item['tag'] !== ''): ?>
+                                                        <span class="integration-pill integration-tag"><?= e($item['tag']); ?></span>
+                                                    <?php endif; ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
-                                </div>
+                                </li>
                             <?php endforeach; ?>
-                        </div>
+                        </ul>
                     </div>
                 <?php endif; ?>
                 <?php if (!empty($stack['footnote'])): ?>
@@ -291,6 +346,66 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
 </section>
 
 <div class="divider" role="presentation"></div>
+
+<?php if (!empty($outcomes['title'] ?? '') && $outcomeMetrics !== []): ?>
+    <section id="outcomes" class="container outcomes-section">
+        <div class="outcomes-header">
+            <h2 class="h2"><?= e($outcomes['title']); ?></h2>
+            <?php if (!empty($outcomes['subtitle'])): ?>
+                <p class="muted"><?= e($outcomes['subtitle']); ?></p>
+            <?php endif; ?>
+        </div>
+        <div class="grid three outcomes-grid">
+            <?php foreach ($outcomeMetrics as $metric): ?>
+                <div class="card outcome-card">
+                    <?php if ($metric['value'] !== ''): ?>
+                        <div class="outcome-value"><?= e($metric['value']); ?></div>
+                    <?php endif; ?>
+                    <?php if ($metric['title'] !== ''): ?>
+                        <div class="card-title"><?= e($metric['title']); ?></div>
+                    <?php endif; ?>
+                    <?php if ($metric['desc'] !== ''): ?>
+                        <p class="card-desc"><?= e($metric['desc']); ?></p>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <?php if (!empty($outcomes['footnote'])): ?>
+            <p class="muted small outcomes-footnote"><?= e($outcomes['footnote']); ?></p>
+        <?php endif; ?>
+    </section>
+
+    <div class="divider" role="presentation"></div>
+<?php endif; ?>
+
+<?php if (!empty($enablement['title'] ?? '') && $enablementStages !== []): ?>
+    <section id="enablement" class="container enablement-section">
+        <div class="enablement-header">
+            <h2 class="h2"><?= e($enablement['title']); ?></h2>
+            <?php if (!empty($enablement['subtitle'])): ?>
+                <p class="muted"><?= e($enablement['subtitle']); ?></p>
+            <?php endif; ?>
+        </div>
+        <div class="enablement-timeline">
+            <?php foreach ($enablementStages as $index => $stage): ?>
+                <div class="card enablement-stage">
+                    <div class="stage-index">0<?= e($index + 1); ?></div>
+                    <div>
+                        <div class="card-title"><?= e($stage['title']); ?></div>
+                        <p class="card-desc"><?= e($stage['desc']); ?></p>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <?php if (!empty($enablement['cta'])): ?>
+            <div class="cta-row">
+                <a class="btn btn-primary" href="#pilots"><span class="icon chat" aria-hidden="true"></span><?= e($enablement['cta']); ?></a>
+            </div>
+        <?php endif; ?>
+    </section>
+
+    <div class="divider" role="presentation"></div>
+<?php endif; ?>
 
 <section id="pilots" class="container pilots-section">
     <div class="pilots-grid">
@@ -330,6 +445,10 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                         <label for="pilotRole"><?= e($pilotForm['role'] ?? ''); ?></label>
                         <input type="text" id="pilotRole" name="role" placeholder="<?= e($pilotForm['role_placeholder'] ?? ''); ?>">
                     </div>
+                </div>
+                <div class="input-control">
+                    <label for="pilotRate"><?= e($pilotForm['rate'] ?? ''); ?></label>
+                    <input type="text" id="pilotRate" name="comfortable_rate" inputmode="decimal" placeholder="<?= e($pilotForm['rate_placeholder'] ?? ''); ?>">
                 </div>
                 <div class="input-control">
                     <label for="pilotMessage"><?= e($pilotForm['message'] ?? ''); ?></label>
