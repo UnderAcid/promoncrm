@@ -251,6 +251,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const tokenPreviewValue = document.querySelector('[data-token-preview-value]');
   const operationFiatNodes = document.querySelectorAll('[data-operation-fiat]');
   const tokenPresetButtons = document.querySelectorAll('[data-token-preset]');
+  const comparisonCards = document.querySelectorAll('[data-comparison-system]');
+  const comparisonNerpFiatNodes = document.querySelectorAll('[data-comparison-nerp-fiat]');
+  const comparisonNerpTokenNodes = document.querySelectorAll('[data-comparison-nerp-tokens]');
+  const comparisonTeamNodes = document.querySelectorAll('[data-comparison-team]');
 
   const parseLocaleNumber = (value) => {
     if (typeof value !== 'string') return Number.NaN;
@@ -293,6 +297,66 @@ document.addEventListener('DOMContentLoaded', () => {
     return { monthlyActions, nerpSpend };
   }
 
+  const formatTeamTemplate = (template, countLabel) => {
+    const source = typeof template === 'string' ? template : '';
+    if (source.includes('{count}')) {
+      return source.replace('{count}', countLabel);
+    }
+    return source || countLabel;
+  };
+
+  function updateComparison(peopleCount, nerpTokens, nerpFiatValue) {
+    const safePeople = Number.isFinite(peopleCount) && peopleCount > 0 ? peopleCount : 0;
+    const safeTokens = Number.isFinite(nerpTokens) && nerpTokens > 0 ? nerpTokens : 0;
+    const safeFiat = Number.isFinite(nerpFiatValue) && nerpFiatValue > 0 ? nerpFiatValue : 0;
+    const teamLabel = numberFormatter.format(safePeople);
+    const formattedFiat = safeFiat > 0 ? currencyFormatter.format(safeFiat) : currencyFormatter.format(0);
+    const formattedTokens = tokenFormatter.format(safeTokens);
+
+    comparisonNerpFiatNodes.forEach((node) => {
+      if (!(node instanceof HTMLElement)) return;
+      node.textContent = formattedFiat;
+    });
+
+    comparisonNerpTokenNodes.forEach((node) => {
+      if (!(node instanceof HTMLElement)) return;
+      const suffix = node.dataset.tokenSuffix || '';
+      node.textContent = suffix ? `${formattedTokens} ${suffix}` : formattedTokens;
+    });
+
+    comparisonTeamNodes.forEach((node) => {
+      if (!(node instanceof HTMLElement)) return;
+      const template = node.dataset.template || '';
+      node.textContent = formatTeamTemplate(template, teamLabel);
+    });
+
+    comparisonCards.forEach((card) => {
+      if (!(card instanceof HTMLElement)) return;
+      const pricePerUser = Number.parseFloat(card.dataset.pricePerUser || '0');
+      const priceFlat = Number.parseFloat(card.dataset.priceFlat || '0');
+      const priceMin = Number.parseFloat(card.dataset.priceMin || '0');
+      const target = card.querySelector('[data-comparison-system-price]');
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+      let price = 0;
+      if (Number.isFinite(pricePerUser) && pricePerUser > 0 && safePeople > 0) {
+        price += pricePerUser * safePeople;
+      }
+      if (Number.isFinite(priceFlat) && priceFlat > 0) {
+        price += priceFlat;
+      }
+      if (Number.isFinite(priceMin) && price < priceMin) {
+        price = priceMin;
+      }
+      if (Number.isFinite(price) && price > 0) {
+        target.textContent = currencyFormatter.format(price);
+      } else {
+        target.textContent = '—';
+      }
+    });
+  }
+
   function updateTokenDerived() {
     const localTokenPrice = getLocalTokenPrice();
 
@@ -327,6 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
     nerpTotal.textContent = tokenFormatter.format(result.nerpSpend);
     const fiatValue = tokenPriceUsd > 0 ? result.nerpSpend * tokenPriceUsd * fiatPerUsd : 0;
     fiatApprox.textContent = currencyFormatter.format(fiatValue);
+    updateComparison(p, result.nerpSpend, fiatValue);
     updateTokenDerived();
   }
 

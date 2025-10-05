@@ -155,8 +155,8 @@ return [
                 'desc' => 'REST and webhooks to plug in your services and third-party modules.',
             ],
         ],
-        'integrations_title' => 'Default integrations',
-        'integrations_desc' => 'In the first sprint we connect messaging, accounting, and data stores — no drawn-out procurement or integrators.',
+        'integrations_title' => 'What ships in the MVP',
+        'integrations_desc' => 'The essentials to launch a pilot — we extend the scope together with your team.',
         'integrations_core' => 'nERP node',
         'integrations_core_desc' => 'Encrypted core ledger with roles, audit, and billing.',
         'integrations' => [
@@ -164,7 +164,7 @@ return [
             ['name' => '1C gateway', 'tag' => 'Accounting', 'status' => 'Pilot', 'icon' => 'ledger'],
             ['name' => 'PostgreSQL', 'tag' => 'Database', 'status' => 'Live', 'icon' => 'database'],
         ],
-        'footnote' => 'Need something else? Pilot teams can request new connectors directly in the brief.',
+        'footnote' => 'Need something else? We scope it with you at the pilot kick-off.',
     ],
     'outcomes' => [
         'title' => 'Pilot outcomes you can pitch internally',
@@ -253,6 +253,121 @@ return [
             ],
         ],
         'operation_fiat_prefix' => '≈',
+        'comparison' => [
+            'title' => 'Cost comparison with popular ERP/CRM suites',
+            'subtitle' => 'Numbers reflect the calculator above — tweak the sliders to see updated totals for your team.',
+            'nerp_label' => 'nERP',
+            'pros_label' => 'Pros',
+            'cons_label' => 'Cons',
+            'nerp_tokens_suffix' => 'tokens / month',
+            'team_caption' => 'for {count} people',
+            'systems' => [
+                [
+                    'id' => 'google-sheets',
+                    'name' => 'Google Sheets',
+                    'price_per_user' => 12,
+                    'price_period' => 'per user / month (Business Standard)',
+                    'nerp' => [
+                        'pros' => [
+                            'Usage-based spend scales only with real activity.',
+                            'Granular roles and audit trail out of the box.',
+                        ],
+                        'cons' => [
+                            'Requires configuration with your process during the pilot.',
+                            'Token price is finalised together with you.',
+                        ],
+                    ],
+                    'system' => [
+                        'pros' => [
+                            'Instant start with a familiar interface.',
+                            'No complex rollout or onboarding.',
+                        ],
+                        'cons' => [
+                            'No unified audit log or access control.',
+                            'Heavy reliance on manual updates increases error risk.',
+                        ],
+                    ],
+                ],
+                [
+                    'id' => '1c',
+                    'name' => '1C',
+                    'price_per_user' => 35,
+                    'price_period' => 'per user / month (cloud)',
+                    'nerp' => [
+                        'pros' => [
+                            'Handles complex workflows without custom code.',
+                            'Pay-per-action instead of static seat licences.',
+                        ],
+                        'cons' => [
+                            'Smaller catalogue of ready-made modules today.',
+                            'Our engineers guide the rollout side by side.',
+                        ],
+                    ],
+                    'system' => [
+                        'pros' => [
+                            'Rich accounting and compliance modules.',
+                            'Large ecosystem of implementation partners.',
+                        ],
+                        'cons' => [
+                            'High licence and support costs.',
+                            'Change requests move slowly.',
+                        ],
+                    ],
+                ],
+                [
+                    'id' => 'amocrm',
+                    'name' => 'amoCRM',
+                    'price_per_user' => 25,
+                    'price_period' => 'per user / month (Advanced)',
+                    'nerp' => [
+                        'pros' => [
+                            'Covers finance, warehouse, and logistics beyond sales.',
+                            'Fine-grained roles with immutable audit.',
+                        ],
+                        'cons' => [
+                            'Interface is less familiar for sales reps.',
+                            'Cross-functional teams need onboarding time.',
+                        ],
+                    ],
+                    'system' => [
+                        'pros' => [
+                            'Purpose-built toolkit for sales teams.',
+                            'Marketplace packed with integrations.',
+                        ],
+                        'cons' => [
+                            'Pay for every seat even if rarely used.',
+                            'Limited automation outside the sales funnel.',
+                        ],
+                    ],
+                ],
+                [
+                    'id' => 'bitrix24',
+                    'name' => 'Bitrix24',
+                    'price_per_user' => 24,
+                    'price_period' => 'per user / month (Teams plan)',
+                    'nerp' => [
+                        'pros' => [
+                            'Designed for cross-team operational workflows.',
+                            'Spend only when people perform actions.',
+                        ],
+                        'cons' => [
+                            'Fewer ready-made marketing templates today.',
+                            'Telephony isn’t bundled yet.',
+                        ],
+                    ],
+                    'system' => [
+                        'pros' => [
+                            'Broad catalogue of built-in modules.',
+                            'Collaboration and comms tools included.',
+                        ],
+                        'cons' => [
+                            'Maintaining deep customisations is complex.',
+                            'Licence tiers become expensive for light users.',
+                        ],
+                    ],
+                ],
+            ],
+        ],
     ],
     'partners' => [
         'title' => 'For partners and module authors',
