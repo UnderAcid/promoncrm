@@ -7,6 +7,10 @@
 /** @var array<string, mixed> $clientConfig */
 /** @var string[] $themes */
 /** @var array<string, string> $localeUrls */
+/** @var string $page */
+/** @var string $homeUrl */
+/** @var array<string, string> $routeUrls */
+/** @var array<string, string> $pageMeta */
 
 $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'] ?? 'nerp.app';
@@ -22,6 +26,14 @@ $localeCode = (string) $t->get('app.locale_code', [], $currentLocale);
 $heroIllustration = asset('assets/img/hero-illustration.svg');
 $ogImageUrl = $scheme . '://' . $host . $heroIllustration;
 $ogImageAlt = (string) ($t->get('meta.og_image_alt') ?? '');
+$page = $page ?? 'home';
+$isHome = $page === 'home';
+$homeUrl = $homeUrl ?? '/';
+$routeUrls = is_array($routeUrls ?? null) ? $routeUrls : [];
+$pageMeta = is_array($pageMeta ?? null) ? $pageMeta : [];
+$metaTitle = $pageMeta['title'] ?? (string) $t->get('meta.title');
+$metaDescription = $pageMeta['description'] ?? (string) $t->get('meta.description');
+$metaKeywords = (string) $t->get('meta.keywords');
 ?>
 <!DOCTYPE html>
 <html lang="<?= e($localeCode); ?>" data-theme="<?= e($currentTheme); ?>" class="no-js">
@@ -29,16 +41,16 @@ $ogImageAlt = (string) ($t->get('meta.og_image_alt') ?? '');
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title><?= e($t->get('meta.title')); ?></title>
-    <meta name="description" content="<?= e($t->get('meta.description')); ?>">
-    <meta name="keywords" content="<?= e($t->get('meta.keywords')); ?>">
+    <title><?= e($metaTitle); ?></title>
+    <meta name="description" content="<?= e($metaDescription); ?>">
+    <meta name="keywords" content="<?= e($metaKeywords); ?>">
     <link rel="canonical" href="<?= e($canonical); ?>">
     <?php foreach ($localeUrls as $code => $path): ?>
         <link rel="alternate" hreflang="<?= e($code); ?>" href="<?= e($scheme . '://' . $host . $path); ?>">
     <?php endforeach; ?>
     <link rel="alternate" hreflang="x-default" href="<?= e($scheme . '://' . $host . '/'); ?>">
-    <meta property="og:title" content="<?= e($t->get('meta.og_title')); ?>">
-    <meta property="og:description" content="<?= e($t->get('meta.og_description')); ?>">
+    <meta property="og:title" content="<?= e($pageMeta['title'] ?? (string) $t->get('meta.og_title')); ?>">
+    <meta property="og:description" content="<?= e($pageMeta['description'] ?? (string) $t->get('meta.og_description')); ?>">
     <meta property="og:url" content="<?= e($canonical); ?>">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="<?= e($localeCode); ?>">
@@ -53,6 +65,7 @@ $ogImageAlt = (string) ($t->get('meta.og_image_alt') ?? '');
     <?php endif; ?>
     <meta name="twitter:card" content="summary_large_image">
     <meta name="theme-color" content="#0f172a">
+    <link rel="icon" type="image/svg+xml" href="<?= e(asset('assets/img/favicon-nerp.svg')); ?>">
 
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -74,11 +87,13 @@ $ogImageAlt = (string) ($t->get('meta.og_image_alt') ?? '');
         </main>
         <?php require BASE_PATH . '/views/partials/footer.php'; ?>
     </div>
-    <div class="floating-cta">
-        <button class="btn btn-primary" data-floating-cta data-scroll-target="pilotForm">
-            <span class="icon rocket" aria-hidden="true"></span><?= e($t->get('floating_cta')); ?>
-        </button>
-    </div>
+    <?php if ($isHome): ?>
+        <div class="floating-cta">
+            <button class="btn btn-primary" data-floating-cta data-scroll-target="pilotForm">
+                <span class="icon rocket" aria-hidden="true"></span><?= e($t->get('floating_cta')); ?>
+            </button>
+        </div>
+    <?php endif; ?>
     <noscript>
         <div class="noscript-banner">
             <?= e($t->get('app.noscript')); ?>

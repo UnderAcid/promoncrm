@@ -1,0 +1,34 @@
+<svg width="210" height="48" viewBox="0 0 210 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="nerp-logo-gradient" x1="6" y1="4" x2="46" y2="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#38BDF8" />
+      <stop offset="0.45" stop-color="#6366F1" />
+      <stop offset="1" stop-color="#1D4ED8" />
+    </linearGradient>
+    <linearGradient id="nerp-word-gradient" x1="70" y1="12" x2="190" y2="36" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0F172A" />
+      <stop offset="1" stop-color="#1E293B" />
+    </linearGradient>
+    <filter id="nerp-glow" x="0" y="-2" width="52" height="52" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feBlend in="SourceGraphic" in2="blur" mode="screen" />
+    </filter>
+  </defs>
+  <g filter="url(#nerp-glow)">
+    <rect x="6" y="4" width="40" height="40" rx="14" fill="url(#nerp-logo-gradient)" />
+    <path d="M18.2 16.6c0-2.6 2-4.6 4.6-4.6 2 0 3.7 1.2 4.2 3.1l3.4 11.8c0.4 1.4 1.7 2.3 3.2 2.3 1.8 0 3.3-1.5 3.3-3.3V16h4.2v10.2c0 5-4.1 9-9.1 9-4 0-7.4-2.5-8.6-6.3l-3.3-11.1c-0.2-0.7-0.9-1.2-1.6-1.2-0.9 0-1.6 0.7-1.6 1.6V32h-4.1V16.6z" fill="white" />
+    <path d="M14.4 34.4c0-1.9 1.5-3.4 3.4-3.4 1.9 0 3.4 1.5 3.4 3.4 0 1.9-1.5 3.4-3.4 3.4-1.9 0-3.4-1.5-3.4-3.4z" fill="white" opacity="0.7" />
+  </g>
+  <g fill="url(#nerp-word-gradient)">
+    <path d="M72 33V15h5.6l7.6 10.5V15h5.6v18h-5.6l-7.6-10.5V33H72z" />
+    <path d="M98.8 33V15h15.4v4.2h-9.6v3.6h8.2v4h-8.2v3.9h9.9V33H98.8z" />
+    <path d="M118.8 33V15h10.2c6.3 0 10.2 3.3 10.2 8.5 0 3.7-1.8 6.3-5.1 7.7l5.9 11.8h-6.4l-5.1-10h-3.5V33h-6.2zm6.2-10.8h4.1c2.7 0 4.3-1.1 4.3-3.2 0-2.1-1.6-3.1-4.3-3.1h-4.1v6.3z" />
+    <path d="M142.2 33V15h10.6c6.2 0 10 3.5 10 9s-3.8 9-10 9h-4.4V33h-6.2zm6.2-5.2h4.4c2.8 0 4.5-1.4 4.5-3.8 0-2.4-1.7-3.8-4.5-3.8h-4.4v7.6z" />
+  </g>
+  <g>
+    <path d="M176.6 15.2h6.1l-13.1 17.8h-6.1l5.2-7-8.4-10.8h6.4l5 6.8 4.9-6.8z" fill="#38BDF8" />
+    <circle cx="191.5" cy="24" r="7" fill="#0EA5E9" opacity="0.2" />
+    <circle cx="191.5" cy="24" r="4.2" fill="#38BDF8" />
+    <circle cx="191.5" cy="24" r="1.6" fill="#F8FAFC" />
+  </g>
+</svg>

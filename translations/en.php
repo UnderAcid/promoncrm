@@ -457,10 +457,101 @@ return [
             ],
         ],
     ],
+    'policy' => [
+        'meta' => [
+            'title' => 'nERP data policy & privacy',
+            'description' => 'How nERP handles pilot submissions, protects your information, and how to request updates or deletion.',
+        ],
+        'eyebrow' => 'Documents',
+        'title' => 'nERP data handling policy',
+        'intro' => 'What we collect during pilot projects and how we protect information inside the nERP infrastructure.',
+        'updated_at' => 'Updated: May 2024',
+        'summary' => [
+            'title' => 'TL;DR',
+            'items' => [
+                'We collect contact details and process descriptions only — no production customer databases.',
+                'Pilot submissions live in encrypted storage at OVH (France) with a failover replica in Vilnius.',
+                'Access is limited to the nERP core team with hardware keys and per-project scopes.',
+                'Export or deletion requests are answered within two business days.',
+            ],
+        ],
+        'sections' => [
+            [
+                'title' => '1. Data we process',
+                'items' => [
+                    [
+                        'title' => 'Pilot application data',
+                        'desc' => 'Name, role, company, email, and process notes that you share via forms, email, or chat.',
+                        'bullets' => [
+                            'Fields from the pilot request form on nerp.app;',
+                            'Attachments used to scope the pilot: briefs, diagrams, spreadsheets, or decks.',
+                        ],
+                    ],
+                    [
+                        'title' => 'Technical telemetry',
+                        'desc' => 'IP address, browser headers, and timing metrics to keep the service secure and stable.',
+                    ],
+                ],
+            ],
+            [
+                'title' => '2. Why we use this data',
+                'items' => [
+                    [
+                        'title' => 'Preparing your pilot',
+                        'desc' => 'We contact you, align on KPIs, and craft an architecture and rollout plan.',
+                    ],
+                    [
+                        'title' => 'Product roadmap signals',
+                        'desc' => 'We aggregate feature requests per industry (without names) to prioritise development.',
+                    ],
+                    [
+                        'title' => 'Mandatory notifications',
+                        'desc' => 'We send operational status emails and legal notices if they affect your agreements.',
+                    ],
+                ],
+            ],
+            [
+                'title' => '3. Storage and retention',
+                'items' => [
+                    [
+                        'title' => 'Where it lives',
+                        'desc' => 'Encrypted clusters at OVH Gravelines (France) with an encrypted backup replica in Vilnius.',
+                    ],
+                    [
+                        'title' => 'How long we keep it',
+                        'desc' => 'We retain drafts for up to 18 months after the last interaction or until you ask us to remove them.',
+                    ],
+                ],
+            ],
+            [
+                'title' => '4. Your choices',
+                'items' => [
+                    [
+                        'title' => 'Request a data export',
+                        'desc' => 'We compile everything stored about your company and deliver it in an encrypted archive.',
+                    ],
+                    [
+                        'title' => 'Correct or delete information',
+                        'desc' => 'We update contact data or purge the application. Afterwards only an audit log of the request remains.',
+                    ],
+                    [
+                        'title' => 'Tune communications',
+                        'desc' => 'Opt out of marketing updates any time — operational pilot alerts stay active.',
+                    ],
+                ],
+            ],
+        ],
+        'contact' => [
+            'title' => 'Talk to our data protection lead',
+            'desc' => 'The nERP DPO handles privacy, security, and contractual requests.',
+            'email' => 'pilot@nerp.app',
+            'hours' => 'We reply within two business days.',
+        ],
+    ],
     'footer' => [
         'copyright' => '© :year nERP. All rights reserved.',
         'links' => [
-            ['label' => 'Privacy', 'href' => 'https://nerp.app/privacy'],
+            ['label' => 'Privacy', 'href' => 'route:policy'],
             ['label' => 'Docs', 'href' => 'https://nerp.app/docs'],
             ['label' => 'Contact', 'href' => 'mailto:pilot@nerp.app'],
         ],

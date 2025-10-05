@@ -484,68 +484,6 @@ if (is_array($pricingComparisonConfig)) {
     <div class="divider" role="presentation"></div>
 <?php endif; ?>
 
-<section id="pilots" class="container pilots-section">
-    <div class="pilots-grid">
-        <div class="pilot-overview">
-            <div class="eyebrow"><?= e($t->get('pilots.eyebrow')); ?></div>
-            <h2 class="h2"><?= e($t->get('pilots.title')); ?></h2>
-            <p class="lead"><?= e($t->get('pilots.subtitle')); ?></p>
-            <?php if (is_array($pilotPoints) && $pilotPoints !== []): ?>
-                <ul class="pilot-points">
-                    <?php foreach ($pilotPoints as $point): ?>
-                        <li><span><?= e($point); ?></span></li>
-                    <?php endforeach; ?>
-                </ul>
-            <?php endif; ?>
-        </div>
-        <div class="card pilots-card">
-            <h3 class="card-title"><?= e($pilotForm['title'] ?? ''); ?></h3>
-            <p class="card-desc"><?= e($pilotForm['subtitle'] ?? ''); ?></p>
-            <form id="pilotForm" class="pilot-form" action="<?= e($pilotForm['action'] ?? 'https://nerp.app/api/pilot-request'); ?>" method="post" data-pilot-form>
-                <input type="hidden" name="locale" value="<?= e($currentLocale ?? 'ru'); ?>">
-                <div class="form-grid">
-                    <div class="input-control">
-                        <label for="pilotName"><?= e($pilotForm['name'] ?? ''); ?></label>
-                        <input type="text" id="pilotName" name="name" autocomplete="name" placeholder="<?= e($pilotForm['name_placeholder'] ?? ''); ?>" required>
-                    </div>
-                    <div class="input-control">
-                        <label for="pilotEmail"><?= e($pilotForm['email'] ?? ''); ?></label>
-                        <input type="email" id="pilotEmail" name="email" autocomplete="email" placeholder="<?= e($pilotForm['email_placeholder'] ?? ''); ?>" required>
-                    </div>
-                </div>
-                <div class="form-grid">
-                    <div class="input-control">
-                        <label for="pilotCompany"><?= e($pilotForm['company'] ?? ''); ?></label>
-                        <input type="text" id="pilotCompany" name="company" autocomplete="organization" placeholder="<?= e($pilotForm['company_placeholder'] ?? ''); ?>">
-                    </div>
-                    <div class="input-control">
-                        <label for="pilotRole"><?= e($pilotForm['role'] ?? ''); ?></label>
-                        <input type="text" id="pilotRole" name="role" placeholder="<?= e($pilotForm['role_placeholder'] ?? ''); ?>">
-                    </div>
-                </div>
-                <div class="input-control">
-                    <label for="pilotRate"><?= e($pilotForm['rate'] ?? ''); ?></label>
-                    <input type="text" id="pilotRate" name="comfortable_rate" inputmode="decimal" placeholder="<?= e($pilotForm['rate_placeholder'] ?? ''); ?>">
-                </div>
-                <div class="input-control">
-                    <label for="pilotMessage"><?= e($pilotForm['message'] ?? ''); ?></label>
-                    <textarea id="pilotMessage" name="message" rows="4" placeholder="<?= e($pilotForm['message_placeholder'] ?? ''); ?>"></textarea>
-                </div>
-                <p class="form-consent"><?= e($pilotForm['consent'] ?? ''); ?></p>
-                <div class="pilot-form-actions">
-                    <button class="btn btn-primary" type="submit">
-                        <span class="icon rocket" aria-hidden="true"></span><?= e($pilotForm['submit'] ?? ''); ?>
-                    </button>
-                </div>
-                <p class="form-message success" data-pilot-success hidden><?= e($pilotForm['success'] ?? ''); ?></p>
-                <p class="form-message error" data-pilot-error hidden><?= e($pilotForm['error'] ?? ''); ?></p>
-            </form>
-        </div>
-    </div>
-</section>
-
-<div class="divider" role="presentation"></div>
-
 <section id="pricing" class="container pricing-section">
     <h2 class="h2"><?= e($t->get('pricing.title')); ?></h2>
     <p class="muted"><?= e($t->get('pricing.subtitle')); ?></p>
@@ -775,6 +713,68 @@ if (is_array($pricingComparisonConfig)) {
         </div>
     </section>
 <?php endif; ?>
+
+<div class="divider" role="presentation"></div>
+
+<section id="pilots" class="container pilots-section">
+    <div class="pilots-grid">
+        <div class="pilot-overview">
+            <div class="eyebrow"><?= e($t->get('pilots.eyebrow')); ?></div>
+            <h2 class="h2"><?= e($t->get('pilots.title')); ?></h2>
+            <p class="lead"><?= e($t->get('pilots.subtitle')); ?></p>
+            <?php if (is_array($pilotPoints) && $pilotPoints !== []): ?>
+                <ul class="pilot-points">
+                    <?php foreach ($pilotPoints as $point): ?>
+                        <li><span><?= e($point); ?></span></li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+        </div>
+        <div class="card pilots-card">
+            <h3 class="card-title"><?= e($pilotForm['title'] ?? ''); ?></h3>
+            <p class="card-desc"><?= e($pilotForm['subtitle'] ?? ''); ?></p>
+            <form id="pilotForm" class="pilot-form" action="<?= e($pilotForm['action'] ?? 'https://nerp.app/api/pilot-request'); ?>" method="post" data-pilot-form>
+                <input type="hidden" name="locale" value="<?= e($currentLocale ?? 'ru'); ?>">
+                <div class="form-grid">
+                    <div class="input-control">
+                        <label for="pilotName"><?= e($pilotForm['name'] ?? ''); ?></label>
+                        <input type="text" id="pilotName" name="name" autocomplete="name" placeholder="<?= e($pilotForm['name_placeholder'] ?? ''); ?>" required>
+                    </div>
+                    <div class="input-control">
+                        <label for="pilotEmail"><?= e($pilotForm['email'] ?? ''); ?></label>
+                        <input type="email" id="pilotEmail" name="email" autocomplete="email" placeholder="<?= e($pilotForm['email_placeholder'] ?? ''); ?>" required>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="input-control">
+                        <label for="pilotCompany"><?= e($pilotForm['company'] ?? ''); ?></label>
+                        <input type="text" id="pilotCompany" name="company" autocomplete="organization" placeholder="<?= e($pilotForm['company_placeholder'] ?? ''); ?>">
+                    </div>
+                    <div class="input-control">
+                        <label for="pilotRole"><?= e($pilotForm['role'] ?? ''); ?></label>
+                        <input type="text" id="pilotRole" name="role" placeholder="<?= e($pilotForm['role_placeholder'] ?? ''); ?>">
+                    </div>
+                </div>
+                <div class="input-control">
+                    <label for="pilotRate"><?= e($pilotForm['rate'] ?? ''); ?></label>
+                    <input type="text" id="pilotRate" name="comfortable_rate" inputmode="decimal" placeholder="<?= e($pilotForm['rate_placeholder'] ?? ''); ?>">
+                </div>
+                <div class="input-control">
+                    <label for="pilotMessage"><?= e($pilotForm['message'] ?? ''); ?></label>
+                    <textarea id="pilotMessage" name="message" rows="4" placeholder="<?= e($pilotForm['message_placeholder'] ?? ''); ?>"></textarea>
+                </div>
+                <p class="form-consent"><?= e($pilotForm['consent'] ?? ''); ?></p>
+                <div class="pilot-form-actions">
+                    <button class="btn btn-primary" type="submit">
+                        <span class="icon rocket" aria-hidden="true"></span><?= e($pilotForm['submit'] ?? ''); ?>
+                    </button>
+                </div>
+                <p class="form-message success" data-pilot-success hidden><?= e($pilotForm['success'] ?? ''); ?></p>
+                <p class="form-message error" data-pilot-error hidden><?= e($pilotForm['error'] ?? ''); ?></p>
+            </form>
+        </div>
+    </div>
+</section>
 
 <div class="divider" role="presentation"></div>
 

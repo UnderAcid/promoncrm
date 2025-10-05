@@ -99,6 +99,19 @@ final class LocaleManager
         return $this->translator;
     }
 
+    /**
+     * @return string[]
+     */
+    public function getBaseSegments(): array
+    {
+        return $this->baseSegments;
+    }
+
+    public function getDefaultLocale(): string
+    {
+        return $this->default;
+    }
+
     private function isSupported(string $locale): bool
     {
         return array_key_exists($locale, $this->locales);

@@ -108,6 +108,12 @@ a:hover {
   margin: 0;
 }
 
+.h3 {
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 700;
+  margin: 0;
+}
+
 section > .h2 {
   margin-bottom: 16px;
 }
@@ -223,7 +229,6 @@ section > .muted {
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
   color: inherit;
 }
 
@@ -231,21 +236,15 @@ section > .muted {
   text-decoration: none;
 }
 
-.brand-mark {
-  width: 40px;
-  height: 40px;
-  border-radius: 14px;
-  background: var(--color-text);
-  color: var(--color-bg);
-  display: grid;
-  place-items: center;
-  font-weight: 700;
-  font-size: 18px;
+.brand-logo {
+  display: block;
+  height: 34px;
+  width: auto;
+  transition: transform 0.3s ease;
 }
 
-.brand-name {
-  font-weight: 700;
-  font-size: 16px;
+.brand:hover .brand-logo {
+  transform: translateY(-1px);
 }
 
 .nav {
@@ -623,6 +622,7 @@ html.no-js .nav-toggle {
 .icon.layers::before { content: '🧱'; }
 .icon.cpu::before { content: '🤖'; }
 .icon.chat::before { content: '💬'; }
+.icon.mail::before { content: '✉️'; }
 .icon.percent::before { content: '%'; font-weight: 700; }
 .icon.chevron::before { content: '⌄'; }
 .icon.theme::before { content: '🌓'; }
@@ -1699,7 +1699,7 @@ input[type='range'] {
 }
 
 .outcomes-footnote {
-  margin-top: 32px;
+  margin-top: 48px;
   max-width: 520px;
 }
 
@@ -1719,19 +1719,6 @@ input[type='range'] {
   position: relative;
   overflow: hidden;
   gap: 14px;
-}
-
-.enablement-stage::before {
-  content: '';
-  position: absolute;
-  inset: 20px 18px auto;
-  height: 2px;
-  background: rgba(37, 99, 235, 0.18);
-  border-radius: 999px;
-}
-
-.enablement-stage:last-child::before {
-  display: none;
 }
 
 .stage-index {
@@ -1859,6 +1846,158 @@ input[type='range'] {
   padding: 32px 0;
   border-top: 1px solid var(--color-border);
   background: var(--color-surface);
+}
+
+.policy-hero {
+  padding-block: clamp(72px, 16vw, 140px) 32px;
+}
+
+.policy-hero-inner {
+  max-width: 760px;
+  display: grid;
+  gap: 16px;
+}
+
+.policy-title {
+  margin: 0;
+}
+
+.policy-intro {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.policy-updated {
+  margin: 4px 0 0;
+}
+
+.policy-summary {
+  margin-bottom: 32px;
+}
+
+.policy-summary-title {
+  margin: 0 0 16px;
+}
+
+.policy-summary-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.policy-summary-grid li {
+  padding: 18px 20px;
+  border-radius: 18px;
+  background: rgba(37, 99, 235, 0.06);
+  color: var(--color-text);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+:root[data-theme='dark'] .policy-summary-grid li {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.policy-sections {
+  display: grid;
+  gap: 40px;
+  padding-bottom: clamp(64px, 12vw, 120px);
+}
+
+.policy-section {
+  display: grid;
+  gap: 16px;
+}
+
+.policy-section-title {
+  margin: 0;
+}
+
+.policy-section-intro {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.policy-section-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+}
+
+.policy-section-list > li {
+  padding: 20px 24px;
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.04);
+  display: grid;
+  gap: 10px;
+}
+
+:root[data-theme='dark'] .policy-section-list > li {
+  background: rgba(148, 163, 184, 0.1);
+}
+
+.policy-section-list > li h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.policy-section-list > li p {
+  margin: 0;
+  color: var(--color-text);
+}
+
+.policy-section-list > li ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+}
+
+.policy-contact {
+  display: grid;
+  gap: 12px;
+  padding: 28px 32px;
+}
+
+.policy-contact h2 {
+  margin: 0;
+}
+
+.policy-contact-email {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.policy-contact-email .icon {
+  width: 18px;
+  height: 18px;
+}
+
+.policy-contact-hours {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .policy-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .policy-section-list > li {
+    padding: 18px;
+  }
+
+  .policy-contact {
+    padding: 24px;
+  }
 }
 
 .footer-inner {

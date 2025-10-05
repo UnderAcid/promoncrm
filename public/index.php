@@ -21,6 +21,14 @@ $themeManager = new ThemeManager(['light', 'dark'], 'light');
 
 $translator = $localeManager->translator();
 
+$baseSegments = $localeManager->getBaseSegments();
+$route = $baseSegments[0] ?? '';
+$page = 'home';
+
+$isDefaultLocale = $localeManager->getCurrentLocale() === $localeManager->getDefaultLocale();
+$homeUrl = $isDefaultLocale ? '/' : '/' . $localeManager->getCurrentLocale() . '/';
+$policyUrl = $isDefaultLocale ? '/policy/' : '/' . $localeManager->getCurrentLocale() . '/policy/';
+
 $audiencePitches = $translator->get('audience.pitches');
 $defaultAudience = is_array($audiencePitches) ? array_key_first($audiencePitches) : 'business';
 
@@ -41,10 +49,36 @@ $clientConfig = [
     'fiatPerUsd' => (float) $translator->get('pricing.fiat_per_usd', [], 1.0),
 ];
 
-$content = View::render('home', [
-    't' => $translator,
-    'currentLocale' => $localeManager->getCurrentLocale(),
-]);
+$pageMeta = [];
+
+switch ($route) {
+    case 'policy':
+        $page = 'policy';
+        $content = View::render('policy', [
+            't' => $translator,
+            'currentLocale' => $localeManager->getCurrentLocale(),
+        ]);
+        $policyMeta = $translator->get('policy.meta');
+        if (is_array($policyMeta)) {
+            $pageMeta = array_filter([
+                'title' => (string) ($policyMeta['title'] ?? ''),
+                'description' => (string) ($policyMeta['description'] ?? ''),
+            ], static fn (string $value): bool => $value !== '');
+        }
+        break;
+    case '':
+        $page = 'home';
+        // no break
+    default:
+        if ($route !== '' && $route !== 'policy') {
+            http_response_code(404);
+        }
+        $content = View::render('home', [
+            't' => $translator,
+            'currentLocale' => $localeManager->getCurrentLocale(),
+        ]);
+        break;
+}
 
 echo View::render('layout', [
     't' => $translator,
@@ -55,4 +89,10 @@ echo View::render('layout', [
     'clientConfig' => $clientConfig,
     'themes' => $themeManager->getAvailableThemes(),
     'localeUrls' => $localeUrls,
+    'page' => $page,
+    'homeUrl' => $homeUrl,
+    'routeUrls' => [
+        'policy' => $policyUrl,
+    ],
+    'pageMeta' => $pageMeta,
 ]);
