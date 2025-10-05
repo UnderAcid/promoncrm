@@ -251,6 +251,9 @@ return [
             'cons_label' => 'Минусы',
             'nerp_tokens_suffix' => 'токенов в месяц',
             'team_caption' => 'за {count} человек',
+            'nav_prev' => 'Предыдущая система',
+            'nav_next' => 'Следующая система',
+            'dot_label' => 'Перейти к системе «{name}»',
             'systems' => [
                 [
                     'id' => 'google-sheets',
@@ -280,9 +283,9 @@ return [
                 ],
                 [
                     'id' => '1c',
-                    'name' => '1C',
-                    'price_per_user' => 1800,
-                    'price_period' => 'в месяц за пользователя (SaaS)',
+                    'name' => '1С:CRM',
+                    'price_per_user' => 1890,
+                    'price_period' => 'в месяц за пользователя (облако, при оплате за год)',
                     'nerp' => [
                         'pros' => [
                             'Сложные процессы без долгой кастомной разработки.',
@@ -306,9 +309,9 @@ return [
                 ],
                 [
                     'id' => 'amocrm',
-                    'name' => 'amoCRM',
-                    'price_per_user' => 2400,
-                    'price_period' => 'в месяц за пользователя (Advanced)',
+                    'name' => 'Kommo (ex. amoCRM)',
+                    'price_per_user' => 2490,
+                    'price_period' => 'в месяц за пользователя (Advanced, при оплате за год)',
                     'nerp' => [
                         'pros' => [
                             'Учитываем процессы за пределами отдела продаж.',
@@ -333,8 +336,9 @@ return [
                 [
                     'id' => 'bitrix24',
                     'name' => 'Bitrix24',
-                    'price_per_user' => 1990,
-                    'price_period' => 'в месяц за пользователя (Команда)',
+                    'price_per_user' => 59.8,
+                    'price_min' => 2990,
+                    'price_period' => 'в месяц за аккаунт (тариф «Команда», до 50 пользователей при оплате за год)',
                     'nerp' => [
                         'pros' => [
                             'Фокус на межфункциональные операционные процессы.',

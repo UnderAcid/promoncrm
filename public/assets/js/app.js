@@ -255,6 +255,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const comparisonNerpFiatNodes = document.querySelectorAll('[data-comparison-nerp-fiat]');
   const comparisonNerpTokenNodes = document.querySelectorAll('[data-comparison-nerp-tokens]');
   const comparisonTeamNodes = document.querySelectorAll('[data-comparison-team]');
+  const comparisonSlider = document.querySelector('[data-comparison-slider]');
+  const comparisonTrack = comparisonSlider?.querySelector('[data-comparison-track]') ?? null;
+  const comparisonPrev = comparisonSlider?.querySelector('[data-comparison-prev]') ?? null;
+  const comparisonNext = comparisonSlider?.querySelector('[data-comparison-next]') ?? null;
+  const comparisonDots = comparisonSlider ? Array.from(comparisonSlider.querySelectorAll('[data-comparison-dot]')) : [];
+  const comparisonSlides = Array.from(comparisonCards);
+  let comparisonIndex = 0;
+  let comparisonScrollRaf = 0;
 
   const parseLocaleNumber = (value) => {
     if (typeof value !== 'string') return Number.NaN;
@@ -355,6 +363,108 @@ document.addEventListener('DOMContentLoaded', () => {
         target.textContent = '—';
       }
     });
+  }
+
+  const clampComparisonIndex = (value) => {
+    if (!Number.isInteger(value)) return 0;
+    return Math.min(Math.max(value, 0), Math.max(comparisonSlides.length - 1, 0));
+  };
+
+  const updateComparisonDots = () => {
+    comparisonDots.forEach((dot, index) => {
+      const isActive = index === comparisonIndex;
+      dot.classList.toggle('is-active', isActive);
+      dot.setAttribute('aria-pressed', String(isActive));
+    });
+  };
+
+  const updateComparisonNavState = () => {
+    if (comparisonPrev instanceof HTMLButtonElement) {
+      comparisonPrev.disabled = comparisonIndex <= 0;
+    }
+    if (comparisonNext instanceof HTMLButtonElement) {
+      comparisonNext.disabled = comparisonIndex >= comparisonSlides.length - 1;
+    }
+  };
+
+  const scrollToComparisonIndex = (index) => {
+    if (!(comparisonTrack instanceof HTMLElement)) return;
+    const slide = comparisonSlides[index];
+    if (!(slide instanceof HTMLElement)) return;
+    const firstSlide = comparisonSlides[0];
+    const baseOffset = firstSlide instanceof HTMLElement ? firstSlide.offsetLeft : 0;
+    const target = slide.offsetLeft - baseOffset;
+    comparisonTrack.scrollTo({ left: target, behavior: 'smooth' });
+  };
+
+  const setComparisonIndex = (nextIndex, options = {}) => {
+    const desired = clampComparisonIndex(nextIndex);
+    const shouldScroll = options.scroll !== false;
+    if (comparisonSlides.length === 0) {
+      return;
+    }
+    if (comparisonIndex === desired && !shouldScroll) {
+      return;
+    }
+    comparisonIndex = desired;
+    updateComparisonNavState();
+    updateComparisonDots();
+    if (shouldScroll) {
+      scrollToComparisonIndex(desired);
+    }
+  };
+
+  const syncComparisonFromScroll = () => {
+    if (!(comparisonTrack instanceof HTMLElement) || comparisonSlides.length === 0) {
+      return;
+    }
+    const scrollLeft = comparisonTrack.scrollLeft;
+    let closestIndex = comparisonIndex;
+    let smallestDiff = Number.POSITIVE_INFINITY;
+    const baseOffset = comparisonSlides[0].offsetLeft;
+    comparisonSlides.forEach((slide, index) => {
+      if (!(slide instanceof HTMLElement)) {
+        return;
+      }
+      const target = slide.offsetLeft - baseOffset;
+      const diff = Math.abs(target - scrollLeft);
+      if (diff < smallestDiff) {
+        smallestDiff = diff;
+        closestIndex = index;
+      }
+    });
+    if (closestIndex !== comparisonIndex) {
+      comparisonIndex = closestIndex;
+      updateComparisonNavState();
+      updateComparisonDots();
+    }
+  };
+
+  if (comparisonPrev instanceof HTMLButtonElement) {
+    comparisonPrev.addEventListener('click', () => setComparisonIndex(comparisonIndex - 1));
+  }
+
+  if (comparisonNext instanceof HTMLButtonElement) {
+    comparisonNext.addEventListener('click', () => setComparisonIndex(comparisonIndex + 1));
+  }
+
+  comparisonDots.forEach((dot, index) => {
+    dot.addEventListener('click', () => setComparisonIndex(index));
+  });
+
+  if (comparisonTrack instanceof HTMLElement && comparisonSlides.length > 0) {
+    comparisonTrack.addEventListener('scroll', () => {
+      if (comparisonScrollRaf) {
+        cancelAnimationFrame(comparisonScrollRaf);
+      }
+      comparisonScrollRaf = requestAnimationFrame(syncComparisonFromScroll);
+    });
+
+    window.addEventListener('resize', () => {
+      setComparisonIndex(comparisonIndex, { scroll: true });
+    });
+
+    setComparisonIndex(0, { scroll: false });
   }
 
   function updateTokenDerived() {

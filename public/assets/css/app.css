@@ -638,6 +638,8 @@ html.no-js .nav-toggle {
 .icon.database::before { content: '🗄️'; }
 .icon.plus::before { content: '+'; font-size: 16px; font-weight: 700; }
 .icon.minus::before { content: '−'; font-size: 16px; font-weight: 700; }
+.icon.arrow-left::before { content: '←'; }
+.icon.arrow-right::before { content: '→'; }
 
 .illustration {
   position: relative;
@@ -914,16 +916,98 @@ html.no-js .nav-toggle {
   gap: 28px;
 }
 
-.comparison-grid {
+.comparison-slider {
+  position: relative;
   display: grid;
+  gap: 16px;
+}
+
+.comparison-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: min(100%, clamp(280px, 68vw, 360px));
   gap: 20px;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  overflow-x: auto;
+  padding: 12px 6px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.comparison-track::-webkit-scrollbar {
+  height: 6px;
+}
+
+.comparison-track::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 999px;
+}
+
+.comparison-track:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 6px;
+}
+
+.comparison-nav {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-strong);
+  color: inherit;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+
+.comparison-nav:hover,
+.comparison-nav:focus-visible {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary);
+}
+
+.comparison-nav[disabled] {
+  opacity: 0.4;
+  cursor: default;
+  pointer-events: none;
+}
+
+.comparison-dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.comparison-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: none;
+  padding: 0;
+  background: var(--color-border);
+  transition: background 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+
+.comparison-dot.is-active {
+  background: var(--color-primary);
+  transform: scale(1.15);
+}
+
+.comparison-dot:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .comparison-card {
   display: grid;
   gap: 18px;
   align-content: start;
+  scroll-snap-align: start;
 }
 
 .comparison-card-title {
@@ -1005,6 +1089,38 @@ html.no-js .nav-toggle {
   gap: 6px;
   font-size: 14px;
   line-height: 1.5;
+}
+
+@media (min-width: 768px) {
+  .comparison-slider {
+    padding-inline: 56px;
+  }
+
+  .comparison-track {
+    grid-auto-columns: min(100%, 360px);
+    padding-inline: 0;
+  }
+
+  .comparison-nav {
+    display: inline-flex;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .comparison-nav.is-prev {
+    left: 0;
+  }
+
+  .comparison-nav.is-next {
+    right: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .comparison-track {
+    grid-auto-columns: min(100%, 88vw);
+  }
 }
 
 .pricing-notice {
@@ -1590,15 +1706,6 @@ input[type='range'] {
   gap: 20px;
 }
 
-.outcome-card::before {
-  content: '';
-  position: absolute;
-  inset: 18px 18px auto;
-  height: 2px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(37, 99, 235, 0.45), transparent);
-}
-
 .outcome-value {
   font-size: clamp(28px, 4vw, 42px);
   font-weight: 800;
@@ -1607,7 +1714,7 @@ input[type='range'] {
 }
 
 .outcomes-footnote {
-  margin-top: 18px;
+  margin-top: 32px;
   max-width: 520px;
 }
 

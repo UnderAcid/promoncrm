@@ -261,6 +261,9 @@ return [
             'cons_label' => 'Cons',
             'nerp_tokens_suffix' => 'tokens / month',
             'team_caption' => 'for {count} people',
+            'nav_prev' => 'Previous system',
+            'nav_next' => 'Next system',
+            'dot_label' => 'Show {name}',
             'systems' => [
                 [
                     'id' => 'google-sheets',
@@ -290,9 +293,9 @@ return [
                 ],
                 [
                     'id' => '1c',
-                    'name' => '1C',
-                    'price_per_user' => 35,
-                    'price_period' => 'per user / month (cloud)',
+                    'name' => '1C:CRM',
+                    'price_per_user' => 29,
+                    'price_period' => 'per user / month (cloud, 12-month contract)',
                     'nerp' => [
                         'pros' => [
                             'Handles complex workflows without custom code.',
@@ -316,9 +319,9 @@ return [
                 ],
                 [
                     'id' => 'amocrm',
-                    'name' => 'amoCRM',
+                    'name' => 'Kommo (ex. amoCRM)',
                     'price_per_user' => 25,
-                    'price_period' => 'per user / month (Advanced)',
+                    'price_period' => 'per user / month (Advanced, billed annually)',
                     'nerp' => [
                         'pros' => [
                             'Covers finance, warehouse, and logistics beyond sales.',
@@ -343,8 +346,9 @@ return [
                 [
                     'id' => 'bitrix24',
                     'name' => 'Bitrix24',
-                    'price_per_user' => 24,
-                    'price_period' => 'per user / month (Teams plan)',
+                    'price_per_user' => 2.48,
+                    'price_min' => 124,
+                    'price_period' => 'per account / month (Teams, 50 users, billed annually)',
                     'nerp' => [
                         'pros' => [
                             'Designed for cross-team operational workflows.',
