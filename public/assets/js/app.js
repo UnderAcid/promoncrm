@@ -251,6 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const tokenPreviewValue = document.querySelector('[data-token-preview-value]');
   const operationFiatNodes = document.querySelectorAll('[data-operation-fiat]');
   const tokenPresetButtons = document.querySelectorAll('[data-token-preset]');
+  const comparisonOurPriceTargets = document.querySelectorAll('[data-comparison-our-price]');
 
   const parseLocaleNumber = (value) => {
     if (typeof value !== 'string') return Number.NaN;
@@ -327,6 +328,11 @@ document.addEventListener('DOMContentLoaded', () => {
     nerpTotal.textContent = tokenFormatter.format(result.nerpSpend);
     const fiatValue = tokenPriceUsd > 0 ? result.nerpSpend * tokenPriceUsd * fiatPerUsd : 0;
     fiatApprox.textContent = currencyFormatter.format(fiatValue);
+    comparisonOurPriceTargets.forEach((target) => {
+      if (target instanceof HTMLElement) {
+        target.textContent = currencyFormatter.format(fiatValue);
+      }
+    });
     updateTokenDerived();
   }
 

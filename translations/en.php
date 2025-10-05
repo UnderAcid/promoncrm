@@ -15,6 +15,106 @@ return [
         ],
         'noscript' => 'JavaScript is disabled. Some functionality may be limited.',
     ],
+    'pricing_comparison' => [
+        'title' => 'Cost comparison with popular ERP/CRM platforms',
+        'subtitle' => 'nERP pricing follows the calculator above. Competitor fees reference public plans for ~50 seats.',
+        'our_heading' => 'nERP',
+        'our_price_label' => 'Calculator estimate',
+        'their_price_label' => 'Typical plan',
+        'pros_label' => 'Pros',
+        'cons_label' => 'Cons',
+        'disclaimer' => 'Figures are indicative and depend on configuration. Check vendor websites for live pricing.',
+        'cards' => [
+            [
+                'id' => 'google-sheets',
+                'name' => 'Google Sheets',
+                'summary' => 'Great for a quick start, but manual ops scale with the team.',
+                'their_price' => '≈ ₽1,200/mo per Workspace seat',
+                'our_pros' => [
+                    'Automated flows, access control, and audit from day one.',
+                    'Consolidated reporting without spreadsheet juggling.',
+                ],
+                'our_cons' => [
+                    'Requires a pilot to tailor processes to your team.',
+                    'Usage-based billing depends on activity volume.',
+                ],
+                'their_pros' => [
+                    'Instant setup with a familiar interface.',
+                    'Flexible formulas and straightforward API automations.',
+                ],
+                'their_cons' => [
+                    'No built-in role-based access or tamper-proof audit.',
+                    'Scaling complex workflows demands custom scripts.',
+                ],
+            ],
+            [
+                'id' => '1c',
+                'name' => '1C',
+                'summary' => 'Powerful accounting, yet slow to adapt for ops teams.',
+                'their_price' => '≈ ₽4,500/mo cloud subscription',
+                'our_pros' => [
+                    'Quickly deploy operational flows and dashboards.',
+                    'Pilot scope covers integrations and joint roadmap.',
+                ],
+                'our_cons' => [
+                    'Accounting modules require extra integration.',
+                    'Smaller catalog of ready-made extensions today.',
+                ],
+                'their_pros' => [
+                    'Deep finance and inventory automation.',
+                    'Large partner network for implementation.',
+                ],
+                'their_cons' => [
+                    'Lengthy deployments and expensive customization.',
+                    'Heavy interface for daily operators.',
+                ],
+            ],
+            [
+                'id' => 'amocrm',
+                'name' => 'amoCRM',
+                'summary' => 'Sales-first toolkit with limited cross-team journeys.',
+                'their_price' => 'from ₽1,899/user per month',
+                'our_pros' => [
+                    'One platform for operations beyond the sales funnel.',
+                    'Flexible roles and states for internal and partner teams.',
+                ],
+                'our_cons' => [
+                    'Needs a joint pilot to map the process blueprint.',
+                    'Fewer ready-made CRM templates for sales scenarios.',
+                ],
+                'their_pros' => [
+                    'Rich CRM automation and sales analytics.',
+                    'Extensive marketing and telephony integrations.',
+                ],
+                'their_cons' => [
+                    'Per-user pricing grows with headcount.',
+                    'Hard to orchestrate non-sales workflows.',
+                ],
+            ],
+            [
+                'id' => 'bitrix24',
+                'name' => 'Bitrix24',
+                'summary' => 'An all-in-one suite that needs dedicated maintenance.',
+                'their_price' => 'from ₽2,990/mo per team',
+                'our_pros' => [
+                    'Pay only for actual user actions.',
+                    'Security-first design: encryption, audit, isolated nodes.',
+                ],
+                'our_cons' => [
+                    'Not every mainstream module is available yet.',
+                    'Pilot requires close collaboration on the roadmap.',
+                ],
+                'their_pros' => [
+                    'Wide catalog of built-in tools and widgets.',
+                    'Large marketplace of extensions and add-ons.',
+                ],
+                'their_cons' => [
+                    'You pay for modules even if underused.',
+                    'Complex configuration and upkeep overhead.',
+                ],
+            ],
+        ],
+    ],
     'meta' => [
         'title' => 'nERP — Web3 ERP Builder | nerp.app',
         'description' => 'Build CRM, HR, and inventory workflows in one day at nerp.app. The nERP Web3 ERP builder keeps data encrypted locally, scales via nodes, and charges only for real actions.',
@@ -160,9 +260,27 @@ return [
         'integrations_core' => 'nERP node',
         'integrations_core_desc' => 'Encrypted core ledger with roles, audit, and billing.',
         'integrations' => [
-            ['name' => 'Slack webhooks', 'tag' => 'Comms', 'status' => 'Live', 'icon' => 'chat'],
-            ['name' => '1C gateway', 'tag' => 'Accounting', 'status' => 'Pilot', 'icon' => 'ledger'],
-            ['name' => 'PostgreSQL', 'tag' => 'Database', 'status' => 'Live', 'icon' => 'database'],
+            [
+                'name' => 'Slack webhooks',
+                'tag' => 'Comms',
+                'status' => 'Live',
+                'icon' => 'chat',
+                'desc' => 'Alerts key channels instantly and keeps pilot stakeholders aligned.',
+            ],
+            [
+                'name' => '1C gateway',
+                'tag' => 'Accounting',
+                'status' => 'Pilot',
+                'icon' => 'ledger',
+                'desc' => 'Sync bookkeeping entries with your 1C contour without manual exports.',
+            ],
+            [
+                'name' => 'PostgreSQL',
+                'tag' => 'Database',
+                'status' => 'Live',
+                'icon' => 'database',
+                'desc' => 'Structured storage for analytics — ready for BI dashboards and exports.',
+            ],
         ],
         'footnote' => 'Need something else? Pilot teams can request new connectors directly in the brief.',
     ],
