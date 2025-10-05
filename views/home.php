@@ -135,6 +135,75 @@ $decimalSeparator = str_contains($pricingLocale, 'ru') ? ',' : '.';
 $thousandsSeparator = str_contains($pricingLocale, 'ru') ? "\u{00a0}" : ',';
 $operationsSuffix = (string) ($t->get('pricing.operations_suffix') ?? 'nERP');
 $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰ˆ');
+
+$normalizeList = static function ($value): array {
+    $result = [];
+    if (is_array($value)) {
+        foreach ($value as $entry) {
+            if (is_array($entry)) {
+                $entry = $entry['text'] ?? '';
+            }
+            $text = trim((string) $entry);
+            if ($text !== '') {
+                $result[] = $text;
+            }
+        }
+    } else {
+        $text = trim((string) $value);
+        if ($text !== '') {
+            $result[] = $text;
+        }
+    }
+
+    return $result;
+};
+
+$pricingComparison = $t->get('pricing_comparison');
+$pricingComparisonSystems = [];
+$comparisonTitle = '';
+$comparisonSubtitle = '';
+$comparisonLegend = '';
+$comparisonOurLabel = '';
+$comparisonTheirLabel = '';
+$comparisonProsLabel = '';
+$comparisonConsLabel = '';
+$comparisonOurProsLabel = '';
+$comparisonOurConsLabel = '';
+$comparisonTheirProsLabel = '';
+$comparisonTheirConsLabel = '';
+
+if (is_array($pricingComparison)) {
+    $comparisonTitle = (string) ($pricingComparison['title'] ?? '');
+    $comparisonSubtitle = (string) ($pricingComparison['subtitle'] ?? '');
+    $comparisonLegend = (string) ($pricingComparison['legend'] ?? '');
+    $comparisonOurLabel = (string) ($pricingComparison['our_label'] ?? 'nERP');
+    $comparisonTheirLabel = (string) ($pricingComparison['their_label'] ?? '');
+    $comparisonProsLabel = (string) ($pricingComparison['pros_label'] ?? '');
+    $comparisonConsLabel = (string) ($pricingComparison['cons_label'] ?? '');
+    $comparisonOurProsLabel = (string) ($pricingComparison['our_pros_label'] ?? $comparisonProsLabel);
+    $comparisonOurConsLabel = (string) ($pricingComparison['our_cons_label'] ?? $comparisonConsLabel);
+    $comparisonTheirProsLabel = (string) ($pricingComparison['their_pros_label'] ?? $comparisonProsLabel);
+    $comparisonTheirConsLabel = (string) ($pricingComparison['their_cons_label'] ?? $comparisonConsLabel);
+
+    $systems = $pricingComparison['systems'] ?? [];
+    if (is_array($systems)) {
+        foreach ($systems as $system) {
+            if (!is_array($system)) {
+                continue;
+            }
+
+            $pricingComparisonSystems[] = [
+                'name' => (string) ($system['name'] ?? ''),
+                'our_price' => (string) ($system['our_price'] ?? ''),
+                'their_price' => (string) ($system['their_price'] ?? ''),
+                'our_pros' => $normalizeList($system['our_pros'] ?? []),
+                'our_cons' => $normalizeList($system['our_cons'] ?? []),
+                'their_pros' => $normalizeList($system['their_pros'] ?? []),
+                'their_cons' => $normalizeList($system['their_cons'] ?? []),
+            ];
+        }
+    }
+}
 ?>
 <section class="container section-hero" id="hero">
     <div class="grid two">
@@ -278,6 +347,7 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                         'tag' => (string) ($integration['tag'] ?? ''),
                         'status' => (string) ($integration['status'] ?? ''),
                         'icon' => (string) ($integration['icon'] ?? ''),
+                        'desc' => (string) ($integration['desc'] ?? ''),
                     ];
                 } else {
                     $integrationItems[] = [
@@ -285,6 +355,7 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                         'tag' => '',
                         'status' => '',
                         'icon' => '',
+                        'desc' => '',
                     ];
                 }
             }
@@ -311,10 +382,10 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                                 <p class="integration-core-desc"><?= e($stack['integrations_core_desc']); ?></p>
                             <?php endif; ?>
                         </div>
-                        <ul class="integration-partners">
+                        <div class="integration-features-grid">
                             <?php foreach ($integrationItems as $item): ?>
-                                <li class="integration-partner">
-                                    <div class="integration-partner-body">
+                                <div class="integration-feature-card">
+                                    <div class="integration-feature-main">
                                         <?php if ($item['icon'] !== ''): ?>
                                             <span class="integration-icon" aria-hidden="true"><span class="icon <?= e($item['icon']); ?>"></span></span>
                                         <?php endif; ?>
@@ -332,9 +403,12 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                                             <?php endif; ?>
                                         </div>
                                     </div>
-                                </li>
+                                    <?php if ($item['desc'] !== ''): ?>
+                                        <p class="integration-feature-desc"><?= e($item['desc']); ?></p>
+                                    <?php endif; ?>
+                                </div>
                             <?php endforeach; ?>
-                        </ul>
+                        </div>
                     </div>
                 <?php endif; ?>
                 <?php if (!empty($stack['footnote'])): ?>
@@ -588,6 +662,92 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
 </section>
 
 <div class="divider" role="presentation"></div>
+
+<?php if ($pricingComparisonSystems !== []): ?>
+    <section id="pricing-comparison" class="container pricing-compare-section">
+        <div class="pricing-compare-header">
+            <?php if ($comparisonTitle !== ''): ?>
+                <h2 class="h2"><?= e($comparisonTitle); ?></h2>
+            <?php endif; ?>
+            <?php if ($comparisonSubtitle !== ''): ?>
+                <p class="muted"><?= e($comparisonSubtitle); ?></p>
+            <?php endif; ?>
+            <?php if ($comparisonLegend !== ''): ?>
+                <p class="pricing-compare-legend muted small"><?= e($comparisonLegend); ?></p>
+            <?php endif; ?>
+        </div>
+        <div class="pricing-compare-grid">
+            <?php foreach ($pricingComparisonSystems as $system): ?>
+                <article class="card comparison-card">
+                    <div class="comparison-card-title"><?= e($system['name']); ?></div>
+                    <div class="comparison-card-columns">
+                        <div class="comparison-column comparison-column-our">
+                            <div class="comparison-column-header">
+                                <?php if ($comparisonOurLabel !== ''): ?>
+                                    <span class="comparison-badge"><?= e($comparisonOurLabel); ?></span>
+                                <?php endif; ?>
+                                <?php if ($system['our_price'] !== ''): ?>
+                                    <div class="comparison-price"><?= e($system['our_price']); ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <?php if ($system['our_pros'] !== []): ?>
+                                <div class="comparison-list">
+                                    <div class="comparison-list-title comparison-list-title-pros"><?= e($comparisonOurProsLabel !== '' ? $comparisonOurProsLabel : $comparisonProsLabel); ?></div>
+                                    <ul>
+                                        <?php foreach ($system['our_pros'] as $item): ?>
+                                            <li><?= e($item); ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            <?php endif; ?>
+                            <?php if ($system['our_cons'] !== []): ?>
+                                <div class="comparison-list">
+                                    <div class="comparison-list-title comparison-list-title-cons"><?= e($comparisonOurConsLabel !== '' ? $comparisonOurConsLabel : $comparisonConsLabel); ?></div>
+                                    <ul>
+                                        <?php foreach ($system['our_cons'] as $item): ?>
+                                            <li><?= e($item); ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="comparison-column comparison-column-their">
+                            <div class="comparison-column-header">
+                                <?php if ($comparisonTheirLabel !== ''): ?>
+                                    <span class="comparison-badge"><?= e($comparisonTheirLabel); ?></span>
+                                <?php endif; ?>
+                                <?php if ($system['their_price'] !== ''): ?>
+                                    <div class="comparison-price"><?= e($system['their_price']); ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <?php if ($system['their_pros'] !== []): ?>
+                                <div class="comparison-list">
+                                    <div class="comparison-list-title comparison-list-title-pros"><?= e($comparisonTheirProsLabel !== '' ? $comparisonTheirProsLabel : $comparisonProsLabel); ?></div>
+                                    <ul>
+                                        <?php foreach ($system['their_pros'] as $item): ?>
+                                            <li><?= e($item); ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            <?php endif; ?>
+                            <?php if ($system['their_cons'] !== []): ?>
+                                <div class="comparison-list">
+                                    <div class="comparison-list-title comparison-list-title-cons"><?= e($comparisonTheirConsLabel !== '' ? $comparisonTheirConsLabel : $comparisonConsLabel); ?></div>
+                                    <ul>
+                                        <?php foreach ($system['their_cons'] as $item): ?>
+                                            <li><?= e($item); ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        </div>
+    </section>
+    <div class="divider" role="presentation"></div>
+<?php endif; ?>
 
 <section id="partners" class="container">
     <h2 class="h2"><?= e($t->get('partners.title')); ?></h2>

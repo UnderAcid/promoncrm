@@ -160,11 +160,124 @@ return [
         'integrations_core' => 'nERP node',
         'integrations_core_desc' => 'Encrypted core ledger with roles, audit, and billing.',
         'integrations' => [
-            ['name' => 'Slack webhooks', 'tag' => 'Comms', 'status' => 'Live', 'icon' => 'chat'],
-            ['name' => '1C gateway', 'tag' => 'Accounting', 'status' => 'Pilot', 'icon' => 'ledger'],
-            ['name' => 'PostgreSQL', 'tag' => 'Database', 'status' => 'Live', 'icon' => 'database'],
+            [
+                'name' => 'Slack webhooks',
+                'tag' => 'Comms',
+                'status' => 'Live',
+                'icon' => 'chat',
+                'desc' => 'Alerts and workflow notifications without custom code.',
+            ],
+            [
+                'name' => '1C gateway',
+                'tag' => 'Accounting',
+                'status' => 'Pilot',
+                'icon' => 'ledger',
+                'desc' => 'Syncs ledgers and docs with existing 1C instances.',
+            ],
+            [
+                'name' => 'PostgreSQL',
+                'tag' => 'Database',
+                'status' => 'Live',
+                'icon' => 'database',
+                'desc' => 'Operational data warehouse for analytics and bots.',
+            ],
         ],
         'footnote' => 'Need something else? Pilot teams can request new connectors directly in the brief.',
+    ],
+    'pricing_comparison' => [
+        'title' => 'Cost comparison with popular ERP/CRM systems',
+        'subtitle' => 'See how an nERP pilot stacks up against widely used platforms.',
+        'legend' => 'nERP pricing uses the “What nERP costs” calculator with 1 nERP ≈ $1 (~₽93).',
+        'our_label' => 'nERP',
+        'their_label' => 'Other platform',
+        'pros_label' => 'Pros',
+        'cons_label' => 'Cons',
+        'our_pros_label' => 'Our pros',
+        'our_cons_label' => 'Our cons',
+        'their_pros_label' => 'Their pros',
+        'their_cons_label' => 'Their cons',
+        'systems' => [
+            [
+                'name' => 'Google Sheets',
+                'our_price' => '≈ ₽93 for 1,000 actions',
+                'their_price' => '₽0 licence, but manual upkeep',
+                'our_pros' => [
+                    'Automated audit trail and status tracking',
+                    'Encryption and role-based access out of the box',
+                ],
+                'our_cons' => [
+                    'Requires a co-pilot launch with our team',
+                ],
+                'their_pros' => [
+                    'Instant start with no deployment',
+                    'Familiar UI for the whole team',
+                ],
+                'their_cons' => [
+                    'No version control or audit history',
+                    'High risk of errors from manual updates',
+                ],
+            ],
+            [
+                'name' => '1C',
+                'our_price' => '≈ ₽93 for 1,000 actions',
+                'their_price' => 'from ₽1,500 per user/month plus rollout fees',
+                'our_pros' => [
+                    'Pay for real usage instead of per-seat licences',
+                    'Tailored flows for product-specific operations',
+                ],
+                'our_cons' => [
+                    'Accounting modules still in the roadmap',
+                ],
+                'their_pros' => [
+                    'Rich accounting and finance functionality',
+                    'Large network of implementation partners',
+                ],
+                'their_cons' => [
+                    'High upfront implementation investment',
+                    'Customisation requires certified developers',
+                ],
+            ],
+            [
+                'name' => 'amoCRM',
+                'our_price' => '≈ ₽93 for 1,000 actions',
+                'their_price' => 'from ₽1,299 per user/month',
+                'our_pros' => [
+                    'Transparent per-action billing and playbooks',
+                    'Unified process knowledge base with audit',
+                ],
+                'our_cons' => [
+                    'CRM playbooks are built together during the pilot',
+                ],
+                'their_pros' => [
+                    'Ready-made sales pipelines and automations',
+                    'Wide marketplace of integrations',
+                ],
+                'their_cons' => [
+                    'Licences required for every user and add-on',
+                    'Non-standard processes are hard to support cleanly',
+                ],
+            ],
+            [
+                'name' => 'Bitrix24',
+                'our_price' => '≈ ₽93 for 1,000 actions',
+                'their_price' => 'from ₽2,490 per month with plan limits',
+                'our_pros' => [
+                    'Deep customisation for operational circuits',
+                    'Core engineers on standby 24/7 during the pilot',
+                ],
+                'our_cons' => [
+                    'Requires iterative rollout with our specialists',
+                ],
+                'their_pros' => [
+                    'Broad catalogue of built-in collaboration tools',
+                    'Cloud and on-prem editions available',
+                ],
+                'their_cons' => [
+                    'Configuration is complex without integrators',
+                    'Extra fees for storage and active users',
+                ],
+            ],
+        ],
     ],
     'outcomes' => [
         'title' => 'Pilot outcomes you can pitch internally',
