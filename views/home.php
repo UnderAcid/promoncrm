@@ -230,17 +230,18 @@ if (is_array($pricingComparisonConfig)) {
             <h1 class="h1"><?= e($t->get('hero.title')); ?></h1>
             <p class="lead"><?= e($t->get('hero.lead')); ?></p>
             <div class="cta-row">
-                <a class="btn btn-primary" href="#pilots">
+                <a class="btn btn-primary" href="#pilots" data-track-cta="hero_primary" data-append-utm>
                     <span class="icon rocket" aria-hidden="true"></span><?= e($t->get('hero.primary_cta')); ?>
                 </a>
-                <a class="btn btn-ghost" href="#how">
+                <a class="btn btn-ghost" href="#how" data-track-cta="hero_demo" data-append-utm>
                     <span class="icon play" aria-hidden="true"></span><?= e($t->get('hero.secondary_cta')); ?>
                 </a>
             </div>
         </div>
 
         <figure class="illustration" aria-hidden="true">
-            <img src="<?= e(asset('assets/img/hero-illustration.svg')); ?>" alt="" loading="lazy" decoding="async">
+            <?php $heroImageAlt = (string) ($t->get('meta.og_image_alt') ?? 'nERP hero illustration'); ?>
+            <img src="<?= e(asset('assets/img/hero-illustration.svg')); ?>" alt="<?= e($heroImageAlt !== '' ? $heroImageAlt : 'nERP hero illustration with secure nodes'); ?>" width="560" height="420" decoding="async" fetchpriority="high">
         </figure>
     </div>
 
@@ -261,7 +262,7 @@ if (is_array($pricingComparisonConfig)) {
 
 <div class="divider" role="presentation"></div>
 
-<section id="for" class="container audience-section">
+<section id="for" class="container audience-section" data-track-section="audience">
     <h2 class="h2"><?= e($t->get('audience.title')); ?></h2>
     <p class="muted"><?= e($t->get('audience.subtitle')); ?></p>
     <div class="grid three audience">
@@ -287,13 +288,13 @@ if (is_array($pricingComparisonConfig)) {
         </div>
     </div>
     <div class="cta-row">
-        <a class="btn btn-primary" href="#pilots"><span class="icon sparkles" aria-hidden="true"></span><?= e($t->get('audience.cta')); ?></a>
+        <a class="btn btn-primary" href="#pilots" data-track-cta="audience_pilot" data-append-utm><span class="icon sparkles" aria-hidden="true"></span><?= e($t->get('audience.cta')); ?></a>
     </div>
 </section>
 
 <div class="divider" role="presentation"></div>
 
-<section id="why" class="container why-section">
+<section id="why" class="container why-section" data-track-section="why">
     <h2 class="h2"><?= e($t->get('why.title')); ?></h2>
     <div class="grid three feature-cards">
         <?php foreach ($whyBlocks as $block): ?>
@@ -312,7 +313,7 @@ if (is_array($pricingComparisonConfig)) {
 
 <div class="divider" role="presentation"></div>
 
-<section id="how" class="container how-section">
+<section id="how" class="container how-section" data-track-section="how">
     <h2 class="h2"><?= e($t->get('how.title')); ?></h2>
     <div class="grid three">
         <?php foreach ($howItems as $item): ?>
@@ -326,7 +327,7 @@ if (is_array($pricingComparisonConfig)) {
 
 <div class="divider" role="presentation"></div>
 
-<section id="stack" class="container stack-section">
+<section id="stack" class="container stack-section" data-track-section="stack">
     <div class="stack-panel">
         <div class="stack-grid">
             <div class="stack-overview">
@@ -425,7 +426,7 @@ if (is_array($pricingComparisonConfig)) {
 <div class="divider" role="presentation"></div>
 
 <?php if (!empty($outcomes['title'] ?? '') && $outcomeMetrics !== []): ?>
-    <section id="outcomes" class="container outcomes-section">
+    <section id="outcomes" class="container outcomes-section" data-track-section="outcomes">
         <div class="outcomes-header">
             <h2 class="h2"><?= e($outcomes['title']); ?></h2>
             <?php if (!empty($outcomes['subtitle'])): ?>
@@ -456,7 +457,7 @@ if (is_array($pricingComparisonConfig)) {
 <?php endif; ?>
 
 <?php if (!empty($enablement['title'] ?? '') && $enablementStages !== []): ?>
-    <section id="enablement" class="container enablement-section">
+    <section id="enablement" class="container enablement-section" data-track-section="enablement">
         <div class="enablement-header">
             <h2 class="h2"><?= e($enablement['title']); ?></h2>
             <?php if (!empty($enablement['subtitle'])): ?>
@@ -476,7 +477,7 @@ if (is_array($pricingComparisonConfig)) {
         </div>
         <?php if (!empty($enablement['cta'])): ?>
             <div class="cta-row">
-                <a class="btn btn-primary" href="#pilots"><span class="icon chat" aria-hidden="true"></span><?= e($enablement['cta']); ?></a>
+                <a class="btn btn-primary" href="#pilots" data-track-cta="enablement_pilot" data-append-utm><span class="icon chat" aria-hidden="true"></span><?= e($enablement['cta']); ?></a>
             </div>
         <?php endif; ?>
     </section>
@@ -484,7 +485,7 @@ if (is_array($pricingComparisonConfig)) {
     <div class="divider" role="presentation"></div>
 <?php endif; ?>
 
-<section id="pricing" class="container pricing-section">
+<section id="pricing" class="container pricing-section" data-track-section="pricing">
     <h2 class="h2"><?= e($t->get('pricing.title')); ?></h2>
     <p class="muted"><?= e($t->get('pricing.subtitle')); ?></p>
     <?php $pricingNotice = (string) ($t->get('pricing.notice') ?? ''); ?>
@@ -603,7 +604,7 @@ if (is_array($pricingComparisonConfig)) {
 </section>
 
 <?php if ($pricingComparisonSystems !== []): ?>
-    <section class="container pricing-comparison" id="pricing-comparison">
+    <section class="container pricing-comparison" id="pricing-comparison" data-track-section="pricing_comparison">
         <?php if (!empty($pricingComparison['title'])): ?>
             <h2 class="h2"><?= e($pricingComparison['title']); ?></h2>
         <?php endif; ?>
@@ -716,7 +717,7 @@ if (is_array($pricingComparisonConfig)) {
 
 <div class="divider" role="presentation"></div>
 
-<section id="pilots" class="container pilots-section">
+<section id="pilots" class="container pilots-section" data-track-section="pilots">
     <div class="pilots-grid">
         <div class="pilot-overview">
             <div class="eyebrow"><?= e($t->get('pilots.eyebrow')); ?></div>
@@ -778,7 +779,7 @@ if (is_array($pricingComparisonConfig)) {
 
 <div class="divider" role="presentation"></div>
 
-<section id="partners" class="container">
+<section id="partners" class="container" data-track-section="partners">
     <h2 class="h2"><?= e($t->get('partners.title')); ?></h2>
     <div class="grid three">
         <?php foreach ($partnerCards as $card): ?>
@@ -813,7 +814,7 @@ if ($defaultStory === null && $pilotStories !== []) {
 $defaultRole = isset($defaultStory['role']) ? trim((string) $defaultStory['role']) : '';
 $defaultMetric = isset($defaultStory['metric']) ? trim((string) $defaultStory['metric']) : '';
 ?>
-<section class="container logos-section">
+<section class="container logos-section" data-track-section="stories">
     <div class="grid two-66 pilot-stories">
         <div class="pilot-stories-list">
             <?php if ($logosEyebrow !== ''): ?>
@@ -858,18 +859,18 @@ $defaultMetric = isset($defaultStory['metric']) ? trim((string) $defaultStory['m
 
 <div class="divider" role="presentation"></div>
 
-<section class="container center">
+<section class="container center" data-track-section="cta">
     <h2 class="h2"><?= e($t->get('cta.title')); ?></h2>
     <p class="muted"><?= e($t->get('cta.subtitle')); ?></p>
     <div class="cta-row">
-        <a class="btn btn-primary" href="#pilots"><span class="icon rocket" aria-hidden="true"></span><?= e($t->get('cta.primary_cta')); ?></a>
-        <a class="btn btn-ghost" href="#how"><span class="icon play" aria-hidden="true"></span><?= e($t->get('cta.secondary_cta')); ?></a>
+        <a class="btn btn-primary" href="#pilots" data-track-cta="cta_primary" data-append-utm><span class="icon rocket" aria-hidden="true"></span><?= e($t->get('cta.primary_cta')); ?></a>
+        <a class="btn btn-ghost" href="#how" data-track-cta="cta_demo" data-append-utm><span class="icon play" aria-hidden="true"></span><?= e($t->get('cta.secondary_cta')); ?></a>
     </div>
 </section>
 
 <div class="divider" role="presentation"></div>
 
-<section id="faq" class="container pb-xxl">
+<section id="faq" class="container pb-xxl" data-track-section="faq">
     <h2 class="h2"><?= e($t->get('faq.title')); ?></h2>
     <div class="faq" data-faq>
         <?php foreach ($faqItems as $index => $item): ?>

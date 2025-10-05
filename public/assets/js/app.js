@@ -26,6 +26,46 @@ if (!localStorage.getItem('prefersDarkSet')) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const trackEvent = typeof window.track === 'function' ? window.track : () => {};
+  const utmData = (window.__utm && typeof window.__utm === 'object') ? window.__utm : {};
+  const withUtm = (extra = {}) => Object.assign({}, utmData, extra);
+
+  const collectText = (el) => {
+    if (!(el instanceof HTMLElement)) return '';
+    const clone = el.cloneNode(true);
+    clone.querySelectorAll('script, style').forEach((node) => node.remove());
+    return clone.textContent.trim();
+  };
+
+  const appendUtmToLink = (link) => {
+    if (!(link instanceof HTMLAnchorElement)) return;
+    const entries = Object.entries(utmData).filter(([, value]) => typeof value === 'string' && value !== '');
+    if (entries.length === 0) return;
+    const rawHref = link.getAttribute('href') || '';
+    if (rawHref.startsWith('mailto:')) {
+      return;
+    }
+    let targetUrl;
+    try {
+      targetUrl = new URL(link.href, window.location.href);
+    } catch (error) {
+      return;
+    }
+    entries.forEach(([key, value]) => {
+      targetUrl.searchParams.set(key, value);
+    });
+    if (rawHref.startsWith('#')) {
+      const hash = rawHref;
+      targetUrl.hash = hash;
+      link.href = `${targetUrl.pathname}${targetUrl.search}${hash}`;
+      return;
+    }
+    link.href = targetUrl.toString();
+  };
+
+  document.querySelectorAll('[data-append-utm]').forEach((link) => {
+    appendUtmToLink(link);
+  });
   docEl.classList.remove('no-js');
 
   const audienceButtons = document.querySelectorAll('[data-audience]');
@@ -46,6 +86,48 @@ document.addEventListener('DOMContentLoaded', () => {
   const pilotRole = pilotDisplay?.querySelector('[data-pilot-role]') ?? null;
   const pilotMetric = pilotDisplay?.querySelector('[data-pilot-metric]') ?? null;
   const pilotTriggers = document.querySelectorAll('[data-pilot-trigger]');
+  const trackableCtas = document.querySelectorAll('[data-track-cta]');
+
+  trackableCtas.forEach((el) => {
+    el.addEventListener('click', () => {
+      const payload = {
+        label: el.getAttribute('data-track-cta') || '',
+        text: collectText(el),
+      };
+      if (el instanceof HTMLAnchorElement) {
+        payload.href = el.getAttribute('href') || '';
+      } else if (el instanceof HTMLButtonElement) {
+        payload.target = el.getAttribute('data-scroll-target') || '';
+      }
+      trackEvent('cta_click', withUtm(payload));
+    });
+  });
+
+  document.querySelectorAll('[data-track-contact]').forEach((link) => {
+    link.addEventListener('click', () => {
+      trackEvent('contact_click', withUtm({
+        type: link.getAttribute('data-track-contact') || '',
+        href: link.getAttribute('href') || '',
+      }));
+    });
+  });
+
+  const sectionTargets = document.querySelectorAll('[data-track-section]');
+  if (sectionTargets.length > 0 && 'IntersectionObserver' in window) {
+    const seenSections = new Set();
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const sectionName = entry.target.getAttribute('data-track-section') || '';
+        if (sectionName && !seenSections.has(sectionName)) {
+          seenSections.add(sectionName);
+          trackEvent('section_view', withUtm({ section: sectionName }));
+        }
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.4 });
+    sectionTargets.forEach((target) => observer.observe(target));
+  }
 
   if (!pilotForm && floatingCta instanceof HTMLElement) {
     floatingCta.remove();
@@ -677,6 +759,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitButton = pilotForm.querySelector('button[type="submit"]');
     let fallbackSubmission = false;
 
+    const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+    utmKeys.forEach((key) => {
+      if (!utmData[key]) return;
+      if (pilotForm.querySelector(`[name="${key}"]`)) return;
+      const hidden = document.createElement('input');
+      hidden.type = 'hidden';
+      hidden.name = key;
+      hidden.value = utmData[key];
+      pilotForm.append(hidden);
+    });
+
+    pilotForm.addEventListener('invalid', (event) => {
+      const target = event.target;
+      const fieldName = target && 'name' in target ? target.name : '';
+      trackEvent('form_validation_error', withUtm({ form: 'pilot', field: fieldName }));
+    }, true);
+
     pilotForm.addEventListener('submit', async (event) => {
       if (fallbackSubmission) {
         fallbackSubmission = false;
@@ -688,6 +787,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (successMessage) successMessage.hidden = true;
       if (errorMessage) errorMessage.hidden = true;
       if (submitButton) submitButton.disabled = true;
+
+      trackEvent('form_submit', withUtm({ form: 'pilot', status: 'attempt' }));
 
       const formData = new FormData(pilotForm);
       const payload = {};
@@ -702,6 +803,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!action || action === '#') {
           pilotForm.reset();
           if (successMessage) successMessage.hidden = false;
+          trackEvent('form_submit', withUtm({ form: 'pilot', status: 'success', transport: 'local' }));
           return;
         }
 
@@ -721,8 +823,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         pilotForm.reset();
         if (successMessage) successMessage.hidden = false;
+        trackEvent('form_submit', withUtm({ form: 'pilot', status: 'success', transport: 'fetch' }));
       } catch (error) {
         if (action && action !== '#') {
+          trackEvent('form_submit', withUtm({ form: 'pilot', status: 'error', transport: 'fetch' }));
           fallbackSubmission = true;
           if (submitButton) submitButton.disabled = false;
           pilotForm.submit();
@@ -730,9 +834,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (errorMessage) errorMessage.hidden = false;
+        trackEvent('form_submit', withUtm({ form: 'pilot', status: 'error', transport: 'local' }));
       } finally {
         if (submitButton) submitButton.disabled = false;
       }
     });
   }
+
+  document.addEventListener('copy', () => {
+    const selection = window.getSelection();
+    const copied = selection ? selection.toString().trim() : '';
+    if (!copied) return;
+    if (copied.includes('@nerp.app') || copied.includes('nerp.app') || /\+?\d[\d\s()\-]{5,}/.test(copied)) {
+      trackEvent('copy_contact', withUtm({ value: copied }));
+    }
+  });
+
+  // TODO: add video_play tracking hook when embedded player is introduced.
 });

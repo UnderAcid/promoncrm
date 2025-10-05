@@ -17,11 +17,11 @@ return [
         'noscript' => 'JavaScript is disabled. Some functionality may be limited.',
     ],
     'meta' => [
-        'title' => 'nERP — Web3 ERP Builder | nerp.app',
-        'description' => 'Build CRM, HR, and inventory workflows in one day at nerp.app. The nERP Web3 ERP builder keeps data encrypted locally, scales via nodes, and charges only for real actions.',
-        'keywords' => 'nerp.app, Web3 ERP, CRM builder, HR automation, decentralized inventory, encrypted data, micropayments',
-        'og_title' => 'nERP — Web3 ERP Builder | nerp.app',
-        'og_description' => 'Launch CRM, HR, and inventory with encrypted nodes at nerp.app. Your data stays yours, payments track real usage.',
+        'title' => 'nERP — Web3 ERP builder with micropayments',
+        'description' => 'nERP is the Web3 ERP builder with local encryption, role-based access, and micropayments per action. Launch CRM, HR, and inventory in one day on secure nERP nodes.',
+        'keywords' => 'nerp.app, Web3 ERP builder, local encryption, micropayments per action, CRM, HR, inventory, role-based access, pilots',
+        'og_title' => 'nERP — Web3 ERP builder with micropayments',
+        'og_description' => 'Launch CRM, HR, and inventory in a day: local encryption, role-based access, and usage-based pricing on nERP nodes.',
         'og_image_alt' => 'nERP hero illustration with encrypted node and connected modules',
     ],
     'nav' => [
@@ -34,7 +34,7 @@ return [
     'hero' => [
         'tags' => ['Web3.0', 'Encryption', 'nerp.app'],
         'title' => 'Web3.0 ERP builder',
-        'lead' => 'Build CRM, HR, and inventory in one day at nerp.app. Data is encrypted locally and stays with you. Scale the node network and only pay for the actions performed.',
+        'lead' => 'Launch CRM, HR, and inventory in one day. Local encryption keeps data with you while micropayments per action and role-based access scale across the nERP node network.',
         'primary_cta' => 'Join the pilot',
         'secondary_cta' => 'Watch demo',
         'feature_cards' => [
