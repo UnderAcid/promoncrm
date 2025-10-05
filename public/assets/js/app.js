@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currency: currencyCode,
     maximumFractionDigits: 2,
   });
+  const extraCurrencyFormatters = new Map();
   const tokenFormatter = new Intl.NumberFormat(numberLocale, {
     minimumFractionDigits: tokenDecimals,
     maximumFractionDigits: tokenDecimals,
@@ -251,6 +252,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const tokenPreviewValue = document.querySelector('[data-token-preview-value]');
   const operationFiatNodes = document.querySelectorAll('[data-operation-fiat]');
   const tokenPresetButtons = document.querySelectorAll('[data-token-preset]');
+  const comparisonNerpNodes = document.querySelectorAll('[data-comparison-nerp-price]');
+  const comparisonOtherNodes = document.querySelectorAll('[data-comparison-other-price]');
+  const comparisonPeopleNodes = document.querySelectorAll('[data-comparison-people]');
+  const comparisonActionsNodes = document.querySelectorAll('[data-comparison-actions]');
+  const comparisonMonthlyNodes = document.querySelectorAll('[data-comparison-monthly]');
+  const comparisonPresent =
+    comparisonNerpNodes.length > 0 ||
+    comparisonOtherNodes.length > 0 ||
+    comparisonPeopleNodes.length > 0 ||
+    comparisonActionsNodes.length > 0 ||
+    comparisonMonthlyNodes.length > 0;
 
   const parseLocaleNumber = (value) => {
     if (typeof value !== 'string') return Number.NaN;
@@ -259,6 +271,30 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const getLocalTokenPrice = () => tokenPriceUsd * fiatPerUsd;
+
+  const formatCurrencyValue = (value, currency = currencyCode) => {
+    const fallback = currencyCode || 'USD';
+    const target = (currency || fallback || 'USD').toString().toUpperCase();
+    if (target === (currencyCode || '').toString().toUpperCase()) {
+      return currencyFormatter.format(value);
+    }
+    try {
+      if (!extraCurrencyFormatters.has(target)) {
+        extraCurrencyFormatters.set(
+          target,
+          new Intl.NumberFormat(numberLocale, {
+            style: 'currency',
+            currency: target,
+            maximumFractionDigits: 2,
+          }),
+        );
+      }
+      const formatter = extraCurrencyFormatters.get(target);
+      return formatter ? formatter.format(value) : currencyFormatter.format(value);
+    } catch (error) {
+      return currencyFormatter.format(value);
+    }
+  };
 
   const sliderStepDecimals = (() => {
     if (!(tokenSlider instanceof HTMLInputElement)) return 2;
@@ -285,6 +321,79 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!(tokenSlider instanceof HTMLInputElement)) return;
     const next = clampToSlider(value);
     tokenSlider.value = next.toFixed(sliderStepDecimals);
+  };
+
+  const updateComparison = (peopleCount, actionsPerDay, estimateResult, fiatValue) => {
+    if (!comparisonPresent) {
+      return;
+    }
+
+    const safePeople = Math.max(Number.isFinite(peopleCount) ? Math.round(peopleCount) : 0, 1);
+    const safeActions = Math.max(Number.isFinite(actionsPerDay) ? Math.round(actionsPerDay) : 0, 0);
+    const monthlyActions = (() => {
+      if (estimateResult && typeof estimateResult === 'object') {
+        const raw = Number.parseFloat(estimateResult.monthlyActions);
+        if (Number.isFinite(raw) && raw >= 0) {
+          return raw;
+        }
+      }
+      return safePeople * safeActions * 30;
+    })();
+    const safeFiat = Number.isFinite(fiatValue) ? fiatValue : 0;
+
+    comparisonPeopleNodes.forEach((node) => {
+      if (node instanceof HTMLElement) {
+        node.textContent = numberFormatter.format(safePeople);
+      }
+    });
+    comparisonActionsNodes.forEach((node) => {
+      if (node instanceof HTMLElement) {
+        node.textContent = numberFormatter.format(safeActions);
+      }
+    });
+    comparisonMonthlyNodes.forEach((node) => {
+      if (node instanceof HTMLElement) {
+        node.textContent = numberFormatter.format(monthlyActions);
+      }
+    });
+
+    comparisonNerpNodes.forEach((node) => {
+      if (!(node instanceof HTMLElement)) {
+        return;
+      }
+      const targetCurrency = node.dataset.priceCurrency || currencyCode;
+      node.textContent = formatCurrencyValue(safeFiat, targetCurrency);
+    });
+
+    comparisonOtherNodes.forEach((node) => {
+      if (!(node instanceof HTMLElement)) {
+        return;
+      }
+      const base = Number.parseFloat(node.dataset.priceBase || '0');
+      const perUser = Number.parseFloat(node.dataset.pricePerUser || '0');
+      const perAction = Number.parseFloat(node.dataset.pricePerAction || '0');
+      const bundle = Number.parseFloat(node.dataset.priceBundle || '0');
+      const bundleSizeRaw = Number.parseInt(node.dataset.priceBundleSize || '0', 10);
+      const bundleSize = Number.isFinite(bundleSizeRaw) && bundleSizeRaw > 0 ? bundleSizeRaw : 1;
+
+      let total = 0;
+      if (Number.isFinite(base) && base > 0) {
+        total += base;
+      }
+      if (Number.isFinite(perUser) && perUser > 0) {
+        total += perUser * safePeople;
+      }
+      if (Number.isFinite(perAction) && perAction > 0) {
+        total += perAction * monthlyActions;
+      }
+      if (Number.isFinite(bundle) && bundle > 0) {
+        total += bundle * Math.ceil(safePeople / bundleSize);
+      }
+
+      const targetCurrency = node.dataset.priceCurrency || currencyCode;
+      const safeTotal = Number.isFinite(total) && total > 0 ? total : 0;
+      node.textContent = formatCurrencyValue(safeTotal, targetCurrency);
+    });
   };
 
   function estimate(peopleCount, actionsPerDay) {
@@ -328,6 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fiatValue = tokenPriceUsd > 0 ? result.nerpSpend * tokenPriceUsd * fiatPerUsd : 0;
     fiatApprox.textContent = currencyFormatter.format(fiatValue);
     updateTokenDerived();
+    updateComparison(p, a, result, fiatValue);
   }
 
   people?.addEventListener('input', updateCalc);

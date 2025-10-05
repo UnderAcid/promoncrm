@@ -156,7 +156,7 @@ return [
             ],
         ],
         'integrations_title' => 'Default integrations',
-        'integrations_desc' => 'In the first sprint we connect messaging, accounting, and data stores — no drawn-out procurement or integrators.',
+        'integrations_desc' => 'Core modules ready today: activity tracking, roles, reports, and billing. We co-build the rest during the pilot.',
         'integrations_core' => 'nERP node',
         'integrations_core_desc' => 'Encrypted core ledger with roles, audit, and billing.',
         'integrations' => [
@@ -253,6 +253,141 @@ return [
             ],
         ],
         'operation_fiat_prefix' => '≈',
+    ],
+    'comparison' => [
+        'title' => 'Cost comparison with popular ERP/CRM systems',
+        'subtitle' => 'We keep the same calculator inputs so you can see how alternatives add up for your team.',
+        'labels' => [
+            'our_price' => 'Your price with nERP',
+            'their_price' => 'Solution cost',
+            'our_column' => 'nERP',
+            'their_column' => 'Platform',
+            'pros' => 'Pros',
+            'cons' => 'Cons',
+        ],
+        'context_intro' => 'Estimate for',
+        'context_people_suffix' => 'people in the team',
+        'context_actions_suffix' => 'actions per person per day',
+        'context_monthly_suffix' => 'actions per month in total',
+        'price_hint' => 'The values update automatically when you tweak the calculator above.',
+        'systems' => [
+            [
+                'name' => 'Google Sheets',
+                'slug' => 'google-sheets',
+                'price' => [
+                    'base' => 0,
+                    'per_user' => 0,
+                    'currency' => 'RUB',
+                    'note' => 'Free to start, but manual upkeep is required.',
+                ],
+                'our' => [
+                    'pros' => [
+                        'Automatic activity audit trail and change history.',
+                        'Usage-based billing — no per-seat licenses to purchase.',
+                    ],
+                    'cons' => [
+                        'Requires an initial configuration that we run together.',
+                    ],
+                ],
+                'their' => [
+                    'pros' => [
+                        'Zero budget to begin — most teams already know spreadsheets.',
+                        'Easy to craft quick reports without engineers.',
+                    ],
+                    'cons' => [
+                        'No centralised access control or granular roles.',
+                        'High risk of human errors because everything is manual.',
+                    ],
+                ],
+            ],
+            [
+                'name' => '1C',
+                'slug' => '1c',
+                'price' => [
+                    'base' => 20000,
+                    'per_user' => 2400,
+                    'currency' => 'RUB',
+                    'note' => 'Subscription plus a minimum partner support package.',
+                ],
+                'our' => [
+                    'pros' => [
+                        'Encryption, roles, and reporting come out of the box.',
+                        'Usage-based model lets you scale without buying more seats.',
+                    ],
+                    'cons' => [
+                        'We fine-tune niche scenarios together during the pilot.',
+                    ],
+                ],
+                'their' => [
+                    'pros' => [
+                        'Well-known platform with a large partner ecosystem.',
+                        'Deep accounting and warehouse modules.',
+                    ],
+                    'cons' => [
+                        'License and support fees grow together with the team.',
+                        'Lengthy implementation and upgrade cycles.',
+                    ],
+                ],
+            ],
+            [
+                'name' => 'amoCRM',
+                'slug' => 'amocrm',
+                'price' => [
+                    'base' => 0,
+                    'per_user' => 2490,
+                    'currency' => 'RUB',
+                    'note' => '“Optimal” plan ≈ 2,490 ₽ per user per month.',
+                ],
+                'our' => [
+                    'pros' => [
+                        'Unified activity log across clients and operations.',
+                        'Flexible workflows for atypical processes.',
+                    ],
+                    'cons' => [
+                        'Marketing modules are minimal for now — we add them with pilot teams.',
+                    ],
+                ],
+                'their' => [
+                    'pros' => [
+                        'Ready-made sales and marketing toolkit.',
+                        'Managers get a familiar, polished UI.',
+                    ],
+                    'cons' => [
+                        'Hard to extend beyond standard funnels without custom work.',
+                        'Per-user and add-on fees stack up quickly.',
+                    ],
+                ],
+            ],
+            [
+                'name' => 'Bitrix24',
+                'slug' => 'bitrix24',
+                'price' => [
+                    'base' => 2990,
+                    'per_user' => 1990,
+                    'currency' => 'RUB',
+                    'note' => '“Company” plan ≈ 1,990 ₽ per user + 2,990 ₽ per month.',
+                ],
+                'our' => [
+                    'pros' => [
+                        'Transparent usage-based billing.',
+                        'Role management and access control enabled from day one.',
+                    ],
+                    'cons' => [
+                        'Interface stays intentionally minimal — complex widgets are added on demand.',
+                    ],
+                ],
+                'their' => [
+                    'pros' => [
+                        'Covers CRM, tasks, and telephony in one bundle.',
+                        'Large marketplace of apps and integrations.',
+                    ],
+                    'cons' => [
+                        'Customisation usually needs partners or in-house specialists.',
+                        'Total cost grows together with headcount and add-ons.',
+                    ],
+                ],
+            ],
+        ],
     ],
     'partners' => [
         'title' => 'For partners and module authors',
