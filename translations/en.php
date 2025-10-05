@@ -165,6 +165,51 @@ return [
         ],
         'footnote' => 'Need something else? Pilot teams can request new connectors directly in the brief.',
     ],
+    'deliverables' => [
+        'title' => 'What you receive in the pilot kit',
+        'subtitle' => 'We package the onboarding so every stakeholder understands the value from week one.',
+        'items' => [
+            [
+                'icon' => 'workflow',
+                'title' => 'Automation blueprint',
+                'desc' => 'Joint workshop to map roles, triggers, and integrations for your first workflow.',
+            ],
+            [
+                'icon' => 'api',
+                'title' => 'Integration sandboxes',
+                'desc' => 'Ready-to-use connectors for chat, accounting, and data stores with shared test data.',
+            ],
+            [
+                'icon' => 'chat',
+                'title' => 'Team enablement',
+                'desc' => 'Weekly syncs, playbooks, and async support so operators adopt new routines quickly.',
+            ],
+        ],
+        'footnote' => 'Weekly syncs and a shared channel keep everyone aligned between sprints.',
+    ],
+    'impact' => [
+        'eyebrow' => 'Pilot outcomes',
+        'title' => 'Validate ROI before rolling out network-wide',
+        'subtitle' => 'Figures below are aggregated from recent nERP pilots with 30–120 operators.',
+        'stats' => [
+            [
+                'value' => '14 days',
+                'label' => 'to first live workflow',
+                'desc' => 'Kickoff to production-ready automation under the supervision of the core team.',
+            ],
+            [
+                'value' => '3×',
+                'label' => 'more process visibility',
+                'desc' => 'Unified dashboards replace spreadsheets and scattered messenger threads.',
+            ],
+            [
+                'value' => '−27%',
+                'label' => 'time spent on manual ops',
+                'desc' => 'Operators focus on decisions while routine reconciliations run on autopilot.',
+            ],
+        ],
+        'cta' => 'Plan your pilot metrics',
+    ],
     'pricing' => [
         'title' => 'What nERP costs',
         'subtitle' => 'Only pay for actions performed. Token pricing will be finalised together with pilot teams.',
@@ -334,6 +379,9 @@ return [
             'company_placeholder' => 'Acme Inc.',
             'role' => 'Role / focus',
             'role_placeholder' => 'Operations lead',
+            'rate' => 'Comfortable price per token',
+            'rate_placeholder' => '0.15',
+            'rate_hint' => 'Share the token rate and currency that fit your unit economics.',
             'message' => 'What do you plan to automate first?',
             'message_placeholder' => 'Share current tools, pain points, integrations…',
             'consent' => 'By submitting you agree to personal data processing and to receive onboarding updates from nerp.app.',

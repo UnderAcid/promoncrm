@@ -12,6 +12,10 @@ $howItems = $t->get('how.items');
 $stack = $t->get('stack');
 $stackHighlights = is_array($stack['highlights'] ?? null) ? $stack['highlights'] : [];
 $stackIntegrations = is_array($stack['integrations'] ?? null) ? $stack['integrations'] : [];
+$deliverables = $t->get('deliverables');
+$deliverableItems = is_array($deliverables['items'] ?? null) ? $deliverables['items'] : [];
+$impact = $t->get('impact');
+$impactStats = is_array($impact['stats'] ?? null) ? $impact['stats'] : [];
 $tokenPricePresets = [0.1, 0.5, 1.0, 2.0];
 $tokenPresetCurrency = (string) ($t->get('pricing.token_price_presets_currency') ?? '$');
 $partnerCards = $t->get('partners.cards');
@@ -290,6 +294,67 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
     </div>
 </section>
 
+<?php if ($deliverableItems !== []): ?>
+    <div class="divider" role="presentation"></div>
+
+    <section id="pilot-kit" class="container deliverables-section">
+        <h2 class="h2"><?= e($deliverables['title'] ?? ''); ?></h2>
+        <?php if (!empty($deliverables['subtitle'] ?? '')): ?>
+            <p class="muted"><?= e($deliverables['subtitle']); ?></p>
+        <?php endif; ?>
+        <div class="grid three deliverables-grid">
+            <?php foreach ($deliverableItems as $item): ?>
+                <div class="card deliverable-card">
+                    <div class="card-row">
+                        <div class="icon-bubble"><span class="icon <?= e($item['icon'] ?? ''); ?>" aria-hidden="true"></span></div>
+                        <div>
+                            <div class="card-title"><?= e($item['title'] ?? ''); ?></div>
+                            <div class="card-desc"><?= e($item['desc'] ?? ''); ?></div>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <?php if (!empty($deliverables['footnote'] ?? '')): ?>
+            <p class="deliverables-footnote muted small"><?= e($deliverables['footnote']); ?></p>
+        <?php endif; ?>
+    </section>
+<?php endif; ?>
+
+<?php if ($impactStats !== []): ?>
+    <div class="divider" role="presentation"></div>
+
+    <section id="pilot-impact" class="container impact-section">
+        <?php if (!empty($impact['eyebrow'] ?? '')): ?>
+            <div class="eyebrow"><?= e($impact['eyebrow']); ?></div>
+        <?php endif; ?>
+        <h2 class="h2"><?= e($impact['title'] ?? ''); ?></h2>
+        <?php if (!empty($impact['subtitle'] ?? '')): ?>
+            <p class="muted"><?= e($impact['subtitle']); ?></p>
+        <?php endif; ?>
+        <div class="impact-grid">
+            <?php foreach ($impactStats as $stat): ?>
+                <div class="card impact-card">
+                    <div class="impact-value"><?= e($stat['value'] ?? ''); ?></div>
+                    <?php if (!empty($stat['label'] ?? '')): ?>
+                        <div class="impact-label"><?= e($stat['label']); ?></div>
+                    <?php endif; ?>
+                    <?php if (!empty($stat['desc'] ?? '')): ?>
+                        <p class="impact-desc"><?= e($stat['desc']); ?></p>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <?php if (!empty($impact['cta'] ?? '')): ?>
+            <div class="impact-cta">
+                <a class="btn btn-primary" href="#pilots">
+                    <span class="icon sparkles" aria-hidden="true"></span><?= e($impact['cta']); ?>
+                </a>
+            </div>
+        <?php endif; ?>
+    </section>
+<?php endif; ?>
+
 <div class="divider" role="presentation"></div>
 
 <section id="pilots" class="container pilots-section">
@@ -330,6 +395,21 @@ $operationFiatPrefix = (string) ($t->get('pricing.operation_fiat_prefix') ?? 'â‰
                         <label for="pilotRole"><?= e($pilotForm['role'] ?? ''); ?></label>
                         <input type="text" id="pilotRole" name="role" placeholder="<?= e($pilotForm['role_placeholder'] ?? ''); ?>">
                     </div>
+                </div>
+                <div class="input-control">
+                    <label for="pilotRate"><?= e($pilotForm['rate'] ?? ''); ?></label>
+                    <input
+                        type="number"
+                        id="pilotRate"
+                        name="token_rate"
+                        min="0"
+                        step="0.01"
+                        inputmode="decimal"
+                        placeholder="<?= e($pilotForm['rate_placeholder'] ?? ''); ?>"
+                    >
+                    <?php if (!empty($pilotForm['rate_hint'] ?? '')): ?>
+                        <p class="input-hint muted small"><?= e($pilotForm['rate_hint']); ?></p>
+                    <?php endif; ?>
                 </div>
                 <div class="input-control">
                     <label for="pilotMessage"><?= e($pilotForm['message'] ?? ''); ?></label>
