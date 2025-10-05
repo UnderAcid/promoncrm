@@ -14,6 +14,8 @@ return [
             'dark' => 'Dark',
         ],
         'noscript' => 'JavaScript is disabled. Some functionality may be limited.',
+        'slider_prev' => 'Scroll left',
+        'slider_next' => 'Scroll right',
     ],
     'meta' => [
         'title' => 'nERP — Web3 ERP Builder | nerp.app',
@@ -291,8 +293,8 @@ return [
                 [
                     'id' => '1c',
                     'name' => '1C',
-                    'price_per_user' => 35,
-                    'price_period' => 'per user / month (cloud)',
+                    'price_per_user' => 27,
+                    'price_period' => 'per user / month (1C:Company Management cloud, monthly billing)',
                     'nerp' => [
                         'pros' => [
                             'Handles complex workflows without custom code.',
@@ -318,7 +320,7 @@ return [
                     'id' => 'amocrm',
                     'name' => 'amoCRM',
                     'price_per_user' => 25,
-                    'price_period' => 'per user / month (Advanced)',
+                    'price_period' => 'per user / month (Advanced plan, billed annually)',
                     'nerp' => [
                         'pros' => [
                             'Covers finance, warehouse, and logistics beyond sales.',
@@ -343,8 +345,8 @@ return [
                 [
                     'id' => 'bitrix24',
                     'name' => 'Bitrix24',
-                    'price_per_user' => 24,
-                    'price_period' => 'per user / month (Teams plan)',
+                    'price_per_user' => 2.49,
+                    'price_period' => 'per user / month (Professional, $249 for 100 users billed annually)',
                     'nerp' => [
                         'pros' => [
                             'Designed for cross-team operational workflows.',

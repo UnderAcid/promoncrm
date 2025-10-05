@@ -636,6 +636,8 @@ html.no-js .nav-toggle {
 .icon.flag-ru::before { content: '🇷🇺'; }
 .icon.flag-en::before { content: '🇺🇸'; }
 .icon.database::before { content: '🗄️'; }
+.icon.arrow-left::before { content: '←'; }
+.icon.arrow-right::before { content: '→'; }
 .icon.plus::before { content: '+'; font-size: 16px; font-weight: 700; }
 .icon.minus::before { content: '−'; font-size: 16px; font-weight: 700; }
 
@@ -914,16 +916,106 @@ html.no-js .nav-toggle {
   gap: 28px;
 }
 
-.comparison-grid {
+.comparison-slider {
+  position: relative;
   display: grid;
-  gap: 20px;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  align-items: center;
+  --slider-gap: 20px;
+  --visible-count: 1;
+  padding-inline: clamp(0px, 2vw, 32px);
+}
+
+.comparison-track {
+  display: flex;
+  gap: var(--slider-gap);
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 8px 0;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.comparison-track::-webkit-scrollbar {
+  display: none;
 }
 
 .comparison-card {
   display: grid;
   gap: 18px;
   align-content: start;
+  flex: 0 0 calc((100% - (var(--visible-count) - 1) * var(--slider-gap)) / var(--visible-count));
+  min-width: clamp(260px, 100%, 420px);
+  scroll-snap-align: start;
+}
+
+.comparison-slider-button {
+  position: absolute;
+  top: 50%;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-strong);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  z-index: 2;
+}
+
+.comparison-slider-button.prev {
+  left: 0;
+  transform: translate(-50%, -50%);
+}
+
+.comparison-slider-button.next {
+  right: 0;
+  transform: translate(50%, -50%);
+}
+
+.comparison-slider-button:hover,
+.comparison-slider-button:focus-visible {
+  background: var(--color-primary);
+  color: white;
+  border-color: transparent;
+  box-shadow: var(--shadow-lg);
+}
+
+.comparison-slider-button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.comparison-slider-button[disabled] {
+  opacity: 0.4;
+  cursor: default;
+  box-shadow: none;
+}
+
+@media (max-width: 640px) {
+  .comparison-slider-button {
+    display: none;
+  }
+  .comparison-slider {
+    padding-inline: 0;
+  }
+}
+
+@media (min-width: 640px) {
+  .comparison-slider {
+    --visible-count: 2;
+  }
+}
+
+@media (min-width: 1080px) {
+  .comparison-slider {
+    --visible-count: 3;
+  }
 }
 
 .comparison-card-title {
@@ -1590,15 +1682,6 @@ input[type='range'] {
   gap: 20px;
 }
 
-.outcome-card::before {
-  content: '';
-  position: absolute;
-  inset: 18px 18px auto;
-  height: 2px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(37, 99, 235, 0.45), transparent);
-}
-
 .outcome-value {
   font-size: clamp(28px, 4vw, 42px);
   font-weight: 800;
@@ -1607,7 +1690,7 @@ input[type='range'] {
 }
 
 .outcomes-footnote {
-  margin-top: 18px;
+  margin-top: 32px;
   max-width: 520px;
 }
 

@@ -255,6 +255,81 @@ document.addEventListener('DOMContentLoaded', () => {
   const comparisonNerpFiatNodes = document.querySelectorAll('[data-comparison-nerp-fiat]');
   const comparisonNerpTokenNodes = document.querySelectorAll('[data-comparison-nerp-tokens]');
   const comparisonTeamNodes = document.querySelectorAll('[data-comparison-team]');
+  const comparisonSliders = document.querySelectorAll('[data-comparison-slider]');
+
+  const initComparisonSlider = (slider) => {
+    if (!(slider instanceof HTMLElement)) return;
+    const track = slider.querySelector('[data-slider-track]');
+    if (!(track instanceof HTMLElement)) return;
+    const prevButton = slider.querySelector('[data-slider-prev]');
+    const nextButton = slider.querySelector('[data-slider-next]');
+
+    const parseGap = () => {
+      const styles = window.getComputedStyle(track);
+      const raw = styles.columnGap && styles.columnGap !== 'normal' ? styles.columnGap : styles.gap;
+      const numeric = Number.parseFloat((raw || '0').replace(/[^0-9.\-]/g, ''));
+      return Number.isFinite(numeric) ? numeric : 0;
+    };
+
+    const scrollByStep = (direction) => {
+      const slide = track.querySelector('[data-slider-slide]');
+      const trackWidth = track.clientWidth;
+      let step = trackWidth;
+      if (slide instanceof HTMLElement) {
+        const slideWidth = slide.getBoundingClientRect().width;
+        const gap = parseGap();
+        if (slideWidth > 0) {
+          const total = slideWidth + gap;
+          const slidesPerView = Math.max(1, Math.round(trackWidth / Math.max(total, 1)));
+          step = slidesPerView * total;
+        }
+      }
+      track.scrollBy({ left: direction * step, behavior: 'smooth' });
+    };
+
+    const updateButtons = () => {
+      const maxScroll = Math.max(track.scrollWidth - track.clientWidth, 0);
+      const current = track.scrollLeft;
+      const atStart = current <= 1;
+      const atEnd = current >= maxScroll - 1;
+      if (prevButton instanceof HTMLButtonElement) {
+        prevButton.disabled = atStart;
+      }
+      if (nextButton instanceof HTMLButtonElement) {
+        nextButton.disabled = atEnd;
+      }
+    };
+
+    if (prevButton instanceof HTMLButtonElement) {
+      prevButton.addEventListener('click', () => scrollByStep(-1));
+    }
+
+    if (nextButton instanceof HTMLButtonElement) {
+      nextButton.addEventListener('click', () => scrollByStep(1));
+    }
+
+    let rafId = 0;
+    const handleScroll = () => {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
+        updateButtons();
+      });
+    };
+
+    track.addEventListener('scroll', handleScroll, { passive: true });
+
+    if (typeof ResizeObserver === 'function') {
+      const observer = new ResizeObserver(() => updateButtons());
+      observer.observe(track);
+    }
+
+    updateButtons();
+  };
+
+  comparisonSliders.forEach((slider) => initComparisonSlider(slider));
 
   const parseLocaleNumber = (value) => {
     if (typeof value !== 'string') return Number.NaN;
