@@ -255,90 +255,6 @@ if (is_array($pricingComparisonConfig)) {
     </div>
 </section>
 
-<?php if ($pricingComparisonSystems !== []): ?>
-    <section class="container pricing-comparison" id="pricing-comparison">
-        <?php if (!empty($pricingComparison['title'])): ?>
-            <h2 class="h2"><?= e($pricingComparison['title']); ?></h2>
-        <?php endif; ?>
-        <?php if (!empty($pricingComparison['subtitle'])): ?>
-            <p class="muted"><?= e($pricingComparison['subtitle']); ?></p>
-        <?php endif; ?>
-        <div class="comparison-grid">
-            <?php foreach ($pricingComparisonSystems as $system): ?>
-                <?php
-                $pricePerUserAttr = number_format((float) $system['price_per_user'], 4, '.', '');
-                $priceFlatAttr = number_format((float) $system['price_flat'], 4, '.', '');
-                $priceMinAttr = number_format((float) $system['price_min'], 4, '.', '');
-                $teamTemplate = (string) ($pricingComparison['team_caption'] ?? '');
-                $teamDefault = $teamTemplate !== '' ? str_replace('{count}', '—', $teamTemplate) : '';
-                ?>
-                <article class="card comparison-card" data-comparison-system data-price-per-user="<?= e($pricePerUserAttr); ?>" data-price-flat="<?= e($priceFlatAttr); ?>" data-price-min="<?= e($priceMinAttr); ?>" id="comparison-<?= e($system['id']); ?>">
-                    <h3 class="comparison-card-title"><?= e($system['name']); ?></h3>
-                    <div class="comparison-columns">
-                        <div class="comparison-column is-nerp">
-                            <div class="comparison-label"><?= e($pricingComparison['nerp_label']); ?></div>
-                            <div class="comparison-value" data-comparison-nerp-fiat>—</div>
-                            <div class="comparison-subvalue" data-comparison-nerp-tokens data-token-suffix="<?= e($pricingComparison['nerp_tokens_suffix']); ?>">—</div>
-                            <div class="comparison-points">
-                                <?php if ($system['nerp_pros'] !== []): ?>
-                                    <div class="comparison-point-group positive">
-                                        <div class="comparison-point-title"><?= e($pricingComparison['pros_label']); ?></div>
-                                        <ul class="comparison-point-list">
-                                            <?php foreach ($system['nerp_pros'] as $point): ?>
-                                                <li><?= e($point); ?></li>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    </div>
-                                <?php endif; ?>
-                                <?php if ($system['nerp_cons'] !== []): ?>
-                                    <div class="comparison-point-group negative">
-                                        <div class="comparison-point-title"><?= e($pricingComparison['cons_label']); ?></div>
-                                        <ul class="comparison-point-list">
-                                            <?php foreach ($system['nerp_cons'] as $point): ?>
-                                                <li><?= e($point); ?></li>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        <div class="comparison-column">
-                            <div class="comparison-label"><?= e($system['name']); ?></div>
-                            <div class="comparison-value" data-comparison-system-price>—</div>
-                            <?php if (!empty($system['price_period'])): ?>
-                                <div class="comparison-subvalue"><?= e($system['price_period']); ?></div>
-                            <?php endif; ?>
-                            <div class="comparison-points">
-                                <?php if ($system['system_pros'] !== []): ?>
-                                    <div class="comparison-point-group positive">
-                                        <div class="comparison-point-title"><?= e($pricingComparison['pros_label']); ?></div>
-                                        <ul class="comparison-point-list">
-                                            <?php foreach ($system['system_pros'] as $point): ?>
-                                                <li><?= e($point); ?></li>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    </div>
-                                <?php endif; ?>
-                                <?php if ($system['system_cons'] !== []): ?>
-                                    <div class="comparison-point-group negative">
-                                        <div class="comparison-point-title"><?= e($pricingComparison['cons_label']); ?></div>
-                                        <ul class="comparison-point-list">
-                                            <?php foreach ($system['system_cons'] as $point): ?>
-                                                <li><?= e($point); ?></li>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="comparison-team-note" data-comparison-team data-template="<?= e($pricingComparison['team_caption']); ?>"><?= e($teamDefault); ?></div>
-                </article>
-            <?php endforeach; ?>
-        </div>
-    </section>
-<?php endif; ?>
-
 <div class="divider" role="presentation"></div>
 
 <section id="for" class="container audience-section">
@@ -743,6 +659,109 @@ if (is_array($pricingComparisonConfig)) {
         </div>
     </div>
 </section>
+
+<?php if ($pricingComparisonSystems !== []): ?>
+    <section class="container pricing-comparison" id="pricing-comparison">
+        <?php if (!empty($pricingComparison['title'])): ?>
+            <h2 class="h2"><?= e($pricingComparison['title']); ?></h2>
+        <?php endif; ?>
+        <?php if (!empty($pricingComparison['subtitle'])): ?>
+            <p class="muted"><?= e($pricingComparison['subtitle']); ?></p>
+        <?php endif; ?>
+        <div class="comparison-slider" data-comparison-slider>
+            <button
+                type="button"
+                class="comparison-nav"
+                data-comparison-nav="prev"
+                aria-label="<?= e((string) ($t->get('pricing.comparison.nav_prev') ?? '')); ?>"
+                disabled
+            >
+                ‹
+            </button>
+            <div class="comparison-grid" data-comparison-track>
+                <?php foreach ($pricingComparisonSystems as $system): ?>
+                    <?php
+                    $pricePerUserAttr = number_format((float) $system['price_per_user'], 4, '.', '');
+                    $priceFlatAttr = number_format((float) $system['price_flat'], 4, '.', '');
+                    $priceMinAttr = number_format((float) $system['price_min'], 4, '.', '');
+                    $teamTemplate = (string) ($pricingComparison['team_caption'] ?? '');
+                    $teamDefault = $teamTemplate !== '' ? str_replace('{count}', '—', $teamTemplate) : '';
+                    ?>
+                    <article class="card comparison-card" data-comparison-system data-price-per-user="<?= e($pricePerUserAttr); ?>" data-price-flat="<?= e($priceFlatAttr); ?>" data-price-min="<?= e($priceMinAttr); ?>" id="comparison-<?= e($system['id']); ?>">
+                        <h3 class="comparison-card-title"><?= e($system['name']); ?></h3>
+                        <div class="comparison-columns">
+                            <div class="comparison-column is-nerp">
+                                <div class="comparison-label"><?= e($pricingComparison['nerp_label']); ?></div>
+                                <div class="comparison-value" data-comparison-nerp-fiat>—</div>
+                                <div class="comparison-subvalue" data-comparison-nerp-tokens data-token-suffix="<?= e($pricingComparison['nerp_tokens_suffix']); ?>">—</div>
+                                <div class="comparison-points">
+                                    <?php if ($system['nerp_pros'] !== []): ?>
+                                        <div class="comparison-point-group positive">
+                                            <div class="comparison-point-title"><?= e($pricingComparison['pros_label']); ?></div>
+                                            <ul class="comparison-point-list">
+                                                <?php foreach ($system['nerp_pros'] as $point): ?>
+                                                    <li><?= e($point); ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
+                                    <?php endif; ?>
+                                    <?php if ($system['nerp_cons'] !== []): ?>
+                                        <div class="comparison-point-group negative">
+                                            <div class="comparison-point-title"><?= e($pricingComparison['cons_label']); ?></div>
+                                            <ul class="comparison-point-list">
+                                                <?php foreach ($system['nerp_cons'] as $point): ?>
+                                                    <li><?= e($point); ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <div class="comparison-column">
+                                <div class="comparison-label"><?= e($system['name']); ?></div>
+                                <div class="comparison-value" data-comparison-system-price>—</div>
+                                <?php if (!empty($system['price_period'])): ?>
+                                    <div class="comparison-subvalue"><?= e($system['price_period']); ?></div>
+                                <?php endif; ?>
+                                <div class="comparison-points">
+                                    <?php if ($system['system_pros'] !== []): ?>
+                                        <div class="comparison-point-group positive">
+                                            <div class="comparison-point-title"><?= e($pricingComparison['pros_label']); ?></div>
+                                            <ul class="comparison-point-list">
+                                                <?php foreach ($system['system_pros'] as $point): ?>
+                                                    <li><?= e($point); ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
+                                    <?php endif; ?>
+                                    <?php if ($system['system_cons'] !== []): ?>
+                                        <div class="comparison-point-group negative">
+                                            <div class="comparison-point-title"><?= e($pricingComparison['cons_label']); ?></div>
+                                            <ul class="comparison-point-list">
+                                                <?php foreach ($system['system_cons'] as $point): ?>
+                                                    <li><?= e($point); ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="comparison-team-note" data-comparison-team data-template="<?= e($pricingComparison['team_caption']); ?>"><?= e($teamDefault); ?></div>
+                    </article>
+                <?php endforeach; ?>
+            </div>
+            <button
+                type="button"
+                class="comparison-nav"
+                data-comparison-nav="next"
+                aria-label="<?= e((string) ($t->get('pricing.comparison.nav_next') ?? '')); ?>"
+            >
+                ›
+            </button>
+        </div>
+    </section>
+<?php endif; ?>
 
 <div class="divider" role="presentation"></div>
 

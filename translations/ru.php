@@ -251,12 +251,14 @@ return [
             'cons_label' => 'Минусы',
             'nerp_tokens_suffix' => 'токенов в месяц',
             'team_caption' => 'за {count} человек',
+            'nav_prev' => 'Назад',
+            'nav_next' => 'Вперёд',
             'systems' => [
                 [
                     'id' => 'google-sheets',
                     'name' => 'Google Таблицы',
                     'price_per_user' => 1100,
-                    'price_period' => 'в месяц за пользователя (Business Standard)',
+                    'price_period' => 'в месяц за пользователя (Business Standard, помесячно)',
                     'nerp' => [
                         'pros' => [
                             'Платите только за действия — без простаивающих лицензий.',
@@ -281,8 +283,8 @@ return [
                 [
                     'id' => '1c',
                     'name' => '1C',
-                    'price_per_user' => 1800,
-                    'price_period' => 'в месяц за пользователя (SaaS)',
+                    'price_per_user' => 2100,
+                    'price_period' => 'в месяц за пользователя (SaaS «1С:CRM ПРО», помесячно)',
                     'nerp' => [
                         'pros' => [
                             'Сложные процессы без долгой кастомной разработки.',
@@ -307,8 +309,9 @@ return [
                 [
                     'id' => 'amocrm',
                     'name' => 'amoCRM',
-                    'price_per_user' => 2400,
-                    'price_period' => 'в месяц за пользователя (Advanced)',
+                    'price_per_user' => 2490,
+                    'price_min' => 12450,
+                    'price_period' => 'в месяц за пользователя (тариф Advanced, пакет 5 пользователей — 12 450 ₽, помесячно)',
                     'nerp' => [
                         'pros' => [
                             'Учитываем процессы за пределами отдела продаж.',
@@ -333,8 +336,9 @@ return [
                 [
                     'id' => 'bitrix24',
                     'name' => 'Bitrix24',
-                    'price_per_user' => 1990,
-                    'price_period' => 'в месяц за пользователя (Команда)',
+                    'price_per_user' => 2990,
+                    'price_min' => 14950,
+                    'price_period' => 'в месяц за пользователя (тариф «Команда», пакет 5 пользователей — 14 950 ₽, помесячно)',
                     'nerp' => [
                         'pros' => [
                             'Фокус на межфункциональные операционные процессы.',

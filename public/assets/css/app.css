@@ -914,16 +914,34 @@ html.no-js .nav-toggle {
   gap: 28px;
 }
 
-.comparison-grid {
+.comparison-slider {
+  position: relative;
   display: grid;
   gap: 20px;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.comparison-grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(280px, min(360px, 85vw));
+  gap: 20px;
+  overflow-x: auto;
+  padding: 4px 0 12px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.comparison-grid::-webkit-scrollbar {
+  display: none;
 }
 
 .comparison-card {
   display: grid;
   gap: 18px;
   align-content: start;
+  min-width: 280px;
+  scroll-snap-align: start;
 }
 
 .comparison-card-title {
@@ -1005,6 +1023,69 @@ html.no-js .nav-toggle {
   gap: 6px;
   font-size: 14px;
   line-height: 1.5;
+}
+
+.comparison-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 24px;
+  line-height: 1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.comparison-slider.has-overflow .comparison-nav {
+  display: inline-flex;
+}
+
+.comparison-nav[data-comparison-nav='prev'] {
+  left: 12px;
+}
+
+.comparison-nav[data-comparison-nav='next'] {
+  right: 12px;
+}
+
+.comparison-nav:hover,
+.comparison-nav:focus-visible {
+  transform: translateY(-50%) scale(1.05);
+  box-shadow: var(--shadow-lg);
+}
+
+.comparison-nav:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+.comparison-nav[disabled] {
+  opacity: 0.35;
+  pointer-events: none;
+  box-shadow: none;
+}
+
+@media (min-width: 1100px) {
+  .comparison-grid {
+    grid-auto-columns: minmax(320px, 1fr);
+  }
+
+  .comparison-nav[data-comparison-nav='prev'] {
+    left: -20px;
+  }
+
+  .comparison-nav[data-comparison-nav='next'] {
+    right: -20px;
+  }
 }
 
 .pricing-notice {
@@ -1590,15 +1671,6 @@ input[type='range'] {
   gap: 20px;
 }
 
-.outcome-card::before {
-  content: '';
-  position: absolute;
-  inset: 18px 18px auto;
-  height: 2px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(37, 99, 235, 0.45), transparent);
-}
-
 .outcome-value {
   font-size: clamp(28px, 4vw, 42px);
   font-weight: 800;
@@ -1607,7 +1679,7 @@ input[type='range'] {
 }
 
 .outcomes-footnote {
-  margin-top: 18px;
+  margin-top: 28px;
   max-width: 520px;
 }
 

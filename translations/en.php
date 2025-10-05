@@ -261,12 +261,14 @@ return [
             'cons_label' => 'Cons',
             'nerp_tokens_suffix' => 'tokens / month',
             'team_caption' => 'for {count} people',
+            'nav_prev' => 'Scroll back',
+            'nav_next' => 'Scroll forward',
             'systems' => [
                 [
                     'id' => 'google-sheets',
                     'name' => 'Google Sheets',
                     'price_per_user' => 12,
-                    'price_period' => 'per user / month (Business Standard)',
+                    'price_period' => 'per user / month (Business Standard, billed monthly)',
                     'nerp' => [
                         'pros' => [
                             'Usage-based spend scales only with real activity.',
@@ -291,8 +293,8 @@ return [
                 [
                     'id' => '1c',
                     'name' => '1C',
-                    'price_per_user' => 35,
-                    'price_period' => 'per user / month (cloud)',
+                    'price_per_user' => 32,
+                    'price_period' => 'per user / month (1C:CRM PRO SaaS, billed monthly)',
                     'nerp' => [
                         'pros' => [
                             'Handles complex workflows without custom code.',
@@ -317,8 +319,9 @@ return [
                 [
                     'id' => 'amocrm',
                     'name' => 'amoCRM',
-                    'price_per_user' => 25,
-                    'price_period' => 'per user / month (Advanced)',
+                    'price_per_user' => 28,
+                    'price_min' => 138,
+                    'price_period' => 'per user / month (Advanced plan, ₽2,490 with 5-seat bundle)',
                     'nerp' => [
                         'pros' => [
                             'Covers finance, warehouse, and logistics beyond sales.',
@@ -343,8 +346,9 @@ return [
                 [
                     'id' => 'bitrix24',
                     'name' => 'Bitrix24',
-                    'price_per_user' => 24,
-                    'price_period' => 'per user / month (Teams plan)',
+                    'price_per_user' => 33,
+                    'price_min' => 165,
+                    'price_period' => 'per user / month (Team plan, ₽2,990 with 5-seat bundle)',
                     'nerp' => [
                         'pros' => [
                             'Designed for cross-team operational workflows.',

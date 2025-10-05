@@ -251,6 +251,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const tokenPreviewValue = document.querySelector('[data-token-preview-value]');
   const operationFiatNodes = document.querySelectorAll('[data-operation-fiat]');
   const tokenPresetButtons = document.querySelectorAll('[data-token-preset]');
+  const comparisonSlider = document.querySelector('[data-comparison-slider]');
+  const comparisonTrack = comparisonSlider instanceof HTMLElement
+    ? comparisonSlider.querySelector('[data-comparison-track]')
+    : null;
+  const comparisonPrev = comparisonSlider instanceof HTMLElement
+    ? comparisonSlider.querySelector('[data-comparison-nav="prev"]')
+    : null;
+  const comparisonNext = comparisonSlider instanceof HTMLElement
+    ? comparisonSlider.querySelector('[data-comparison-nav="next"]')
+    : null;
   const comparisonCards = document.querySelectorAll('[data-comparison-system]');
   const comparisonNerpFiatNodes = document.querySelectorAll('[data-comparison-nerp-fiat]');
   const comparisonNerpTokenNodes = document.querySelectorAll('[data-comparison-nerp-tokens]');
@@ -290,6 +300,51 @@ document.addEventListener('DOMContentLoaded', () => {
     const next = clampToSlider(value);
     tokenSlider.value = next.toFixed(sliderStepDecimals);
   };
+
+  const comparisonTrackEl = comparisonTrack instanceof HTMLElement ? comparisonTrack : null;
+  const comparisonPrevBtn = comparisonPrev instanceof HTMLButtonElement ? comparisonPrev : null;
+  const comparisonNextBtn = comparisonNext instanceof HTMLButtonElement ? comparisonNext : null;
+  const comparisonSliderEl = comparisonSlider instanceof HTMLElement ? comparisonSlider : null;
+
+  const sliderStep = () => {
+    if (!comparisonTrackEl) return 0;
+    const firstCard = comparisonTrackEl.querySelector('[data-comparison-system]');
+    const baseWidth = firstCard instanceof HTMLElement ? firstCard.offsetWidth : comparisonTrackEl.clientWidth;
+    const styles = window.getComputedStyle(comparisonTrackEl);
+    const gapValue = Number.parseFloat(styles.columnGap || styles.gap || '0');
+    const gap = Number.isFinite(gapValue) ? gapValue : 0;
+    return baseWidth + gap;
+  };
+
+  const updateComparisonSlider = () => {
+    if (!comparisonTrackEl || !comparisonSliderEl) return;
+    const maxScroll = Math.max(0, comparisonTrackEl.scrollWidth - comparisonTrackEl.clientWidth);
+    const hasOverflow = maxScroll > 4;
+    comparisonSliderEl.classList.toggle('has-overflow', hasOverflow);
+
+    if (comparisonPrevBtn) {
+      comparisonPrevBtn.disabled = !hasOverflow || comparisonTrackEl.scrollLeft <= 4;
+    }
+
+    if (comparisonNextBtn) {
+      comparisonNextBtn.disabled = !hasOverflow || comparisonTrackEl.scrollLeft >= maxScroll - 4;
+    }
+  };
+
+  const scrollComparison = (direction) => {
+    if (!comparisonTrackEl) return;
+    const amount = sliderStep();
+    if (amount <= 0) return;
+    comparisonTrackEl.scrollBy({ left: direction * amount, behavior: 'smooth' });
+  };
+
+  if (comparisonPrevBtn && comparisonNextBtn && comparisonTrackEl) {
+    comparisonPrevBtn.addEventListener('click', () => scrollComparison(-1));
+    comparisonNextBtn.addEventListener('click', () => scrollComparison(1));
+    comparisonTrackEl.addEventListener('scroll', updateComparisonSlider, { passive: true });
+    window.addEventListener('resize', updateComparisonSlider, { passive: true });
+    updateComparisonSlider();
+  }
 
   function estimate(peopleCount, actionsPerDay) {
     const monthlyActions = actionsPerDay * 30 * Math.max(peopleCount, 1);
