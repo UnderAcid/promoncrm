@@ -50,10 +50,11 @@ $logoPath = asset('assets/img/logo-nerp.svg');
             <span class="sr-only"><?= e($t->get('nav.toggle')); ?></span>
         </button>
         <nav class="nav" id="mainNav" aria-label="Main navigation" role="navigation" data-nav>
-            <a href="<?= e($homeUrl); ?>#for"><?= e($t->get('nav.for')); ?></a>
-            <a href="<?= e($homeUrl); ?>#why"><?= e($t->get('nav.why')); ?></a>
-            <a href="<?= e($homeUrl); ?>#pricing"><?= e($t->get('nav.pricing')); ?></a>
-            <a href="<?= e($homeUrl); ?>#pilots"><?= e($t->get('nav.pilots')); ?></a>
+            <a href="<?= e($homeUrl); ?>#hero"><?= e($t->get('nav.hero')); ?></a>
+            <a href="<?= e($homeUrl); ?>#pilot-program"><?= e($t->get('nav.pilot')); ?></a>
+            <a href="<?= e($homeUrl); ?>#how-it-works"><?= e($t->get('nav.how')); ?></a>
+            <a href="<?= e($homeUrl); ?>#compare"><?= e($t->get('nav.compare')); ?></a>
+            <a href="<?= e($homeUrl); ?>#apply"><?= e($t->get('nav.apply')); ?></a>
         </nav>
         <div class="actions">
             <div class="icon-switchers">
@@ -86,12 +87,8 @@ $logoPath = asset('assets/img/logo-nerp.svg');
             </div>
             <a
                 class="btn btn-primary"
-                href="<?= e($homeUrl); ?>#pilots"
-                data-scroll-to-pilots
-                data-track-event="cta_click"
-                data-track-label="header_primary_cta"
-                data-track-location="header"
-                data-append-utm="true"
+                href="<?= e($homeUrl); ?>#apply"
+                data-scroll-to-apply
             >
                 <span class="icon rocket" aria-hidden="true"></span><?= e($t->get('hero.primary_cta')); ?>
             </a>

@@ -240,9 +240,6 @@ $structuredWebPage['primaryImageOfPage'] = $primaryImage;
             }
         })();
     </script>
-    <script>
-        window.__APP_CONFIG__ = <?= json_encode($clientConfig, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
-    </script>
     <script defer src="<?= e(asset('assets/js/app.js')); ?>" type="module"></script>
 </head>
 <body>
