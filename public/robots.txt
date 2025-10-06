@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /ru/
+Allow: /en/
+Disallow: /_internal/
+Sitemap: https://promo.nerp.app/sitemap.xml

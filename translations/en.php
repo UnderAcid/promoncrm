@@ -17,12 +17,50 @@ return [
         'noscript' => 'JavaScript is disabled. Some functionality may be limited.',
     ],
     'meta' => [
-        'title' => 'nERP — Web3 ERP Builder | nerp.app',
-        'description' => 'Build CRM, HR, and inventory workflows in one day at nerp.app. The nERP Web3 ERP builder keeps data encrypted locally, scales via nodes, and charges only for real actions.',
-        'keywords' => 'nerp.app, Web3 ERP, CRM builder, HR automation, decentralized inventory, encrypted data, micropayments',
-        'og_title' => 'nERP — Web3 ERP Builder | nerp.app',
-        'og_description' => 'Launch CRM, HR, and inventory with encrypted nodes at nerp.app. Your data stays yours, payments track real usage.',
-        'og_image_alt' => 'nERP hero illustration with encrypted node and connected modules',
+        'title' => 'nERP — Web3 ERP builder for pilots',
+        'description' => 'Build CRM, HR, and inventory in one day with the nERP Web3 ERP builder. Local encryption, role-based access, and micropayments per action keep pilots lean.',
+        'keywords' => 'nerp.app, Web3 ERP, local encryption, micropayments, CRM, HR, inventory, role-based access, pilots',
+        'og_title' => 'nERP — Web3 ERP builder for pilots',
+        'og_description' => 'Spin up CRM, HR, and inventory on nERP nodes with local encryption and pay only for real actions.',
+        'og_image_alt' => 'Diagram of nERP nodes with CRM, HR, and inventory modules',
+    ],
+    'schema' => [
+        'webpage_name' => 'nERP — Web3 ERP builder',
+        'webpage_description' => 'Launch CRM, HR, and inventory with local encryption, micropayments, and role-based access in one day.',
+        'faq' => [
+            [
+                'question' => 'What is nERP?',
+                'answer' => 'A Web3 ERP builder with local encryption, micropayments per action, and ready CRM/HR/inventory modules.',
+            ],
+            [
+                'question' => 'How fast can we launch?',
+                'answer' => 'A pilot launches in one day on managed nERP nodes with roles, statuses, and dashboards preconfigured.',
+            ],
+            [
+                'question' => 'Where is the data stored?',
+                'answer' => 'Data is encrypted locally, keys stay with your team, and nodes only see encrypted blocks and metadata.',
+            ],
+            [
+                'question' => 'Who is nERP for?',
+                'answer' => 'SMBs, integrators, and teams that need CRM/HR/inventory fast with a role-based access model.',
+            ],
+            [
+                'question' => 'How does pricing work?',
+                'answer' => 'You pay micropayments for real user actions while pilot customisation is scoped separately.',
+            ],
+            [
+                'question' => 'Can we customise workflows?',
+                'answer' => 'Yes, we map your process, configure roles, add integrations, and extend the Web3 ERP builder.',
+            ],
+            [
+                'question' => 'What is included in the pilot?',
+                'answer' => 'Process diagnostics, CRM/HR/inventory rollout, ROI metrics, and a roadmap for scaling.',
+            ],
+            [
+                'question' => 'How do we contact the team?',
+                'answer' => 'Email pilot@nerp.app or message @nerp_app on Telegram for a same-day response.',
+            ],
+        ],
     ],
     'nav' => [
         'for' => 'Who it is for',
@@ -433,28 +471,36 @@ return [
         'title' => 'Frequently asked questions',
         'items' => [
             [
-                'question' => 'Who can see my data?',
-                'answer' => 'Keys and access policies stay with your team. Nodes only process encrypted chunks and metadata.',
+                'question' => 'What is nERP?',
+                'answer' => 'A Web3 ERP builder with local encryption, micropayments per action, and ready CRM/HR/inventory modules.',
             ],
             [
-                'question' => 'How is access managed?',
-                'answer' => 'Granular roles and block-level policies. Revoke permissions instantly without rewriting data.',
+                'question' => 'How fast can we launch?',
+                'answer' => 'A pilot launches in one day on managed nERP nodes with roles, statuses, and dashboards preconfigured.',
             ],
             [
-                'question' => 'How long does a pilot take?',
-                'answer' => 'Two weeks on average: the first week covers migrations and integrations, the second focuses on training and metrics.',
+                'question' => 'Where is the data stored?',
+                'answer' => 'Data is encrypted locally, keys stay with your team, and nodes only see encrypted blocks and metadata.',
             ],
             [
-                'question' => 'What if the integration we need is missing?',
-                'answer' => 'We co-develop the connector with you. Most APIs go live within 3–5 days using our ready-made templates.',
+                'question' => 'Who is nERP for?',
+                'answer' => 'SMBs, integrators, and teams that need CRM/HR/inventory fast with a role-based access model.',
             ],
             [
-                'question' => 'Do we need our own DevOps team?',
-                'answer' => 'No. An internal admin is enough. We deploy the node together with your team and provide 24/7 support in chat.',
+                'question' => 'How does pricing work?',
+                'answer' => 'You pay micropayments for real user actions while pilot customisation is scoped separately.',
             ],
             [
-                'question' => 'Can we scale after the pilot?',
-                'answer' => 'Absolutely. Move the node into production, add teams and contracts, sign an SLA, and expand integrations with us.',
+                'question' => 'What is included in the pilot?',
+                'answer' => 'Process diagnostics, CRM/HR/inventory rollout, ROI metrics, and a roadmap for scaling.',
+            ],
+            [
+                'question' => 'Can we customise workflows?',
+                'answer' => 'Yes, we map your process, configure roles, add integrations, and extend the Web3 ERP builder.',
+            ],
+            [
+                'question' => 'How do we contact the team?',
+                'answer' => 'Email pilot@nerp.app or message @nerp_app on Telegram for a same-day response.',
             ],
         ],
     ],
@@ -507,10 +553,10 @@ return [
     'policy' => [
         'meta' => [
             'title' => 'nERP Privacy Policy | nerp.app',
-            'description' => 'How we collect, use, and protect personal data during nERP pilots and demos.',
+            'description' => 'See how nERP collects and protects personal data during Web3 ERP pilots, covering encryption, retention limits, consent, and how to request access or deletion.',
             'keywords' => 'nERP privacy policy, data processing, personal data nERP',
             'og_title' => 'nERP Data Processing Policy',
-            'og_description' => 'A transparent overview of what data we need for pilots and how we keep it safe.',
+            'og_description' => 'A transparent summary of required pilot data, the encryption model, and how to request deletion.',
             'og_image_alt' => 'nERP privacy — secure vault and checklist',
         ],
         'eyebrow' => 'Transparency',
