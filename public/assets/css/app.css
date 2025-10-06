@@ -672,7 +672,7 @@ html.no-js .nav-toggle {
   border-radius: 32px;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-lg);
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.35), rgba(14, 165, 233, 0.12));
+  background: none;
 }
 
 :root[data-theme='dark'] .illustration img {
@@ -1719,7 +1719,7 @@ input[type='range'] {
 }
 
 .outcomes-footnote {
-  margin-top: 48px;
+  margin-top: clamp(28px, 6vw, 52px);
   max-width: 520px;
 }
 
@@ -1731,23 +1731,57 @@ input[type='range'] {
 
 .enablement-timeline {
   display: grid;
-  gap: 16px;
+  gap: 20px;
   margin-top: 28px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  align-items: stretch;
 }
 
 .enablement-stage {
   position: relative;
   overflow: hidden;
-  gap: 14px;
+  gap: 18px;
+  padding-top: 38px;
+  grid-template-rows: auto 1fr;
+}
+
+.enablement-stage::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.16), rgba(14, 165, 233, 0.3));
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+
+:root[data-theme='dark'] .enablement-stage::before {
+  background: linear-gradient(90deg, rgba(96, 165, 250, 0.35), rgba(56, 189, 248, 0.4));
 }
 
 .stage-index {
   font-weight: 700;
-  font-size: 14px;
-  letter-spacing: 0.16em;
+  font-size: 15px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-primary);
   font-variant-numeric: tabular-nums;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  justify-self: flex-start;
+}
+
+:root[data-theme='dark'] .stage-index {
+  background: rgba(96, 165, 250, 0.22);
+  border-color: rgba(96, 165, 250, 0.32);
 }
 
 .eyebrow {
