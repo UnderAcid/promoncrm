@@ -100,12 +100,18 @@ a:hover {
   font-weight: 800;
   letter-spacing: -0.02em;
   margin: 12px 0 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .h2 {
   font-size: clamp(28px, 4vw, 40px);
   font-weight: 800;
   margin: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 section > .h2 {
@@ -125,12 +131,14 @@ section > .muted {
   max-width: 640px;
   word-break: break-word;
   hyphens: auto;
+  overflow-wrap: anywhere;
 }
 
 .muted {
   color: var(--color-muted);
   word-break: break-word;
   hyphens: auto;
+  overflow-wrap: anywhere;
 }
 
 .small {
@@ -498,6 +506,10 @@ html.no-js .nav-toggle {
 .grid {
   display: grid;
   gap: 24px;
+}
+
+.grid > * {
+  min-width: 0;
 }
 
 .grid.two {
@@ -1047,6 +1059,29 @@ html.no-js .nav-toggle {
   }
 }
 
+@media (max-width: 639px) {
+  .comparison-slider {
+    overflow: visible;
+  }
+
+  .comparison-track {
+    display: grid;
+    gap: 20px;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .comparison-track .comparison-card {
+    flex: none;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .comparison-nav {
+    display: none !important;
+  }
+}
+
 .comparison-card-title {
   margin: 0;
   font-size: 20px;
@@ -1300,6 +1335,7 @@ html.no-js .nav-toggle {
 }
 
 .token-price-slider {
+  min-width: 0;
   display: grid;
   gap: 6px;
 }
@@ -1335,6 +1371,28 @@ html.no-js .nav-toggle {
 .token-price-preview span {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 639px) {
+  .token-price-control {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .token-price-control input {
+    flex-basis: 100%;
+    text-align: left;
+  }
+
+  .token-price-scale {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .token-price-scale span {
+    white-space: normal;
+  }
 }
 
 .token-operations {
@@ -1560,6 +1618,19 @@ input[type='range'] {
 
 :root[data-theme='dark'] .stack-panel::after {
   background: rgba(96, 165, 250, 0.22);
+}
+
+@media (max-width: 639px) {
+  .stack-panel {
+    padding: 28px 20px;
+  }
+
+  .stack-panel::after {
+    inset-inline-end: -20px;
+    inset-block-start: -120px;
+    width: 180px;
+    height: 180px;
+  }
 }
 
 .stack-grid {
@@ -2048,10 +2119,12 @@ input[type='range'] {
   width: 1px;
   height: 1px;
   padding: 0;
-  margin: -1px;
+  margin: 0;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
   border: 0;
+  white-space: nowrap;
 }
 
 @media (prefers-reduced-motion: reduce) {
