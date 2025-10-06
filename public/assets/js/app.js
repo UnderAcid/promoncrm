@@ -1,930 +1,164 @@
-const config = window.__APP_CONFIG__ || {};
 const docEl = document.documentElement;
-// Helper: forward structured events into the lightweight dataLayer
-const trackEvent = (eventName, payload) => {
-  if (typeof window.track !== 'function' || !eventName) {
-    return;
-  }
-  const data = {};
-  if (payload && typeof payload === 'object') {
-    Object.keys(payload).forEach((key) => {
-      data[key] = payload[key];
-    });
-  }
-  window.track(eventName, data);
-};
-const defaultAudience = config.defaultAudience || 'business';
-const audiencePitches = config.audiencePitches || {};
-const numberLocale = config.numberLocale || 'en-US';
-const currencyCode = config.currency || 'USD';
-const themes = config.themes || ['light', 'dark'];
-const themeLabels = config.themeLabels || {};
-const microFee = typeof config.microFee === 'number' ? config.microFee : 0.001;
-const fiatPerUsd = typeof config.fiatPerUsd === 'number' ? config.fiatPerUsd : 1;
-const tokenDecimals = Number.isInteger(config.tokenDecimals) ? config.tokenDecimals : 6;
-const priceDecimals = Number.isInteger(config.tokenPriceDecimals) ? config.tokenPriceDecimals : 2;
-const defaultTokenPriceUsd = (() => {
-  const value = Number.parseFloat(config.tokenPriceUsd);
-  if (Number.isFinite(value) && value > 0) {
-    return value;
-  }
-  return 1;
-})();
-let tokenPriceUsd = defaultTokenPriceUsd;
-
-if (!localStorage.getItem('prefersDarkSet')) {
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  document.cookie = `prefersDark=${prefersDark}; path=/; max-age=${60 * 60 * 24 * 30}`;
-  localStorage.setItem('prefersDarkSet', '1');
-}
 
 document.addEventListener('DOMContentLoaded', () => {
   docEl.classList.remove('no-js');
 
-  const lang = document.documentElement.lang || '';
-  const utmData = window.__utm && typeof window.__utm === 'object' ? window.__utm : {};
-  // Utility: merge current UTM params into tracking payloads
-  const enrichWithUtm = (payload) => {
-    const result = {};
-    if (payload && typeof payload === 'object') {
-      Object.keys(payload).forEach((key) => {
-        result[key] = payload[key];
-      });
-    }
-    Object.keys(utmData).forEach((key) => {
-      if (utmData[key]) {
-        result[key] = utmData[key];
-      }
-    });
-    return result;
-  };
-  const hasUtm = Object.keys(utmData).some((key) => utmData[key]);
-
-  const audienceButtons = document.querySelectorAll('[data-audience]');
-  const audiencePitchEl = document.querySelector('[data-audience-pitch]');
-  const languageButton = document.querySelector('[data-language-button]');
-  const languageIconTarget = document.querySelector('[data-language-icon]');
-  const themeToggle = document.querySelector('[data-theme-toggle]');
-  const themeIcon = document.querySelector('[data-theme-icon]');
+  const header = document.querySelector('[data-header]');
   const navToggle = document.querySelector('[data-nav-toggle]');
   const nav = document.querySelector('[data-nav]');
-  const headerEl = document.querySelector('[data-header]');
-  const floatingCtaButton = document.querySelector('[data-floating-cta]');
-  const floatingCta = floatingCtaButton?.parentElement ?? null;
-  const pilotForm = document.querySelector('[data-pilot-form]');
-  const pilotDisplay = document.querySelector('[data-pilot-display]');
-  const pilotQuote = pilotDisplay?.querySelector('[data-pilot-quote]') ?? null;
-  const pilotCompany = pilotDisplay?.querySelector('[data-pilot-company]') ?? null;
-  const pilotRole = pilotDisplay?.querySelector('[data-pilot-role]') ?? null;
-  const pilotMetric = pilotDisplay?.querySelector('[data-pilot-metric]') ?? null;
-  const pilotTriggers = document.querySelectorAll('[data-pilot-trigger]');
+  const floatingCta = document.querySelector('[data-floating-cta]');
+  const form = document.querySelector('[data-application-form]');
+  const successMessage = form?.querySelector('[data-form-success]') ?? null;
+  const errorMessage = form?.querySelector('[data-form-error]') ?? null;
+  const submitButton = form?.querySelector('button[type="submit"]') ?? null;
 
-  // Append captured UTM parameters to CTA links and forms
-  if (hasUtm) {
-    document.querySelectorAll('[data-append-utm="true"]').forEach((node) => {
-      if (!(node instanceof HTMLAnchorElement) || node.dataset.utmApplied === 'true') {
-        return;
-      }
-      const rawHref = node.getAttribute('href') || '';
-      node.dataset.utmApplied = 'true';
-      if (rawHref.startsWith('#')) {
-        const query = Object.keys(utmData)
-          .filter((key) => utmData[key])
-          .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(utmData[key])}`)
-          .join('&');
-        node.dataset.originalHref = rawHref;
-        if (query) {
-          node.dataset.utmQuery = `?${query}`;
-        }
-        return;
-      }
-      try {
-        const url = new URL(rawHref, window.location.origin);
-        Object.keys(utmData).forEach((key) => {
-          if (utmData[key]) {
-            url.searchParams.set(key, utmData[key]);
-          }
-        });
-        node.setAttribute('href', url.toString());
-      } catch (error) {
-        // ignore invalid URLs
-      }
-    });
-
-    document.querySelectorAll('form[data-include-utm="true"]').forEach((form) => {
-      if (!(form instanceof HTMLFormElement)) {
-        return;
-      }
-      Object.keys(utmData).forEach((key) => {
-        const value = utmData[key];
-        if (!value || form.querySelector(`[name="${key}"]`)) {
-          return;
-        }
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = value;
-        form.appendChild(input);
-      });
-    });
-  }
-
-  // Track CTA interactions defined via data attributes
-  document.querySelectorAll('[data-track-event]').forEach((node) => {
-    if (!(node instanceof HTMLElement) || node.dataset.trackBound === 'true') {
+  const closeNav = () => {
+    if (!(header instanceof HTMLElement) || !(navToggle instanceof HTMLElement)) {
       return;
     }
-    node.dataset.trackBound = 'true';
-    node.addEventListener('click', () => {
-      const eventName = node.dataset.trackEvent || 'interaction';
-      const payload = {
-        label: node.dataset.trackLabel || '',
-        location: node.dataset.trackLocation || '',
-        lang,
-      };
-      if (node instanceof HTMLAnchorElement) {
-        const rawHref = node.getAttribute('href') || '';
-        const originalAnchor = node.dataset.originalHref || '';
-        const utmQuery = node.dataset.utmQuery || '';
-        if (utmQuery && (originalAnchor || rawHref.startsWith('#'))) {
-          const targetHash = originalAnchor || rawHref;
-          try {
-            window.history.replaceState(null, '', `${utmQuery}${targetHash}`);
-          } catch (error) {
-            // ignore history update issues
-          }
-          payload.href = `${utmQuery}${targetHash}`;
-        } else if (rawHref) {
-          payload.href = rawHref;
-        }
-      }
-      trackEvent(eventName, enrichWithUtm(payload));
-    });
-  });
+    header.classList.remove('nav-open');
+    navToggle.setAttribute('aria-expanded', 'false');
+  };
 
-  // Observe key sections to fire section_view events once per visit
-  const observedSections = new Set();
-  if ('IntersectionObserver' in window) {
-    const sectionObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        const target = entry.target;
-        if (!(target instanceof HTMLElement)) {
-          return;
-        }
-        const sectionName = target.dataset.trackSection || target.id || '';
-        if (!sectionName || observedSections.has(sectionName)) {
-          return;
-        }
-        const requiredRatio = Number.parseFloat(target.dataset.trackThreshold || '0.35');
-        if (entry.intersectionRatio >= requiredRatio) {
-          observedSections.add(sectionName);
-          trackEvent('section_view', enrichWithUtm({ section: sectionName, lang }));
-        }
-      });
-    }, { threshold: [0.25, 0.4, 0.6] });
-
-    document.querySelectorAll('[data-track-section]').forEach((section) => {
-      if (section instanceof HTMLElement) {
-        sectionObserver.observe(section);
-      }
-    });
-  } else {
-    document.querySelectorAll('[data-track-section]').forEach((section) => {
-      if (!(section instanceof HTMLElement)) {
-        return;
-      }
-      const sectionName = section.dataset.trackSection || section.id || '';
-      if (!sectionName || observedSections.has(sectionName)) {
-        return;
-      }
-      observedSections.add(sectionName);
-      trackEvent('section_view', enrichWithUtm({ section: sectionName, lang }));
-    });
-  }
-
-  // Track contact link clicks and copy events for attribution
-  const contactNodes = Array.from(document.querySelectorAll('[data-copy-value]'));
-  if (contactNodes.length) {
-    let lastCopiedValue = '';
-    document.addEventListener('copy', () => {
-      const selection = window.getSelection();
-      const text = selection ? selection.toString().trim() : '';
-      if (!text) {
-        lastCopiedValue = '';
-        return;
-      }
-      contactNodes.forEach((node) => {
-        const value = node.getAttribute('data-copy-value') || '';
-        if (!value || text.indexOf(value) === -1 || lastCopiedValue === value) {
-          return;
-        }
-        lastCopiedValue = value;
-        const contactType = node.getAttribute('data-contact-type') || 'contact';
-        trackEvent('copy_contact', enrichWithUtm({ value, contact_type: contactType, lang }));
-      });
-    });
-
-    contactNodes.forEach((node) => {
-      if (!(node instanceof HTMLElement)) {
-        return;
-      }
-      node.addEventListener('click', () => {
-        const contactType = node.getAttribute('data-contact-type') || 'contact';
-        trackEvent('cta_click', enrichWithUtm({ label: `contact_${contactType}`, location: 'footer', lang }));
-      });
-    });
-  }
-
-  if (!pilotForm && floatingCta instanceof HTMLElement) {
-    floatingCta.remove();
-  }
-
-  const numberFormatter = new Intl.NumberFormat(numberLocale);
-  const currencyFormatter = new Intl.NumberFormat(numberLocale, {
-    style: 'currency',
-    currency: currencyCode,
-    maximumFractionDigits: 2,
-  });
-  const tokenFormatter = new Intl.NumberFormat(numberLocale, {
-    minimumFractionDigits: tokenDecimals,
-    maximumFractionDigits: tokenDecimals,
-  });
-
-  function renderThemeState(theme) {
-    if (themeIcon instanceof HTMLElement) {
-      themeIcon.classList.remove('sun', 'moon');
-      themeIcon.classList.add(theme === 'dark' ? 'moon' : 'sun');
+  const openNav = () => {
+    if (!(header instanceof HTMLElement) || !(navToggle instanceof HTMLElement)) {
+      return;
     }
+    header.classList.add('nav-open');
+    navToggle.setAttribute('aria-expanded', 'true');
+  };
 
-    if (themeToggle instanceof HTMLElement) {
-      themeToggle.setAttribute('aria-pressed', String(theme === 'dark'));
-      const currentIndex = themes.indexOf(theme);
-      const hasCycle = themes.length > 1;
-      const nextIndex = hasCycle ? (currentIndex + 1) % themes.length : currentIndex;
-      const nextTheme = themes[nextIndex] || theme;
-      const nextLabel = themeLabels[nextTheme] || nextTheme;
-      themeToggle.setAttribute('title', nextLabel);
-      themeToggle.toggleAttribute('disabled', !hasCycle);
-    }
-  }
-
-  function setTheme(theme) {
-    const next = themes.includes(theme) ? theme : themes[0];
-    docEl.setAttribute('data-theme', next);
-    document.cookie = `theme=${next}; path=/; max-age=${60 * 60 * 24 * 30}`;
-    localStorage.setItem('theme', next);
-    renderThemeState(next);
-  }
-
-  if (themeToggle) {
-    const storedTheme = localStorage.getItem('theme');
-    if (storedTheme && themes.includes(storedTheme)) {
-      setTheme(storedTheme);
-    }
-
-    themeToggle.addEventListener('click', () => {
-      if (themeToggle.hasAttribute('disabled')) {
-        return;
-      }
-      const current = docEl.getAttribute('data-theme') || themes[0];
-      const currentIndex = themes.indexOf(current);
-      const nextTheme = themes[(currentIndex + 1) % themes.length];
-      setTheme(nextTheme);
-    });
-  }
-
-  renderThemeState(docEl.getAttribute('data-theme') || themes[0]);
-
-  if (navToggle && nav && headerEl instanceof HTMLElement) {
-    const closeNav = () => {
-      headerEl.classList.remove('nav-open');
-      navToggle.setAttribute('aria-expanded', 'false');
-    };
-
-    const openNav = () => {
-      headerEl.classList.add('nav-open');
-      navToggle.setAttribute('aria-expanded', 'true');
-    };
-
+  if (navToggle instanceof HTMLElement) {
     navToggle.addEventListener('click', () => {
-      const expanded = navToggle.getAttribute('aria-expanded') === 'true';
-      if (expanded) {
+      if (!(header instanceof HTMLElement)) {
+        return;
+      }
+      const isOpen = header.classList.contains('nav-open');
+      if (isOpen) {
         closeNav();
       } else {
         openNav();
       }
     });
+  }
 
-    nav.querySelectorAll('a').forEach((link) => {
+  if (nav instanceof HTMLElement) {
+    nav.querySelectorAll('a[href^="#"]').forEach((link) => {
       link.addEventListener('click', () => {
         if (window.innerWidth < 860) {
           closeNav();
         }
       });
     });
-
-    window.addEventListener('resize', () => {
-      if (window.innerWidth >= 860) {
-        closeNav();
-      }
-    });
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && navToggle.getAttribute('aria-expanded') === 'true') {
-        closeNav();
-        navToggle.focus();
-      }
-    });
   }
 
-  function renderAudience(key) {
-    audienceButtons.forEach((btn) => {
-      const isActive = btn.dataset.audience === key;
-      btn.classList.toggle('selected', isActive);
-      btn.setAttribute('aria-pressed', String(isActive));
-    });
-
-    if (!audiencePitchEl) return;
-    const pitch = audiencePitches[key];
-    if (!pitch) return;
-
-    audiencePitchEl.innerHTML = `
-      <div class="card-row">
-        <div class="icon-bubble"><span class="icon ${pitch.icon}" aria-hidden="true"></span></div>
-        <div>
-          <div class="card-title">${pitch.title}</div>
-          <p class="card-desc">${pitch.desc}</p>
-        </div>
-      </div>
-    `;
-  }
-
-  audienceButtons.forEach((btn) => {
-    btn.addEventListener('click', () => renderAudience(btn.dataset.audience || defaultAudience));
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 860) {
+      closeNav();
+    }
   });
 
-  renderAudience(defaultAudience);
-
-  if (languageButton instanceof HTMLButtonElement && languageIconTarget instanceof HTMLElement) {
-    const baseLabel = languageButton.getAttribute('data-label') || '';
-    const rawCycle = languageButton.getAttribute('data-locale-cycle') || '[]';
-    let localeCycle = [];
-    try {
-      const parsed = JSON.parse(rawCycle);
-      if (Array.isArray(parsed)) {
-        localeCycle = parsed
-          .map((entry) => ({
-            code: typeof entry.code === 'string' ? entry.code : '',
-            href: typeof entry.href === 'string' ? entry.href : '',
-            label: typeof entry.label === 'string' ? entry.label : '',
-          }))
-          .filter((entry) => entry.code);
-      }
-    } catch (error) {
-      localeCycle = [];
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closeNav();
     }
+  });
 
-    let currentLocale = languageButton.getAttribute('data-current-locale') || (localeCycle[0]?.code || '');
+  const scrollToId = (targetId) => {
+    if (!targetId) return;
+    const element = document.getElementById(targetId);
+    if (!element) return;
+    const rect = element.getBoundingClientRect();
+    const offset = window.pageYOffset + rect.top - (parseInt(getComputedStyle(docEl).getPropertyValue('--anchor-offset'), 10) || 0);
+    window.scrollTo({ top: offset, behavior: 'smooth' });
+  };
 
-    const iconForLocale = (locale) => {
-      const value = (locale || '').toLowerCase();
-      if (value.startsWith('ru')) return 'flag-ru';
-      if (value.startsWith('en')) return 'flag-en';
-      return 'globe';
-    };
-
-    const applyLocaleState = () => {
-      languageIconTarget.className = `icon ${iconForLocale(currentLocale)}`;
-      const match = localeCycle.find((entry) => entry.code === currentLocale);
-      const label = match?.label || (currentLocale ? currentLocale.toUpperCase() : baseLabel || 'Language');
-      if (baseLabel) {
-        const composed = `${baseLabel}: ${label}`;
-        languageButton.setAttribute('aria-label', composed);
-        languageButton.setAttribute('title', composed);
-      } else {
-        languageButton.setAttribute('aria-label', label);
-        languageButton.setAttribute('title', label);
+  document.querySelectorAll('[data-scroll-target]').forEach((node) => {
+    node.addEventListener('click', (event) => {
+      const targetId = node.getAttribute('data-scroll-target') || node.getAttribute('href')?.replace('#', '');
+      if (!targetId) {
+        return;
       }
-    };
+      if (node instanceof HTMLAnchorElement) {
+        event.preventDefault();
+      }
+      scrollToId(targetId);
+    });
+  });
 
-    applyLocaleState();
-
-    if (localeCycle.length <= 1) {
-      languageButton.disabled = true;
-      languageButton.setAttribute('aria-disabled', 'true');
+  if (floatingCta instanceof HTMLElement) {
+    if (!form) {
+      floatingCta.remove();
     } else {
-      languageButton.addEventListener('click', (event) => {
-        event.preventDefault();
-        const currentIndex = localeCycle.findIndex((entry) => entry.code === currentLocale);
-        const nextEntry = localeCycle[(currentIndex + 1) % localeCycle.length];
-        if (!nextEntry) {
-          return;
-        }
-        currentLocale = nextEntry.code;
-        applyLocaleState();
-        setTimeout(() => {
-          if (nextEntry.href) {
-            window.location.href = nextEntry.href;
-          }
-        }, 160);
-      });
+      const targetId = floatingCta.getAttribute('data-scroll-target') || 'apply';
+      floatingCta.addEventListener('click', () => scrollToId(targetId));
     }
   }
 
-  const people = document.getElementById('people');
-  const apd = document.getElementById('apd');
-  const peopleVal = document.getElementById('peopleVal');
-  const apdVal = document.getElementById('apdVal');
-  const opsMonthly = document.getElementById('opsMonthly');
-  const nerpTotal = document.getElementById('nerpTotal');
-  const fiatApprox = document.getElementById('fiatApprox');
-  const tokenInput = document.querySelector('[data-token-input]');
-  const tokenSlider = document.querySelector('[data-token-range]');
-  const tokenPreviewValue = document.querySelector('[data-token-preview-value]');
-  const operationFiatNodes = document.querySelectorAll('[data-operation-fiat]');
-  const tokenPresetButtons = document.querySelectorAll('[data-token-preset]');
-  const comparisonCards = document.querySelectorAll('[data-comparison-system]');
-  const comparisonNerpFiatNodes = document.querySelectorAll('[data-comparison-nerp-fiat]');
-  const comparisonNerpTokenNodes = document.querySelectorAll('[data-comparison-nerp-tokens]');
-  const comparisonTeamNodes = document.querySelectorAll('[data-comparison-team]');
-  const comparisonSlider = document.querySelector('[data-comparison-slider]');
-  const comparisonTrack = comparisonSlider?.querySelector('[data-comparison-track]') ?? null;
-  const comparisonPrev = comparisonSlider?.querySelector('[data-slider-prev]') ?? null;
-  const comparisonNext = comparisonSlider?.querySelector('[data-slider-next]') ?? null;
-
-  const parseLocaleNumber = (value) => {
-    if (typeof value !== 'string') return Number.NaN;
-    const sanitized = value.replace(/\s+/g, '').replace(/,/g, '.');
-    return Number.parseFloat(sanitized);
-  };
-
-  const getLocalTokenPrice = () => tokenPriceUsd * fiatPerUsd;
-
-  const syncComparisonSliderNav = () => {
-    if (!(comparisonSlider instanceof HTMLElement) || !(comparisonTrack instanceof HTMLElement)) {
-      return;
-    }
-
-    const maxScrollLeft = Math.max(0, comparisonTrack.scrollWidth - comparisonTrack.clientWidth);
-    const hasOverflow = maxScrollLeft > 1;
-    comparisonSlider.classList.toggle('is-scrollable', hasOverflow);
-
-    if (comparisonPrev instanceof HTMLButtonElement) {
-      comparisonPrev.disabled = !hasOverflow || comparisonTrack.scrollLeft <= 1;
-    }
-
-    if (comparisonNext instanceof HTMLButtonElement) {
-      comparisonNext.disabled = !hasOverflow || comparisonTrack.scrollLeft >= maxScrollLeft - 1;
-    }
-  };
-
-  const requestComparisonNavSync = () => {
-    window.requestAnimationFrame(syncComparisonSliderNav);
-  };
-
-  const scrollComparisonSlider = (direction) => {
-    if (!(comparisonTrack instanceof HTMLElement)) {
-      return;
-    }
-
-    const multiplier = direction > 0 ? 1 : -1;
-    const styles = window.getComputedStyle(comparisonTrack);
-    const rawGap = styles.columnGap && styles.columnGap !== 'normal' ? styles.columnGap : styles.gap;
-    const gap = Number.parseFloat(rawGap) || 0;
-    const firstSlide = comparisonTrack.querySelector('[data-comparison-slide]');
-    const slideWidth = firstSlide instanceof HTMLElement ? firstSlide.offsetWidth : 0;
-    const slideStep = slideWidth > 0 ? slideWidth + gap : 0;
-    const slidesCount = comparisonTrack.querySelectorAll('[data-comparison-slide]').length;
-    let perView = 1;
-
-    if (slideStep > 0) {
-      const theoretical = (comparisonTrack.clientWidth + gap) / slideStep;
-      perView = Math.max(1, Math.round(theoretical));
-      if (slidesCount > 0) {
-        perView = Math.min(perView, slidesCount);
-      }
-    }
-
-    const amount = slideStep > 0 ? slideStep * perView : comparisonTrack.clientWidth || comparisonSlider?.clientWidth || 320;
-
-    comparisonTrack.scrollBy({
-      left: amount * multiplier,
-      behavior: 'smooth',
-    });
-    requestComparisonNavSync();
-  };
-
-  if (comparisonPrev instanceof HTMLButtonElement) {
-    comparisonPrev.addEventListener('click', () => {
-      scrollComparisonSlider(-1);
-    });
-  }
-
-  if (comparisonNext instanceof HTMLButtonElement) {
-    comparisonNext.addEventListener('click', () => {
-      scrollComparisonSlider(1);
-    });
-  }
-
-  if (comparisonTrack instanceof HTMLElement) {
-    comparisonTrack.addEventListener('scroll', requestComparisonNavSync, { passive: true });
-  }
-
-  window.addEventListener('resize', requestComparisonNavSync);
-  requestComparisonNavSync();
-
-  const sliderStepDecimals = (() => {
-    if (!(tokenSlider instanceof HTMLInputElement)) return 2;
-    const stepString = tokenSlider.step && tokenSlider.step !== 'any' ? tokenSlider.step : '0.1';
-    const [, decimals = ''] = stepString.split('.');
-    return Math.min(Math.max(decimals.replace(/[^0-9]/g, '').length, 0), 6);
-  })();
-
-  const clampToSlider = (value) => {
-    if (!(tokenSlider instanceof HTMLInputElement)) return value;
-    let next = value;
-    const min = Number.parseFloat(tokenSlider.min || '0');
-    const max = Number.parseFloat(tokenSlider.max || '0');
-    if (Number.isFinite(min)) {
-      next = Math.max(next, min);
-    }
-    if (Number.isFinite(max) && max > 0) {
-      next = Math.min(next, max);
-    }
-    return next;
-  };
-
-  const updateSliderValue = (value) => {
-    if (!(tokenSlider instanceof HTMLInputElement)) return;
-    const next = clampToSlider(value);
-    tokenSlider.value = next.toFixed(sliderStepDecimals);
-  };
-
-  function estimate(peopleCount, actionsPerDay) {
-    const monthlyActions = actionsPerDay * 30 * Math.max(peopleCount, 1);
-    const nerpSpend = monthlyActions * microFee;
-    return { monthlyActions, nerpSpend };
-  }
-
-  const formatTeamTemplate = (template, countLabel) => {
-    const source = typeof template === 'string' ? template : '';
-    if (source.includes('{count}')) {
-      return source.replace('{count}', countLabel);
-    }
-    return source || countLabel;
-  };
-
-  function updateComparison(peopleCount, nerpTokens, nerpFiatValue) {
-    const safePeople = Number.isFinite(peopleCount) && peopleCount > 0 ? peopleCount : 0;
-    const safeTokens = Number.isFinite(nerpTokens) && nerpTokens > 0 ? nerpTokens : 0;
-    const safeFiat = Number.isFinite(nerpFiatValue) && nerpFiatValue > 0 ? nerpFiatValue : 0;
-    const teamLabel = numberFormatter.format(safePeople);
-    const formattedFiat = safeFiat > 0 ? currencyFormatter.format(safeFiat) : currencyFormatter.format(0);
-    const formattedTokens = tokenFormatter.format(safeTokens);
-
-    comparisonNerpFiatNodes.forEach((node) => {
-      if (!(node instanceof HTMLElement)) return;
-      node.textContent = formattedFiat;
-    });
-
-    comparisonNerpTokenNodes.forEach((node) => {
-      if (!(node instanceof HTMLElement)) return;
-      const suffix = node.dataset.tokenSuffix || '';
-      node.textContent = suffix ? `${formattedTokens} ${suffix}` : formattedTokens;
-    });
-
-    comparisonTeamNodes.forEach((node) => {
-      if (!(node instanceof HTMLElement)) return;
-      const template = node.dataset.template || '';
-      node.textContent = formatTeamTemplate(template, teamLabel);
-    });
-
-    comparisonCards.forEach((card) => {
-      if (!(card instanceof HTMLElement)) return;
-      const pricePerUser = Number.parseFloat(card.dataset.pricePerUser || '0');
-      const priceFlat = Number.parseFloat(card.dataset.priceFlat || '0');
-      const priceMin = Number.parseFloat(card.dataset.priceMin || '0');
-      const target = card.querySelector('[data-comparison-system-price]');
-      if (!(target instanceof HTMLElement)) {
+  if (form instanceof HTMLFormElement) {
+    const params = new URLSearchParams(window.location.search);
+    params.forEach((value, key) => {
+      if (!value || form.elements.namedItem(key)) {
         return;
       }
-      let price = 0;
-      if (Number.isFinite(pricePerUser) && pricePerUser > 0 && safePeople > 0) {
-        price += pricePerUser * safePeople;
-      }
-      if (Number.isFinite(priceFlat) && priceFlat > 0) {
-        price += priceFlat;
-      }
-      if (Number.isFinite(priceMin) && price < priceMin) {
-        price = priceMin;
-      }
-      if (Number.isFinite(price) && price > 0) {
-        target.textContent = currencyFormatter.format(price);
-      } else {
-        target.textContent = '—';
-      }
-    });
-  }
-
-  function updateTokenDerived() {
-    const localTokenPrice = getLocalTokenPrice();
-
-    if (tokenPreviewValue instanceof HTMLElement) {
-      tokenPreviewValue.textContent = currencyFormatter.format(localTokenPrice);
-    }
-
-    operationFiatNodes.forEach((node) => {
-      if (!(node instanceof HTMLElement)) return;
-      const prefix = node.dataset.prefix || '≈';
-      const cost = Number.parseFloat(node.dataset.operationFiat || '0');
-      if (!Number.isFinite(cost) || cost <= 0 || !Number.isFinite(localTokenPrice) || localTokenPrice <= 0) {
-        node.textContent = `${prefix} —`;
-        return;
-      }
-      const fiatValue = cost * localTokenPrice;
-      node.textContent = `${prefix} ${currencyFormatter.format(fiatValue)}`;
-    });
-  }
-
-  function updateCalc() {
-    if (!(people && apd && peopleVal && apdVal && opsMonthly && nerpTotal && fiatApprox)) {
-      return;
-    }
-
-    const p = Number.parseInt(people.value, 10) || 0;
-    const a = Number.parseInt(apd.value, 10) || 0;
-    peopleVal.textContent = p.toString();
-    apdVal.textContent = a.toString();
-    const result = estimate(p, a);
-    opsMonthly.textContent = numberFormatter.format(result.monthlyActions);
-    nerpTotal.textContent = tokenFormatter.format(result.nerpSpend);
-    const fiatValue = tokenPriceUsd > 0 ? result.nerpSpend * tokenPriceUsd * fiatPerUsd : 0;
-    fiatApprox.textContent = currencyFormatter.format(fiatValue);
-    updateComparison(p, result.nerpSpend, fiatValue);
-    updateTokenDerived();
-  }
-
-  people?.addEventListener('input', updateCalc);
-  apd?.addEventListener('input', updateCalc);
-  const updatePresetState = () => {
-    tokenPresetButtons.forEach((button) => {
-      if (!(button instanceof HTMLElement)) return;
-      const preset = Number.parseFloat(button.dataset.tokenPreset || '0');
-      const isActive = Number.isFinite(preset) && Math.abs(preset - tokenPriceUsd) < 1e-6;
-      button.classList.toggle('active', isActive);
-      button.setAttribute('aria-pressed', String(isActive));
-    });
-  };
-
-  const applyTokenPriceUsd = (value, { fromSlider = false } = {}) => {
-    const nextValue = value > 0 ? value : defaultTokenPriceUsd;
-    tokenPriceUsd = nextValue;
-    if (tokenInput instanceof HTMLInputElement) {
-      tokenInput.value = getLocalTokenPrice().toFixed(priceDecimals);
-    }
-    if (!fromSlider) {
-      updateSliderValue(tokenPriceUsd);
-    }
-    updateCalc();
-    updatePresetState();
-  };
-
-  if (tokenInput instanceof HTMLInputElement) {
-    const commitTokenPrice = () => {
-      const raw = parseLocaleNumber(tokenInput.value);
-      if (!Number.isFinite(raw) || raw <= 0) {
-        tokenInput.value = getLocalTokenPrice().toFixed(priceDecimals);
-        updatePresetState();
-        return;
-      }
-      const usdValue = fiatPerUsd > 0 ? raw / fiatPerUsd : raw;
-      applyTokenPriceUsd(usdValue);
-    };
-
-    tokenInput.addEventListener('input', () => {
-      const raw = parseLocaleNumber(tokenInput.value);
-      if (!Number.isFinite(raw) || raw <= 0) {
-        return;
-      }
-      const usdValue = fiatPerUsd > 0 ? raw / fiatPerUsd : raw;
-      applyTokenPriceUsd(usdValue);
+      const hidden = document.createElement('input');
+      hidden.type = 'hidden';
+      hidden.name = key;
+      hidden.value = value;
+      form.appendChild(hidden);
     });
 
-    tokenInput.addEventListener('change', commitTokenPrice);
-    tokenInput.addEventListener('blur', commitTokenPrice);
-    tokenInput.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        commitTokenPrice();
-      }
-    });
-    tokenInput.value = getLocalTokenPrice().toFixed(priceDecimals);
-  }
-
-  tokenPresetButtons.forEach((button) => {
-    if (!(button instanceof HTMLElement)) return;
-    button.addEventListener('click', () => {
-      const preset = Number.parseFloat(button.dataset.tokenPreset || '0');
-      if (!Number.isFinite(preset) || preset <= 0) {
-        return;
-      }
-      applyTokenPriceUsd(preset);
-    });
-  });
-
-  if (tokenSlider instanceof HTMLInputElement) {
-    updateSliderValue(tokenPriceUsd);
-    tokenSlider.addEventListener('input', () => {
-      const raw = Number.parseFloat(tokenSlider.value);
-      if (!Number.isFinite(raw) || raw <= 0) {
-        return;
-      }
-      applyTokenPriceUsd(clampToSlider(raw), { fromSlider: true });
-    });
-  }
-
-  updatePresetState();
-  updateCalc();
-
-  const pilotButtons = Array.from(pilotTriggers).filter((trigger) => trigger instanceof HTMLElement);
-
-  const setPilotField = (target, value, { hideWhenEmpty = false, fallback = '' } = {}) => {
-    if (!(target instanceof HTMLElement)) {
-      return;
-    }
-    const text = typeof value === 'string' ? value.trim() : '';
-    if (hideWhenEmpty) {
-      if (!text) {
-        target.textContent = '';
-        target.setAttribute('hidden', 'true');
-        return;
-      }
-      target.removeAttribute('hidden');
-    }
-    target.textContent = text || fallback;
-  };
-
-  const activatePilot = (trigger) => {
-    if (!(trigger instanceof HTMLElement)) return;
-    pilotButtons.forEach((btn) => {
-      btn.classList.toggle('active', btn === trigger);
-    });
-    if (pilotDisplay instanceof HTMLElement) {
-      pilotDisplay.setAttribute('data-active-pilot', trigger.dataset.pilotId || '');
-    }
-    setPilotField(pilotQuote, trigger.dataset.pilotQuote || '', { fallback: '—' });
-    setPilotField(pilotCompany, trigger.dataset.pilotCompany || '', { fallback: '—' });
-    setPilotField(pilotRole, trigger.dataset.pilotRole || '', { hideWhenEmpty: true });
-    setPilotField(pilotMetric, trigger.dataset.pilotMetric || '', { hideWhenEmpty: true });
-  };
-
-  pilotButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      activatePilot(button);
-    });
-  });
-
-  if (pilotButtons.length > 0) {
-    const initial = pilotButtons.find((btn) => btn.classList.contains('active')) || pilotButtons[0];
-    activatePilot(initial);
-  }
-
-  document.querySelectorAll('[data-faq-item]').forEach((item) => {
-    if (!(item instanceof HTMLElement)) return;
-    const trigger = item.querySelector('[data-faq-question]');
-    const answer = item.querySelector('[data-faq-answer]');
-    const iconNode = item.querySelector('.faq-toggle-icon .icon');
-    if (!(trigger instanceof HTMLElement) || !(answer instanceof HTMLElement)) return;
-
-    const setState = (open) => {
-      item.classList.toggle('open', open);
-      trigger.setAttribute('aria-expanded', String(open));
-      answer.hidden = !open;
-      if (iconNode instanceof HTMLElement) {
-        iconNode.classList.remove('plus', 'minus');
-        iconNode.classList.add(open ? 'minus' : 'plus');
-      }
-    };
-
-    setState(trigger.getAttribute('aria-expanded') === 'true');
-
-    trigger.addEventListener('click', () => {
-      const isOpen = item.classList.contains('open');
-      setState(!isOpen);
-    });
-  });
-
-  function focusPilotForm() {
-    if (!pilotForm) return;
-    const firstField = pilotForm.querySelector('input, textarea');
-    if (firstField instanceof HTMLElement) {
-      setTimeout(() => {
-        try {
-          firstField.focus({ preventScroll: true });
-        } catch (error) {
-          firstField.focus();
-        }
-      }, 300);
-    }
-  }
-
-  function scrollToPilots(event) {
-    if (!pilotForm) return;
-    if (event) {
+    form.addEventListener('submit', async (event) => {
       event.preventDefault();
-    }
-    pilotForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    focusPilotForm();
-  }
-
-  document.querySelectorAll('[data-scroll-to-pilots]').forEach((el) => {
-    el.addEventListener('click', scrollToPilots);
-  });
-
-  if (floatingCtaButton) {
-    floatingCtaButton.addEventListener('click', scrollToPilots);
-  }
-
-  if (floatingCta) {
-    const toggleFloating = () => {
-      const threshold = 400;
-      if (window.scrollY > threshold) {
-        floatingCta.classList.add('is-visible');
-      } else {
-        floatingCta.classList.remove('is-visible');
-      }
-    };
-
-    toggleFloating();
-    window.addEventListener('scroll', toggleFloating, { passive: true });
-  }
-
-  if (pilotForm) {
-    const successMessage = pilotForm.querySelector('[data-pilot-success]');
-    const errorMessage = pilotForm.querySelector('[data-pilot-error]');
-    const submitButton = pilotForm.querySelector('button[type="submit"]');
-    let fallbackSubmission = false;
-
-    pilotForm.addEventListener('submit', async (event) => {
-      if (fallbackSubmission) {
-        fallbackSubmission = false;
+      if (!(form instanceof HTMLFormElement)) {
         return;
       }
 
-      event.preventDefault();
-      trackEvent('form_submit', enrichWithUtm({ form: 'pilot', status: 'requested', lang }));
+      if (successMessage instanceof HTMLElement) {
+        successMessage.hidden = true;
+      }
+      if (errorMessage instanceof HTMLElement) {
+        errorMessage.hidden = true;
+      }
 
-      if (successMessage) successMessage.hidden = true;
-      if (errorMessage) errorMessage.hidden = true;
-      if (submitButton) submitButton.disabled = true;
-
-      const formData = new FormData(pilotForm);
-      const payload = {};
-      formData.forEach((value, key) => {
-        payload[key] = typeof value === 'string' ? value : String(value);
-      });
-
-      const action = pilotForm.getAttribute('action') || '';
-      const method = (pilotForm.getAttribute('method') || 'POST').toUpperCase();
+      if (submitButton instanceof HTMLButtonElement) {
+        submitButton.disabled = true;
+      }
 
       try {
-        if (!action || action === '#') {
-          pilotForm.reset();
-          if (successMessage) successMessage.hidden = false;
-          trackEvent('form_submit', enrichWithUtm({ form: 'pilot', status: 'success_local', lang }));
-          return;
-        }
-
-        const response = await fetch(action, {
-          method,
+        const formData = new FormData(form);
+        const response = await fetch(form.action || 'form-submit.php', {
+          method: 'POST',
+          body: formData,
           headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
+            'Accept': 'application/json',
           },
-          body: JSON.stringify(payload),
-          credentials: 'omit',
         });
 
         if (!response.ok) {
-          throw new Error('Request failed');
+          throw new Error('Network error');
         }
 
-        pilotForm.reset();
-        if (successMessage) successMessage.hidden = false;
-        trackEvent('form_submit', enrichWithUtm({ form: 'pilot', status: 'success', lang }));
+        const payload = await response.json();
+        if (payload?.success) {
+          form.reset();
+          if (successMessage instanceof HTMLElement) {
+            successMessage.hidden = false;
+          }
+          if (errorMessage instanceof HTMLElement) {
+            errorMessage.hidden = true;
+          }
+        } else {
+          throw new Error('Invalid response');
+        }
       } catch (error) {
-        if (action && action !== '#') {
-          fallbackSubmission = true;
-          if (submitButton) submitButton.disabled = false;
-          trackEvent('form_submit', enrichWithUtm({ form: 'pilot', status: 'fallback_submit', lang }));
-          pilotForm.submit();
-          return;
+        if (errorMessage instanceof HTMLElement) {
+          errorMessage.hidden = false;
         }
-
-        if (errorMessage) errorMessage.hidden = false;
-        trackEvent('form_submit', enrichWithUtm({ form: 'pilot', status: 'error', lang }));
       } finally {
-        if (submitButton) submitButton.disabled = false;
+        if (submitButton instanceof HTMLButtonElement) {
+          submitButton.disabled = false;
+        }
       }
     });
   }
