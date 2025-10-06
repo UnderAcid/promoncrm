@@ -41,21 +41,15 @@ $logoPath = asset('assets/img/logo-nerp.svg');
                 <?php endif; ?>
             </span>
         </a>
-        <button class="nav-toggle" type="button" data-nav-toggle aria-controls="mainNav" aria-expanded="false">
-            <span class="nav-toggle-box" aria-hidden="true">
-                <span class="nav-toggle-bar"></span>
-                <span class="nav-toggle-bar"></span>
-                <span class="nav-toggle-bar"></span>
-            </span>
-            <span class="sr-only"><?= e($t->get('nav.toggle')); ?></span>
-        </button>
-        <nav class="nav" id="mainNav" aria-label="Main navigation" role="navigation" data-nav>
-            <a href="<?= e($homeUrl); ?>#for"><?= e($t->get('nav.for')); ?></a>
-            <a href="<?= e($homeUrl); ?>#why"><?= e($t->get('nav.why')); ?></a>
-            <a href="<?= e($homeUrl); ?>#pricing"><?= e($t->get('nav.pricing')); ?></a>
-            <a href="<?= e($homeUrl); ?>#pilots"><?= e($t->get('nav.pilots')); ?></a>
-        </nav>
-        <div class="actions">
+        <div class="header-controls">
+            <button class="nav-toggle" type="button" data-nav-toggle aria-controls="mainNav" aria-expanded="false">
+                <span class="nav-toggle-box" aria-hidden="true">
+                    <span class="nav-toggle-bar"></span>
+                    <span class="nav-toggle-bar"></span>
+                    <span class="nav-toggle-bar"></span>
+                </span>
+                <span class="sr-only"><?= e($t->get('nav.toggle')); ?></span>
+            </button>
             <div class="icon-switchers">
                 <button
                     class="icon-toggle"
@@ -84,6 +78,14 @@ $logoPath = asset('assets/img/logo-nerp.svg');
                     <span class="sr-only"><?= e($t->get('app.theme.toggle')); ?></span>
                 </button>
             </div>
+        </div>
+        <nav class="nav" id="mainNav" aria-label="Main navigation" role="navigation" data-nav>
+            <a href="<?= e($homeUrl); ?>#for"><?= e($t->get('nav.for')); ?></a>
+            <a href="<?= e($homeUrl); ?>#why"><?= e($t->get('nav.why')); ?></a>
+            <a href="<?= e($homeUrl); ?>#pricing"><?= e($t->get('nav.pricing')); ?></a>
+            <a href="<?= e($homeUrl); ?>#pilots"><?= e($t->get('nav.pilots')); ?></a>
+        </nav>
+        <div class="actions">
             <a
                 class="btn btn-primary"
                 href="<?= e($homeUrl); ?>#pilots"
