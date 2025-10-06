@@ -5,7 +5,7 @@ declare(strict_types=1);
 return [
     'app' => [
         'name' => 'nERP',
-        'tagline' => 'Web3 ERP Builder',
+        'tagline' => 'Web3 ERP without servers',
         'locale_code' => 'en-US',
         'language_label' => 'Language',
         'theme' => [
@@ -17,16 +17,16 @@ return [
         'noscript' => 'JavaScript is disabled. Some functionality may be limited.',
     ],
     'meta' => [
-        'title' => 'nERP — Web3 ERP builder for pilots',
-        'description' => 'Build CRM, HR, and inventory in one day with the nERP Web3 ERP builder. Local encryption, role-based access, and micropayments per action keep pilots lean.',
-        'keywords' => 'nerp.app, Web3 ERP, local encryption, micropayments, CRM, HR, inventory, role-based access, pilots',
-        'og_title' => 'nERP — Web3 ERP builder for pilots',
-        'og_description' => 'Spin up CRM, HR, and inventory on nERP nodes with local encryption and pay only for real actions.',
+        'title' => 'nERP — Web3 ERP without servers | Pilot program',
+        'description' => 'Build an ERP in one day. Web3 infrastructure, encryption, and pay-per-action pricing for 10 pilot teams.',
+        'keywords' => 'nERP, Web3 ERP, serverless ERP, encryption, pay per action, pilot program',
+        'og_title' => 'nERP — Web3 ERP without servers | Pilot program',
+        'og_description' => 'Launch nERP in one day with encrypted Web3 nodes and pay only for user actions.',
         'og_image_alt' => 'Diagram of nERP nodes with CRM, HR, and inventory modules',
     ],
     'schema' => [
-        'webpage_name' => 'nERP — Web3 ERP builder',
-        'webpage_description' => 'Launch CRM, HR, and inventory with local encryption, micropayments, and role-based access in one day.',
+        'webpage_name' => 'nERP — Web3 ERP without servers',
+        'webpage_description' => 'Launch a Web3 ERP in one day with encrypted nodes and pay-per-action billing.',
         'faq' => [
             [
                 'question' => 'What is nERP?',
@@ -63,35 +63,138 @@ return [
         ],
     ],
     'nav' => [
-        'for' => 'Who it is for',
-        'why' => 'Why nERP',
-        'pricing' => 'Pricing',
-        'pilots' => 'Pilots',
+        'for' => 'Pilot',
+        'why' => 'How it works',
+        'pricing' => 'Before vs After',
+        'pilots' => 'Apply',
         'toggle' => 'Menu',
     ],
     'hero' => [
-        'tags' => ['Web3.0', 'Encryption', 'nerp.app'],
-        'title' => 'Web3.0 ERP builder',
-        'lead' => 'Build CRM, HR, and inventory in one day at nerp.app. Data is encrypted locally and stays with you. Scale the node network and only pay for the actions performed.',
+        'tags' => ['Web3', 'Encryption', 'Serverless'],
+        'badge' => 'nERP pilot program',
+        'title' => 'ERP without servers or rollouts. Go live in one day.',
+        'subtitle' => 'Web3. Encryption. Pay only for actions.',
+        'lead' => 'Web3. Encryption. Pay only for actions.',
         'primary_cta' => 'Join the pilot',
-        'secondary_cta' => 'Watch demo',
+        'secondary_cta' => 'See what is included',
+        'points' => [
+            'Connect in a day with zero infrastructure to manage.',
+            'Keys stay with your team — nodes only see encrypted blocks.',
+            'Billing follows real user actions, not seats or tiers.',
+        ],
         'feature_cards' => [
             [
                 'icon' => 'zap',
-                'title' => 'Up and running in a day',
-                'desc' => 'Modular blocks, no heavy integrations required.',
+                'title' => 'Launch in 24 hours',
+                'desc' => 'Activate ready nERP nodes and start measuring impact immediately.',
             ],
             [
                 'icon' => 'lock',
-                'title' => 'Zero vendor lock-in',
-                'desc' => 'Secrets and keys always stay on your side.',
+                'title' => 'Encryption by design',
+                'desc' => 'Your team keeps the keys and controls every access grant.',
             ],
             [
                 'icon' => 'wallet',
-                'title' => 'No subscription tiers',
-                'desc' => 'Micropayments only for actual operations.',
+                'title' => 'Pay per action',
+                'desc' => 'No bundles or seats — only pay for the operations that happened.',
             ],
         ],
+    ],
+    'pilot_program' => [
+        'title' => 'nERP pilot program',
+        'description' => 'We are selecting only 10 companies to join the pilot.',
+        'benefits' => [
+            [
+                'title' => 'Priority support',
+                'description' => 'Direct access to the product team and fast turnaround on feedback.',
+            ],
+            [
+                'title' => 'Custom terms',
+                'description' => 'Tailor tokenomics, roles, and processes around your metrics.',
+            ],
+            [
+                'title' => 'Shape the tokenomics',
+                'description' => 'Co-create the economic model and lock in pilot incentives.',
+            ],
+        ],
+    ],
+    'infographic' => [
+        'title' => 'How nERP works',
+        'subtitle' => 'Data is encrypted locally and travels through Web3 nodes.',
+        'alt' => 'Diagram: data → encryption → node → result',
+        'steps' => [
+            [
+                'title' => 'Data',
+                'description' => 'Your team captures and updates operations inside nERP.',
+            ],
+            [
+                'title' => 'Encryption',
+                'description' => 'Keys stay with you, nodes receive only encrypted payloads.',
+            ],
+            [
+                'title' => 'Node',
+                'description' => 'nERP nodes execute roles, billing, and automations serverlessly.',
+            ],
+            [
+                'title' => 'Result',
+                'description' => 'Teams see real-time dashboards and pay only for the actions performed.',
+            ],
+        ],
+    ],
+    'comparison' => [
+        'title' => 'Before vs After',
+        'subtitle' => 'Traditional ERP versus nERP',
+        'before_title' => 'Traditional ERP',
+        'before_lead' => 'Months of implementation, hardware procurement, and sunk costs.',
+        'before' => [
+            'Lengthy scoping and custom builds for every department.',
+            'Infrastructure, licenses, and ongoing maintenance on your side.',
+            'Seat-based pricing regardless of actual utilisation.',
+        ],
+        'after_title' => 'nERP',
+        'after_lead' => 'Connect in a day and scale functionality as the pilot grows.',
+        'after' => [
+            'Ready Web3 nodes with encryption and granular roles.',
+            'Keys and access management stay with your team — no servers required.',
+            'Pay strictly for user actions within the workflow.',
+        ],
+    ],
+    'form' => [
+        'title' => 'Apply for the pilot',
+        'description' => 'Tell us what you want to automate and we will follow up within one business day.',
+        'action' => '/api/pilot.php',
+        'fields' => [
+            'name' => [
+                'label' => 'Name',
+                'placeholder' => 'How should we address you?',
+            ],
+            'email' => [
+                'label' => 'Email',
+                'placeholder' => 'name@company.com',
+            ],
+            'company' => [
+                'label' => 'Company (optional)',
+                'placeholder' => 'Company name or industry',
+            ],
+            'automation' => [
+                'label' => 'What do you want to automate?',
+                'placeholder' => 'Sales, inventory, production, or another process',
+            ],
+        ],
+        'checkbox' => 'I want to join the pilot program',
+        'consent' => 'By submitting you agree to the nERP data processing policy.',
+        'submit' => 'Join the pilot',
+        'success' => 'Thank you! We will contact you shortly.',
+        'error' => 'Submission failed. Please try again or email pilot@nerp.app.',
+    ],
+    'urgency' => [
+        'deadline' => 'Applications are open until 30 April 2024',
+        'note' => 'Only 10 pilot slots are available.',
+    ],
+    'final_cta' => [
+        'title' => 'Ready to be one of the 10 pilot teams?',
+        'subtitle' => 'Plug into nERP and launch a Web3 ERP without servers in one day.',
+        'primary' => 'Join the pilot',
     ],
     'audience' => [
         'title' => 'Who nERP is for',
@@ -515,7 +618,7 @@ return [
     'language_switcher' => [
         'label' => 'Interface language',
     ],
-    'floating_cta' => 'Apply for pilot access',
+    'floating_cta' => 'Join the pilot',
     'pilots' => [
         'eyebrow' => 'Pilot cohorts 2024',
         'title' => 'Join the nERP pilot program',

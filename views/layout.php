@@ -257,7 +257,7 @@ $structuredWebPage['primaryImageOfPage'] = $primaryImage;
         <button
             class="btn btn-primary"
             data-floating-cta
-            data-scroll-target="pilotForm"
+            data-scroll-target="apply"
             data-track-event="cta_click"
             data-track-label="floating_cta"
             data-track-location="floating"
