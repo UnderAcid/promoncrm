@@ -17,16 +17,16 @@ return [
         'noscript' => 'JavaScript is disabled. Some functionality may be limited.',
     ],
     'meta' => [
-        'title' => 'nERP — Web3 ERP builder for pilots',
-        'description' => 'Build CRM, HR, and inventory in one day with the nERP Web3 ERP builder. Local encryption, role-based access, and micropayments per action keep pilots lean.',
-        'keywords' => 'nerp.app, Web3 ERP, local encryption, micropayments, CRM, HR, inventory, role-based access, pilots',
-        'og_title' => 'nERP — Web3 ERP builder for pilots',
-        'og_description' => 'Spin up CRM, HR, and inventory on nERP nodes with local encryption and pay only for real actions.',
-        'og_image_alt' => 'Diagram of nERP nodes with CRM, HR, and inventory modules',
+        'title' => 'nERP — Web3 ERP without servers | Pilot programme',
+        'description' => 'Build an ERP in one day. Encryption, Web3 rails, pay only per action. Secure one of 10 pilot slots.',
+        'keywords' => 'nERP, Web3 ERP, serverless ERP, encryption, pilot programme, micropayments, ERP builder',
+        'og_title' => 'nERP — Web3 ERP without servers | Pilot programme',
+        'og_description' => 'Spin up ERP in one day with encryption, Web3 rails, and pay-per-action billing. Apply for the 10 pilot seats.',
+        'og_image_alt' => 'nERP flow diagram: data, encryption, node, result',
     ],
     'schema' => [
-        'webpage_name' => 'nERP — Web3 ERP builder',
-        'webpage_description' => 'Launch CRM, HR, and inventory with local encryption, micropayments, and role-based access in one day.',
+        'webpage_name' => 'nERP — Web3 ERP without servers',
+        'webpage_description' => 'Spin up ERP in a day with encryption, Web3 rails, and per-action billing inside the pilot programme.',
         'faq' => [
             [
                 'question' => 'What is nERP?',
@@ -63,35 +63,19 @@ return [
         ],
     ],
     'nav' => [
-        'for' => 'Who it is for',
-        'why' => 'Why nERP',
-        'pricing' => 'Pricing',
-        'pilots' => 'Pilots',
+        'overview' => 'Overview',
+        'pilot' => 'Pilot',
+        'how' => 'How it works',
+        'apply' => 'Apply',
         'toggle' => 'Menu',
     ],
     'hero' => [
-        'tags' => ['Web3.0', 'Encryption', 'nerp.app'],
-        'title' => 'Web3.0 ERP builder',
-        'lead' => 'Build CRM, HR, and inventory in one day at nerp.app. Data is encrypted locally and stays with you. Scale the node network and only pay for the actions performed.',
+        'tags' => ['Web3', 'Encryption', 'Pay-per-action'],
+        'title' => 'ERP without servers or rollouts. Launch in one day.',
+        'lead' => 'Web3 rails. Encryption. Pay only for actions.',
         'primary_cta' => 'Join the pilot',
-        'secondary_cta' => 'Watch demo',
-        'feature_cards' => [
-            [
-                'icon' => 'zap',
-                'title' => 'Up and running in a day',
-                'desc' => 'Modular blocks, no heavy integrations required.',
-            ],
-            [
-                'icon' => 'lock',
-                'title' => 'Zero vendor lock-in',
-                'desc' => 'Secrets and keys always stay on your side.',
-            ],
-            [
-                'icon' => 'wallet',
-                'title' => 'No subscription tiers',
-                'desc' => 'Micropayments only for actual operations.',
-            ],
-        ],
+        'secondary_cta' => 'Talk to the team',
+        'feature_cards' => [],
     ],
     'audience' => [
         'title' => 'Who nERP is for',
@@ -512,10 +496,94 @@ return [
             ['label' => 'Contact', 'href' => 'mailto:pilot@nerp.app'],
         ],
     ],
+    'landing' => [
+        'pilot_program' => [
+            'title' => 'Pilot programme',
+            'text' => 'We are onboarding only 10 companies into the pilot.',
+            'benefits' => [
+                [
+                    'title' => 'Priority support',
+                    'desc' => 'Direct channel with the nERP team and fast-tracked updates.',
+                ],
+                [
+                    'title' => 'Tailored terms',
+                    'desc' => 'We tune pricing, modules, and integrations to your economics.',
+                ],
+                [
+                    'title' => 'Shape the tokenomics',
+                    'desc' => 'Co-create the micropayment model together with the core team.',
+                ],
+            ],
+        ],
+        'infographic' => [
+            'title' => 'How nERP works',
+            'steps' => [
+                ['title' => 'Data', 'desc' => 'Map the process and data sources.'],
+                ['title' => 'Encryption', 'desc' => 'Every block is encrypted locally — keys stay with you.'],
+                ['title' => 'nERP node', 'desc' => 'Events are processed and routed through secure nodes.'],
+                ['title' => 'Result', 'desc' => 'Your team runs ERP workflows without owning servers.'],
+            ],
+        ],
+        'comparison' => [
+            'title' => 'Before vs After',
+            'before_title' => 'Traditional ERP',
+            'after_title' => 'nERP',
+            'before_points' => [
+                'Servers, licences, and months of rollout.',
+                'Pay for seats even when the team is inactive.',
+                'Heavy integrations and vendor lock-in risk.',
+            ],
+            'after_points' => [
+                'Go live on managed nodes in one day.',
+                'Micropayments only for real user actions.',
+                'Web3-grade encryption and open architecture.',
+            ],
+        ],
+        'urgency' => [
+            'deadline' => '30 June 2025',
+            'text' => 'Applications are accepted until 30 June 2025. Seats are limited.',
+        ],
+        'form' => [
+            'title' => 'Apply for the pilot',
+            'subtitle' => 'Tell us what you want to automate — we will connect you within one day.',
+            'action' => '/form-submit.php',
+            'fields' => [
+                'name' => [
+                    'label' => 'Name',
+                    'placeholder' => 'How should we address you?',
+                    'required' => true,
+                ],
+                'email' => [
+                    'label' => 'Email',
+                    'placeholder' => 'you@company.com',
+                    'required' => true,
+                ],
+                'company' => [
+                    'label' => 'Company (optional)',
+                    'placeholder' => 'Acme Inc.',
+                    'required' => false,
+                ],
+                'needs' => [
+                    'label' => 'What do you want to automate?',
+                    'placeholder' => 'Share workflows, pains, and target metrics',
+                    'required' => true,
+                ],
+            ],
+            'checkbox' => 'I want to join the pilot programme',
+            'submit' => 'Join the pilot',
+            'success' => 'Thank you! We will get in touch shortly.',
+            'error' => 'Could not send the form. Please email pilot@nerp.app and we will help.',
+        ],
+        'cta_repeat' => [
+            'title' => 'Ready to pilot nERP?',
+            'subtitle' => 'Reserve your slot and unlock personalised terms.',
+            'button' => 'Join the pilot',
+        ],
+    ],
     'language_switcher' => [
         'label' => 'Interface language',
     ],
-    'floating_cta' => 'Apply for pilot access',
+    'floating_cta' => 'Join the pilot',
     'pilots' => [
         'eyebrow' => 'Pilot cohorts 2024',
         'title' => 'Join the nERP pilot program',

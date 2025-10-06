@@ -26,6 +26,25 @@ if ($languageIconCode === '') {
 }
 $languageIconClass = in_array($languageIconCode, ['ru', 'en'], true) ? 'flag-' . $languageIconCode : 'globe';
 $logoPath = asset('assets/img/logo-nerp.svg');
+$navItems = [
+    [
+        'id' => 'hero',
+        'label' => (string) ($t->get('nav.overview') ?? ''),
+    ],
+    [
+        'id' => 'pilot',
+        'label' => (string) ($t->get('nav.pilot') ?? ''),
+    ],
+    [
+        'id' => 'how',
+        'label' => (string) ($t->get('nav.how') ?? ''),
+    ],
+    [
+        'id' => 'apply',
+        'label' => (string) ($t->get('nav.apply') ?? ''),
+    ],
+];
+$navItems = array_filter($navItems, static fn (array $item): bool => ($item['label'] ?? '') !== '');
 ?>
 <header class="header" data-header>
     <div class="container header-inner">
@@ -50,10 +69,9 @@ $logoPath = asset('assets/img/logo-nerp.svg');
             <span class="sr-only"><?= e($t->get('nav.toggle')); ?></span>
         </button>
         <nav class="nav" id="mainNav" aria-label="Main navigation" role="navigation" data-nav>
-            <a href="<?= e($homeUrl); ?>#for"><?= e($t->get('nav.for')); ?></a>
-            <a href="<?= e($homeUrl); ?>#why"><?= e($t->get('nav.why')); ?></a>
-            <a href="<?= e($homeUrl); ?>#pricing"><?= e($t->get('nav.pricing')); ?></a>
-            <a href="<?= e($homeUrl); ?>#pilots"><?= e($t->get('nav.pilots')); ?></a>
+            <?php foreach ($navItems as $item): ?>
+                <a href="<?= e($homeUrl); ?>#<?= e($item['id']); ?>"><?= e($item['label']); ?></a>
+            <?php endforeach; ?>
         </nav>
         <div class="actions">
             <div class="icon-switchers">
@@ -86,7 +104,7 @@ $logoPath = asset('assets/img/logo-nerp.svg');
             </div>
             <a
                 class="btn btn-primary"
-                href="<?= e($homeUrl); ?>#pilots"
+                href="<?= e($homeUrl); ?>#apply"
                 data-scroll-to-pilots
                 data-track-event="cta_click"
                 data-track-label="header_primary_cta"
