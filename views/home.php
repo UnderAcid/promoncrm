@@ -496,11 +496,11 @@ if (is_array($pricingComparisonConfig)) {
         <div class="enablement-timeline">
             <?php foreach ($enablementStages as $index => $stage): ?>
                 <div class="card enablement-stage">
-                    <div class="stage-index">0<?= e($index + 1); ?></div>
-                    <div>
-                        <div class="card-title"><?= e($stage['title']); ?></div>
-                        <p class="card-desc"><?= e($stage['desc']); ?></p>
+                    <div class="stage-header">
+                        <div class="stage-index">0<?= e($index + 1); ?></div>
+                        <div class="stage-title"><?= e($stage['title']); ?></div>
                     </div>
+                    <p class="stage-desc"><?= e($stage['desc']); ?></p>
                 </div>
             <?php endforeach; ?>
         </div>
